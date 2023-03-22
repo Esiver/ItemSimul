@@ -5,7 +5,12 @@
     settings.showTaskAccuracy = false;
     settings.showTaskAutocomplete = true;
 
+    // classes
+    const taskClass = "task"
+    const taskInteractionsClass = "interactions";
 
+
+    // selectors 
     const exerciseOverlayResultAttemptListSelector = "#result-attempt-list";
 
     const exerciseHeaderTitleSelector = "#exercise-header-title";
@@ -16,19 +21,79 @@
     const resultsOverlayTaskListSelector = "#result-task-list";
     const resultsOverlayTaskStatsSelector = "#result-stats-list";
     const introOverlaySelector = "#intro-overlay";
-    
 
+    const taskInteractionSelector = ".interactions"
 
+    // object selectors
     const exerciseTitleObjectSelector = "name";
     const exerciseDescriptionObjectSelector = "description";
     const exerciseAudiofileObjectSelector = "audioFile";
+    const exerciseTaskModelsObjectSelector = "exerciseTaskModels";
+    const taskScreenshotObjectSelector = "screenshot"
+    const taskInteractionListObjectSelector = "interactionList"
+    const taskIdObjectSelector = "id";
+    const taskInteractionIdObjectSelector = "id";
+    const taskInteractionTypeObjectSelector = "type"
+    const taskInteractionDimensionsObjectSelector = "dimensions"
 
     function init() { };
 
     init();
 
     // major components
-    
+    function generateExerciseMarkup(json) {
+        // todo: move into markupController.js
+        const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
+        const container = $(settings.exerciseSelector);
+
+        exerciseTaskModels.forEach(taskObj => {
+            let taskMarkup = []
+            let taskEleId = taskObj[taskIdObjectSelector];
+            let assetsPath = settings.assetsPath + taskObj[taskScreenshotObjectSelector];
+            let taskInteractionList = taskObj[taskInteractionListObjectSelector];
+            
+            taskMarkup.push(`
+                <div class="${taskClass}" id="${taskEleId}">
+                <div class="${taskInteractionsClass}"></div>
+                <img src="${assetsPath}" draggable="false">
+                <div class="feedback-wrapper"></div>
+                </div>
+            `);
+            container.append(taskMarkup)
+            for (let interaction of taskInteractionList) {
+                let taskInteractionId = interaction[taskInteractionIdObjectSelector];
+                let taskInteractionType = interaction[taskInteractionTypeObjectSelector];
+                let taskInteractionDimensions = interaction[taskInteractionDimensionsObjectSelector]; // decimal, not yet string.
+                let taskInteractionCssObject = getTaskInteractionPositionCssObject(taskInteractionDimensions)
+
+                const interactionWrapper = document.createElement('div');
+                let interactionElm;
+
+                if (taskInteractionType.length == 0) {
+                    taskInteractionType = "none"
+                }
+
+                if (taskInteractionType === "stringinput") {
+                    interactionElm = document.createElement('input');
+                    $(interactionElm).attr({
+                        "type": "text",
+                        "autocomplete": "off"
+                    });
+                } else {
+                    interactionElm = document.createElement('span');
+                }
+
+                $(interactionWrapper).css(taskInteractionCssObject);
+                $(interactionElm).attr('data-interaction', taskInteractionId)
+
+                interactionElm.classList.add(taskInteractionType);
+                interactionWrapper.append(interactionElm);
+
+                $(`#${taskObj.id}`).find(taskInteractionSelector).append(interactionWrapper);
+            };
+        });
+
+    }
     function generateExerciseResultMarkup(exerciseResultObjectArray) {
         exerciseResultObjectArray.forEach(exerciseAttemptInstance => {
             let exerciseResultSummaryDom = getExerciseResultSummaryDom(exerciseAttemptInstance);
@@ -271,7 +336,29 @@
         var multiplier = Math.pow(10, precision || 0);
         return Math.round(value * multiplier) / multiplier;
     }
+    function makePercentage(obj) {
+        let percentageObj = obj;
+        Object.keys(percentageObj).forEach(key => {
+            if (typeof percentageObj[key] == 'number') {
+                percentageObj[key] = percentageObj[key] + "%";
+            }
+        }); // turns dimension decimals into 'percentage-string' if in number format.
+        return percentageObj;
+    }
+    function getTaskInteractionPositionCssObject(taskInteractionDimensionsRect) {
+        let taskInteractionCssObject;
+        taskInteractionDimensionsRect = makePercentage(taskInteractionDimensionsRect)
+        taskInteractionCssObject = {
+            left: taskInteractionDimensionsRect.x,
+            top: taskInteractionDimensionsRect.y,
+            width: taskInteractionDimensionsRect.width,
+            height: taskInteractionDimensionsRect.height
+        };
 
+        return taskInteractionCssObject;
+    }
+
+    this.GenerateExerciseMarkup = generateExerciseMarkup
     this.GenerateExerciseHeader = generateExerciseHeader;
     this.GenerateExerciseIntroOverlay = generateExerciseIntroOverlay
     this.GenerateExerciseResultMarkup = generateExerciseResultMarkup;

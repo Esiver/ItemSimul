@@ -154,7 +154,7 @@
 
         debugLog("keyUpHandler (START):", { exerciseHasFocus: $("#assetContentWrapper").is(":focus").toString(), event: event })
         inputHandler(event);
-        inputfieldHandler(event);
+        //inputfieldHandler(event);
 
         storeKeyDown(event);
         checkKeyboardInteraction(event);
