@@ -46,7 +46,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id,
+            logID: taskObj.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "input",
@@ -61,7 +61,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id,
+            logID: taskObj.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "output",
@@ -75,7 +75,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id,
+            logID: taskObj.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "secret",

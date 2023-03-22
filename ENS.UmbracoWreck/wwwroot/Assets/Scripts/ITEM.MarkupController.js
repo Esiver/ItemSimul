@@ -6,6 +6,8 @@
     settings.showTaskAutocomplete = true;
 
     // classes
+    const headerToolLiClass = "tools-list__item"
+
     const taskClass = "task"
     const taskInteractionsClass = "interactions";
 
@@ -286,6 +288,32 @@
         return noticeSpanDom
     }
 
+    function getHeaderBtn(materialIconString, callback, config = {}) {
+        let headerBtnLi = document.createElement('li');
+        let tooltip = config.tooltip
+        let btn = document.createElement('a');
+        let btnSpan = document.createElement('span');
+        let btnSpanTextNode = document.createTextNode(materialIconString);
+
+        if (typeof tooltip == 'string') {
+            btn.setAttribute('title', tooltip);
+        }
+
+        btnSpan.classList.add('material-icons');
+        btn.classList.add('task-tool');
+        btn.setAttribute('href', '#');
+        headerBtnLi.classList.add(headerToolLiClass)
+
+        btnSpan.appendChild(btnSpanTextNode);
+        btn.appendChild(btnSpan);
+        headerBtnLi.appendChild(btn)
+
+        if (callback) {
+            $(btn).on('click', callback)
+        }
+
+        return headerBtnLi;
+    }
 
     // ... for intro & intro overlay
     function generateExerciseHeader(json) {
@@ -358,9 +386,14 @@
         return taskInteractionCssObject;
     }
 
+
+
+    // _____________________________________________________
     this.GenerateExerciseMarkup = generateExerciseMarkup
     this.GenerateExerciseHeader = generateExerciseHeader;
     this.GenerateExerciseIntroOverlay = generateExerciseIntroOverlay
     this.GenerateExerciseResultMarkup = generateExerciseResultMarkup;
+    this.GetHeaderBtn = getHeaderBtn;
+
     return this;
 }

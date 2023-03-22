@@ -257,13 +257,15 @@ ITEM.Exercise = function (jsonData, settings) {
         if (settings.debugMode) {
             initDebug();
         }
+        initControllers();
 
         initState(state.jsonData);
-        initControllers();
         initObjects(state.jsonData);
         initMarkup(state.jsonData);
         initEventListeners();
         initFirstTask();
+
+        updateHeaderIcons();
     }
     
 
@@ -511,7 +513,7 @@ ITEM.Exercise = function (jsonData, settings) {
             if (state.currentTaskIndex > -1 && !activeTask.is(":first-of-type")) {
                 state.currentTaskIndex--;
                 if (settings.debugMode) {
-                    $('.taskCountSpan').text(`Opgave: ${state.currentTaskIndex + 1}`);
+                    $('.taskCountSpan').text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
                 }
                 activeTask.find('input:first').val('');
                 activeTask.removeClass().addClass(taskClass);
@@ -529,7 +531,7 @@ ITEM.Exercise = function (jsonData, settings) {
             state.currentTaskIndex++;
             debugLog("goToNextTask (start)", activeTask)
             if (settings.debugMode) {
-                $('.taskCountSpan').text(`Opgave: ${state.currentTaskIndex + 1}`);
+                $('.taskCountSpan').text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
             }
             if (state.TaskObjectArray[state.currentTaskIndex] != state.TaskObjectArray[state.TaskObjectArray.length] && !activeTask.is(":last-child")) {
                 activeTask.removeClass().addClass(taskClass);
@@ -1292,8 +1294,6 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function getHeaderBtn(materialIconString, callback, config = {}) {
-        //todo: move into _markupController
-
         let headerBtnLi = document.createElement('li');
         let tooltip = config.tooltip
         let btn = document.createElement('a');
@@ -1317,7 +1317,7 @@ ITEM.Exercise = function (jsonData, settings) {
             $(btn).on('click', callback)
         }
 
-        return headerBtnLi
+        return headerBtnLi;
     }
 
     // ___ DEBUG _____________________________________________________________________
@@ -1335,10 +1335,8 @@ ITEM.Exercise = function (jsonData, settings) {
         let debugMsgSpanInfo = document.createElement('input');
         let debugMsgSpanNoticeSpan = document.createElement('span');
         // header tool btns
-        let debugMenuBtn = getHeaderBtn('bug_report', toggleDebugOverlay, { tooltip: 'Debug Menu' })
-        let debugSightBtn = getHeaderBtn('local_fire_department', toggleDebugSight, { tooltip: 'Debug Sight' });
-        let debugGenerateRectangleBtn = getHeaderBtn('image_aspect_ratio', toggleMakeInteractionRectangle, { tooltip: 'Make Interaction Rectangles' });
-        let debugSkipTaskBtn = getHeaderBtn('skip_next', skipTask, { tooltip: 'Skip Task' });
+        initDebugDisplays();
+        initDebugControls();
 
 
         $(taskCountSpan).addClass(['taskCountSpan', 'debug-tool']);
@@ -1358,11 +1356,26 @@ ITEM.Exercise = function (jsonData, settings) {
         debugMsgSpan.append(debugMsgSpanInfo, debugMsgSpanNoticeSpan)
         $(debugHeaderContainerSelector).append(taskCountSpan, taskTimerSpan, debugMsgSpan); 
 
-        $(headerToolListSelector).append(debugSightBtn);
-        $(headerToolListSelector).append(debugMenuBtn);
-        $(headerToolListSelector).append(debugGenerateRectangleBtn);
-        $(headerToolListSelector).append(debugSkipTaskBtn)
+        
     }
+    function initDebugDisplays() {
+        // refactor
+    }
+    function initDebugControls() {
+        if (_markupController) {
+            let debugMenuBtn = _markupController?.GetHeaderBtn('bug_report', toggleDebugOverlay, { tooltip: 'Debug Menu' })
+            let debugSightBtn = _markupController?.GetHeaderBtn('local_fire_department', toggleDebugSight, { tooltip: 'Debug Sight' });
+            let debugGenerateRectangleBtn = _markupController?.GetHeaderBtn('image_aspect_ratio', toggleMakeInteractionRectangle, { tooltip: 'Make Interaction Rectangles' });
+            let debugSkipTaskBtn = _markupController?.GetHeaderBtn('skip_next', skipTask, { tooltip: 'Skip Task' });
+
+            // seperate appends because because.
+            $(headerToolListSelector).append(debugSightBtn);
+            $(headerToolListSelector).append(debugMenuBtn);
+            $(headerToolListSelector).append(debugGenerateRectangleBtn);
+            $(headerToolListSelector).append(debugSkipTaskBtn)
+        }
+    }
+
     function editMockInteractionRectangle(e) {
         let mockInteractionRectangles = $(`${activeTaskSelector} .${debugMockInteractionClass}`);
         let inputString = $(e.target).val();
