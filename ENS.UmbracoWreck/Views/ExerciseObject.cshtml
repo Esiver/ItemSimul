@@ -1,4 +1,5 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+
 @using ENS.UmbracoWreck.Helpers;
 
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
@@ -16,283 +17,50 @@
 
 @*<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">*@
 
-<a href="@Parent.Url()">
-	Tilbage til Exercise oversigt
-</a>
-@await Html.PartialAsync("_partial")
+
 
 
 <div class="exercise-body">
     <header class="exercise-header" id="nav">
-
+        
         <h1 id="exercise-header-title"></h1>
-
+        
         <div id="exercise-debug-container" class="exercise-header__info">
         </div>
 
         <ul class="exercise-header__tools-list">
-            <li class="tools-list__item">
-                <a href="#" id="exerciseSettings" class="task-tool">
-                    <span class="material-icons">
-                        settings
-                    </span>
-                </a>
-            </li>
-
-            <li class="tools-list__item">
-                <a href="#" id="playTask" class="task-tool" title="Afspil">
-                    <span class="material-icons">
-                        play_arrow
-                    </span>
-                </a>
-                <a href="#" id="pauseTask" class="task-tool" title="Pause">
-                    <span class="material-icons">
-                        pause
-                    </span>
-                </a>
-            </li>
-            <li class="tools-list__item">
-                <a href="#" id="replayAudio" class="task-tool" title="Gentag instruktion">
-                    <span class="material-icons">
-                        replay
-                    </span>
-                </a>
-            </li>
-            <li class="tools-list__item">
-                <a href="#" id="enableAudio" class="task-tool" title="Slå lyd til">
-                    <span class="material-icons">
-                        volume_up
-                    </span>
-                </a>
-                <a href="#" id="disableAudio" class="task-tool" title="Slå lyd fra">
-                    <span class="material-icons">
-                        volume_off
-                    </span>
-                </a>
-            </li>
-            <li class="tools-list__item">
-                <a href="#" id="enableSubtitles" class="task-tool" title="Slå undertekster til">
-                    <span class="material-icons">
-                        subtitles
-                    </span>
-                </a>
-                <a href="#" id="disableSubtitles" class="task-tool" title="Slå undertekster fra">
-                    <span class="material-icons">
-                        subtitles_off
-                    </span>
-                </a>
-            </li>
-            <li class="tools-list__item">
-                <a href="#" id="restartExercise" class="task-tool" title="Genstart">
-                    <span class="material-icons">
-                        fast_rewind
-                    </span>
-                </a>
-            </li>
+            <partial name="headerTools/settingsBtn" />
+            <partial name="headerTools/playBtn" />
+            <partial name="headerTools/replayBtn" />
+            <partial name="headerTools/audioBtn" />
+            <partial name="headerTools/subtitlesBtn" />
+            <partial name="headerTools/restartBtn" />
         </ul>
-
-
-
     </header>
-
     <div class="task-wrapper">
         <div class="task-wrapper__inner" id="assetContentWrapper" oncontextmenu="return false;" tabindex="0">
             <ul class="overlay__list">
-
-
-                <li class="overlay__item" id="settings-overlay">
-                    <div class="overlay__wrapper">
-                        <h1> Indstillinger </h1>
-                        <ul class="settings__list">
-                            <li>
-                                <p>Lyd</p>
-                                <label for="mute-checkbox" class="switch">
-                                    <span class="material-icons">
-                                        volume_off
-                                    </span>
-                                    <span class="slider">
-                                        <input type="checkbox" id="mute-checkbox" checked="true">
-                                        <span class="slider-marker"></span>
-                                    </span>
-                                    <span class="material-icons">
-                                        volume_up
-                                    </span>
-                                </label>
-                            </li>
-                            <li>
-                                <p>Undertekster</p>
-                                <label for="subtitles-checkbox-settings" class="switch">
-                                    <span class="material-icons">
-                                        subtitles_off
-                                    </span>
-                                    <span class="slider">
-                                        <input type="checkbox" id="subtitles-checkbox-settings" checked="true">
-                                        <span class="slider-marker"></span>
-                                    </span>
-                                    <span class="material-icons">
-                                        subtitles
-
-                                    </span>
-                                </label>
-
-                              
-                            </li>
-                            <li>
-                                <p>Hjælp &amp; Hints</p>
-                                <label for="feedback-checkbox" class="switch">
-                                    <span class="material-icons material-icons--crossed">
-                                        help_center
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.701 29.701">
-                                            <path fill="#000"
-                                                  d="m0 3.017 1.76776695-1.76776695 26.6833815 26.6833815-1.76776696 1.76776694z" />
-                                            <path fill="#fff"
-                                                  d="M2.25 1.768 4.01776695.00023305l26.6833815 26.6833815-1.76776696 1.76776694z" />
-                                        </svg>
-                                    </span>
-                                    <span class="slider">
-                                        <input type="checkbox" id="feedback-checkbox" checked="true">
-                                        <span class="slider-marker"></span>
-                                    </span>
-                                    <span class="material-icons">
-                                        help_center
-                                    </span>
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-
-                <li class="overlay__item" id="results-overlay">
-                    <div class="overlay__wrapper result__overlay">
-                        <ul id="result-attempt-list" class="result__attempt-list">
-
-                        </ul>
-
-                        <ul class="result__stats" id="result-stats-list">
-                        </ul>
-                        
-                        <ul class="result__list" id="result-task-list">
-                        </ul>
-
-                    </div>
-                </li>
-
-                <li class="overlay__item" id="debug-overlay">
-                    <div class="overlay__wrapper">
-                        <h1>debug</h1>
-                        <ul class="options-list no-list">
-                            <li>
-                                <a id="debug--finish-exercise" href="#">Finish Exercise</a>
-                            </li>
-                            <li>
-                                <a id="debug--go-to-exercise-btn" href="">Go to Task</a>
-                                <input id="debug--go-to-exercise-input" href="">
-                            </li>
-                            <li>
-                                Destroy everything
-                            </li>
-                        </ul>
-                    </div>
-                </li>
-                <li class="overlay__item centered" id="unfocus-overlay">
-                    <div class="overlay__wrapper">
-                        <h2>Opgaven er sat på pause</h2>
-                        <h3>klik her for at fortsætte</h3>
-                    </div>
-                </li>
-
-                <li class="overlay__item centered" id="audio-error-overlay">
-                    <div class="overlay__wrapper">
-                        <h2>📯Der gik noget galt med lyden.</h2>
-                        <p class="error-detail"></p>
-                        <a href="" class="error-action">ok.</a>
-                    </div>
-                </li>
-
-                <li class="overlay__item centered" id="confirm-restart-overlay">
-                    <div class="overlay__wrapper">
-                        <h2>Er du sikker på at du vil genstarte?</h2>
-                        <p>Alt du har gjort vil blive tabt</p>
-                        <span class="button__wrapper">
-                            <a class="button button--alert" id="confirm-restart-btn">Genstart</a>
-                            <a class="button button--positive" id="cancel-restart-btn">Anullér</a>
-
-                        </span>
-                    </div>
-                </li>
-
-
-                <li class="overlay__item centered active-overlay" id="intro-overlay">
-                    <div class="overlay__wrapper">
-
-                        <h4>Velkommen til</h4>
-                        <h2 id="exercise-title"></h2>
-                        <a href="#" class="button button--positive" id="intro-begin">
-                            Begynd øvelsen
-                        </a>
-
-                        <div class="overlay__band">
-
-                            <div id="exercise-description" class="richtext">
-                                <p>Hej hej ny introduction her</p>
-                                <ul>
-                                    <li>Punkt 1</li>
-                                    <li>Punkt 2</li>
-                                    <li>Punkt 3</li>
-                                    <li>Punkt N</li>
-                                    
-                                </ul>
-                            </div>
-
-                            <ul class="settings-check__list">
-
-                                <li class="settings-check__item audio-check active-check">
-                                    <p>Denne opgave kommer med lyd.</p>
-                                    <p>Husk at slå din computers lyd til</p>
-                                    <a class="button button--small" href="#">
-                                        <span class="material-icons">
-                                            record_voice_over
-                                        </span>
-                                        <span>Eksempel Lyd</span>
-
-                                    </a>
-                                </li>
-                                <li class="settings-check__item subtitles-check">
-                                    <p>Denne opgave har undertekster.</p>
-                                    <p>find læsebrillerne frem!</p>
-
-                                </li>
-                            </ul>
-                        </div>
-
-
-
-
-                    </div>
-                </li>
-
+                <partial name="overlays/settingsOverlay" />
+                <partial name="overlays/resultsOverlay" />
+                <partial name="overlays/debugOverlay" />
+                <partial name="overlays/unfocusOverlay" />
+                <partial name="overlays/audioErrorOverlay" />
+                <partial name="overlays/confirmRestartOverlay" />
+                <partial name="overlays/introOverlay" />
             </ul>
 
             <ul class="task__list">
             </ul>
+
         </div>
     </div>
 
-    <span class="subtitles__wrapper" id="subtitles" tabindex="-1">
-        <p>Underteksterne vil blive vist her.</p>
-        <a href="#" class="subtitles__btn" id="subtitles-hide">
-            <span class="material-icons">
-                close
-            </span>
-        </a>
-        <a href="#" class="subtitles__btn" id="subtitles-move">
-            <span class="material-icons">
-                expand
-            </span>
-        </a>
-    </span>
-
+    <partial name="subtitlesWrapper" />
 </div>
+
+<a href="@Parent.Url()">
+    Tilbage til Exercise oversigt
+</a>
 
 <h1>Exercise Object</h1>
 <p>

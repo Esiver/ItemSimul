@@ -55,7 +55,8 @@
     <Folder Include="Controllers\" />
     <Folder Include="Enums\" />
     <Folder Include="Views\Partials\nestedContent\" />
-    <Folder Include="wwwroot\Assets\CSS\" />
+
+	  <Folder Include="wwwroot\Assets\CSS\" />
   </ItemGroup>
 
   <PropertyGroup>

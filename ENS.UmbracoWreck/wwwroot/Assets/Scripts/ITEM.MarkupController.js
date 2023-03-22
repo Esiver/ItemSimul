@@ -38,7 +38,6 @@
             taskResultList.classList.add('result__task-list');
 
             exerciseAttemptInstanceTaskResultObjectArray.forEach(taskEventObject => {
-                console.log("taskEventObject", taskEventObject)
                 let taskResultLiDom = document.createElement("li");
                 taskResultLiDom.classList.add("result__item")
                 taskResultLiDom.setAttribute('data-task-index', taskEventObject.index)
@@ -83,7 +82,7 @@
         headerDom.append(headerTextNode);
 
         let subheaderDom = document.createElement('h3')
-        console.log("lolle",exerciseResultObject)
+        
         let subheaderTextNode = document.createTextNode(`Du har gennemført '${exerciseResultObject.name}'. Vil du prøve igen?`);
         subheaderDom.append(subheaderTextNode);
 
