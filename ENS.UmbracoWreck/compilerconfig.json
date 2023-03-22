@@ -1,0 +1,10 @@
+﻿[
+  {
+    "outputFile": "wwwroot/Assets/CSS/main.min.css",
+    "inputFile": "Assets/SCSS/main.scss"
+  },
+  {
+    "outputFile": "wwwroot/Assets/Scripts/ITEM.Exercise.es5.js",
+    "inputFile": "wwwroot/Assets/Scripts/ITEM.Exercise.js"
+  }
+]

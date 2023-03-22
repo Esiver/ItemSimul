@@ -1,0 +1,188 @@
+{
+  "id": "56fd8d0d-f608-480e-8ec0-593ac86fcb3c",
+  "name": "Den gode øvelse",
+  "description": "her lærer du en masse skdfskdfnkosfs sdf sdf sdf sdf sdf sdf",
+  "exerciseTaskModels": [
+    {
+      "id": "54a2b0ad-881b-4059-bc64-e9d170cb2b59",
+      "audioFile": "/media/si2hal5y/00edbad6-f271-41cd-b499-230c7af558f8-3.mp3",
+      "delay": 14000,
+      "screenshot": "0a4a5b89-1306-4d59-a1b1-c30cbb465246-image-0025.png",
+      "subtitles": "[ Stemningsfulde fløjter ]\nNu skal du lære at navigere i Microsoft Excel. Start med at trykke på det lille kryds et eller andet sted på skærmen.",
+      "taskInteractionList": [
+        {
+          "id": "54a2b0ad-881b-4059-bc64-e9d170cb2b59",
+          "interactionType": "click",
+          "interactionDimensions": {
+            "width": 34.0,
+            "height": 22.0,
+            "left": 77.0,
+            "top": 66.0,
+            "zIndex": 1
+          },
+          "interactionAssessmentList": [
+            {
+              "caseSensitive": true,
+              "attemptTrigger": [
+                "Enter"
+              ],
+              "correctInput": [
+                "Enter"
+              ]
+            }
+          ],
+          "interactionFeedbackList": [
+            {
+              "text": "TRYK NU PÅ ENTEEEER",
+              "display": {
+                "type": "attempts",
+                "threshold": 3
+              },
+              "highlight": {
+                "feedbackHighlightInteraction": [
+                  "dsdfsdf234-gfdg347-876dgdgf-223sdfsdf"
+                ]
+              },
+              "feedbackType": {
+                "mood": "neutral",
+                "size": "small"
+              },
+              "dismiss": {
+                "text": "hej",
+                "doItForMe": false,
+                "type": "auto",
+                "timeout": 5000
+              }
+            }
+          ]
+        }
+      ],
+      "taskFeedbackList": [
+        {
+          "text": "pølse",
+          "display": {
+            "type": "time",
+            "threshold": 5000
+          },
+          "highlight": {
+            "feedbackHighlightInteraction": null
+          },
+          "feedbackType": {
+            "mood": "negative",
+            "size": "large"
+          },
+          "dismiss": {
+            "doItForMe": false,
+            "type": "manual",
+            "timeout": 8000
+          }
+        }
+      ]
+    },
+    {
+      "id": "8a3c82a1-0e82-49a4-8fb7-a81aaaa85ede",
+      "audioFile": "/media/si2hal5y/00edbad6-f271-41cd-b499-230c7af558f8-3.mp3",
+      "delay": 0,
+      "screenshot": "/media/etjbuefk/0a4a5b89-1306-4d59-a1b1-c30cbb465246-image-0025.png",
+      "subtitles": "",
+      "taskInteractionList": [
+        {
+          "id": "5b736164-5592-4158-888a-7a6e3b245124",
+          "interactionType": "keydown",
+          "interactionDimensions": {
+            "width": 5.0,
+            "height": 5.0,
+            "left": 5.0,
+            "top": 5.0,
+            "zIndex": 1
+          },
+          "interactionAssessmentList": [
+            {
+              "caseSensitive": true,
+              "attemptTrigger": null,
+              "correctInput": [
+                "Backspace"
+              ]
+            }
+          ],
+          "interactionFeedbackList": [
+            {
+              "text": "Tryk på [Backspace]",
+              "display": {
+                "type": "attempts",
+                "threshold": 3
+              },
+              "highlight": {
+                "feedbackHighlightInteraction": null
+              },
+              "feedbackType": {
+                "mood": "neutral",
+                "size": "small"
+              },
+              "dismiss": {
+                "text": null,
+                "doItForMe": false,
+                "type": "",
+                "timeout": 0
+              }
+            }
+          ]
+        }
+      ],
+      "taskFeedbackList": []
+    },
+    {
+      "id": "fab742c8-9e0c-4686-878c-d55a83f6816c",
+      "audioFile": "/media/si2hal5y/00edbad6-f271-41cd-b499-230c7af558f8-3.mp3",
+      "delay": 0,
+      "screenshot": "/media/etjbuefk/0a4a5b89-1306-4d59-a1b1-c30cbb465246-image-0025.png",
+      "subtitles": "Nu skal du skrive i et inputffældt midt på skærmen",
+      "taskInteractionList": [
+        {
+          "id": "f25f1c8e-de01-4178-b32d-e1b0a2af4e0f",
+          "interactionType": "stringinput",
+          "interactionDimensions": {
+            "width": 10.0,
+            "height": 4.0,
+            "left": 90.0,
+            "top": 6.0,
+            "zIndex": 1
+          },
+          "interactionAssessmentList": [
+            {
+              "caseSensitive": true,
+              "attemptTrigger": [
+                "Enter+Alt"
+              ],
+              "correctInput": [
+                "Pølse"
+              ]
+            }
+          ],
+          "interactionFeedbackList": []
+        }
+      ],
+      "taskFeedbackList": [
+        {
+          "text": "Hejsa!",
+          "display": {
+            "type": "",
+            "threshold": 5
+          },
+          "highlight": {
+            "feedbackHighlightInteraction": null
+          },
+          "feedbackType": {
+            "mood": "positive",
+            "size": "small"
+          },
+          "dismiss": {
+            "doItForMe": false,
+            "type": "auto",
+            "timeout": 9000
+          }
+        }
+      ]
+    }
+  ]
+}

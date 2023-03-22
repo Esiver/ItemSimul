@@ -1,0 +1,18 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Core.Models.PublishedContent;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+
+@{
+    Layout = "Master.cshtml";
+    var curriculumPages = Model.Descendants().Where(c => c.IsDocumentType("curriculumPage"));
+
+
+}
+
+<h1>Hjem</h1>
+
+@foreach(var curriculumPage in curriculumPages){
+    <a href="@curriculumPage.Url()">
+        @curriculumPage.Name()
+    </a>
+}

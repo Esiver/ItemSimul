@@ -1,0 +1,16 @@
+[
+  {
+    "outputFileName": "wwwroot/Assets/Scripts/ITEM.Exercise.bundle.js",
+    "inputFiles": [
+      "wwwroot/Assets/Scripts/ITEM.Exercise.js",
+      "wwwroot/Assets/Scripts/ITEM.AudioController.js",
+      "wwwroot/Assets/Scripts/ITEM.MarkupController.js",
+      "wwwroot/Assets/Scripts/ITEM.OverlayController.js",
+      "wwwroot/Assets/Scripts/ITEM.FeedbackController.js",
+      "wwwroot/Assets/Scripts/ITEM.InputController.js",
+      "wwwroot/Assets/Scripts/ITEM.LogController.js",
+      "wwwroot/Assets/Scripts/ITEM.ResultsController.js"
+
+    ]
+  }
+]

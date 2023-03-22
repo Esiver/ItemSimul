@@ -1,0 +1,26 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "HTML.cshtml";
+    var pageHeader = Model.Value<string>("header", fallback: Fallback.ToDefaultValue, defaultValue: Model.Name);
+    var website = Model.AncestorOrSelf("website");
+    
+}
+<nav>
+    <ul class="no-list">
+
+        <li>
+            <a href="/">
+                Hjem    
+            </a>
+        </li>
+
+
+    </ul>
+</nav>
+
+</header>
+
+@RenderBody()
+@RenderSection("JavaScript", false)
+

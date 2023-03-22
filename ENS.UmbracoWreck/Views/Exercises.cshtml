@@ -1,0 +1,52 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using ENS.UmbracoWreck.Helpers;
+
+
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master.cshtml";
+
+    //IEnumerable<IPublishedContent> exerciseList =
+
+    IPublishedContent content = (IPublishedContent)Model;
+    IEnumerable<IPublishedContent> exerciseList = content.ChildrenOfType("exerciseObject");// Children().Where(child => child.IsDocumentType("exerciseObject"));
+    List<String> exerciseStringList = new List<String> { };
+    String exerciseJSONString = "";
+
+    if (content != null && content.Children.Any() && exerciseList != null){
+        exerciseJSONString = ExerciseTaskHelper.GetExerciseListJSON(exerciseList);
+    }
+}
+
+<h1>Alle Exercises (json)</h1>
+
+<textarea>
+        @exerciseJSONString
+</textarea>
+
+
+<h2>Alle Exercise Noder</h2>
+@if (exerciseList != null && exerciseList.Any())
+{
+    <ul>
+        @foreach (var exerciseNode in exerciseList){
+            var exerciseName = exerciseNode.Name();
+            var exerciseUrl = exerciseNode.Url();
+            var exerciseTaskExample = exerciseNode.Children().FirstOrDefault();
+            IPublishedContent exampleImg = exerciseTaskExample?.Value<IPublishedContent>("taskScreenshot");
+            var exampleImgUrl = exampleImg != null ? exampleImg.Url() : "";
+            <li>
+                <a href="@exerciseUrl">
+                    
+
+                    @if(exampleImgUrl != null && exampleImgUrl != ""){
+                        <img src="@exampleImgUrl" width="250" height="150" />
+
+                    }
+                    @exerciseName
+                </a>    
+            </li>
+        }
+
+    </ul>
+}
