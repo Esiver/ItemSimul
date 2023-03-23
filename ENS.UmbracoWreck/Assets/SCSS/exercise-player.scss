@@ -58,7 +58,7 @@
 
         .exercise-header { width: 100%; padding: 1em 2em; display: flex; justify-content: space-between; align-items: center; height: var(--navbar-height); background-color: var(--navbar-color); color: var(--navbar-text-color); gap: 1em;}
         .exercise-header h1 {font-weight: 600;}
-        .exercise-header__info {}
+        .exercise-header__info {display: flex; align-items: center;}
         .exercise-header__tools-list { display: flex; margin-left: auto; list-style: none; gap: 1em;}
         .exercise-header__tools-list li {display: flex; border: currentColor;}
         .exercise-header__tools-list .task-tool {text-decoration: none; color: var(--navbar-text-color); padding: 2px; display: flex; align-items: center; justify-content: center; border-radius: 2px; line-height: 24px;}
@@ -191,6 +191,8 @@
         #debug-msg input+span{  margin-left: 1em;}
         
         
+        .debug__task-timer {padding: 0 .5rem}
+        .debug__task-count {padding: 0 .5rem}
         .debug-record-rect {cursor:crosshair;}
         .debug-sight .interactions * {background:red; border: 1px solid lime;}
         .debug-record-rect .interactions {z-index: calc(var(--z-index-base) + 1);}

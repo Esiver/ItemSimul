@@ -141,13 +141,14 @@ ITEM.Exercise = function (jsonData, settings) {
     const pauseExerciseClass = "paused";
     const activeBtnClass = "active";
 
-    //______ debug
+    //& debug
     const debugHeaderContainerSelector = "#exercise-debug-container";
     const debugSightClass = "debug-sight";
     const debugRecordRectangleClass = "debug-record-rect";
     const debugMockInteractionClass ="mock-interaction"
     const debugMsgId = "debug-msg";
-
+    const debugTaskTimerClass = "debug__task-timer"
+    const debugTaskCountClass = "debug__task-count"
 
 
     // ____ JSON (object) selectors
@@ -250,23 +251,7 @@ ITEM.Exercise = function (jsonData, settings) {
         state.isShowingResults = false;
     }
 
-    function init() {
-        debugLog("init Exercise.js")
 
-        initSettings(state.jsonData)
-        if (settings.debugMode) {
-            initDebug();
-        }
-        initControllers();
-
-        initState(state.jsonData);
-        initObjects(state.jsonData);
-        initMarkup(state.jsonData);
-        initEventListeners();
-        initFirstTask();
-
-        updateHeaderIcons();
-    }
     
 
     function start() {
@@ -282,6 +267,25 @@ ITEM.Exercise = function (jsonData, settings) {
         }
     }
     // hvad er forskellen på start() & init() ?  - init kommer først.
+    // _________________________________ INIT _________________________________________
+    function init() {
+        debugLog("init Exercise.js")
+
+        initSettings(state.jsonData)
+        initControllers();
+
+        if (settings.debugMode) {
+            initDebug();
+        }
+
+        initState(state.jsonData);
+        initObjects(state.jsonData);
+        initMarkup(state.jsonData);
+        initEventListeners();
+        initFirstTask();
+
+        updateHeaderIcons();
+    }
 
     function initEventListeners() {
         _inputController.InitInputController(state.TaskObjectArray[state.currentTaskIndex])
@@ -358,7 +362,6 @@ ITEM.Exercise = function (jsonData, settings) {
         debugLog("init controllers from exercise.js", { logController: _logController, inputController: _inputController, audioController: _audioController, feedbackController: _feedbackController, resultController: _resultsController, markupController: _markupController });
     }
 
-    // __ TASK FLOW _____________________________________________________________________
     function initFirstTask() {
         state.currentTaskIndex = 0;
         state.currentTaskId = state.TaskObjectArray[0][taskIdObjectSelector];
@@ -388,6 +391,7 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
     }
+    // __ TASK FLOW _____________________________________________________________________
 
     function startTask() {
         if (!state.isFinished && state.didStart) {
@@ -513,7 +517,7 @@ ITEM.Exercise = function (jsonData, settings) {
             if (state.currentTaskIndex > -1 && !activeTask.is(":first-of-type")) {
                 state.currentTaskIndex--;
                 if (settings.debugMode) {
-                    $('.taskCountSpan').text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
+                    $(`.${debugTaskCountClass}`).text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
                 }
                 activeTask.find('input:first').val('');
                 activeTask.removeClass().addClass(taskClass);
@@ -531,7 +535,7 @@ ITEM.Exercise = function (jsonData, settings) {
             state.currentTaskIndex++;
             debugLog("goToNextTask (start)", activeTask)
             if (settings.debugMode) {
-                $('.taskCountSpan').text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
+                $(`.${debugTaskCountClass}`).text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
             }
             if (state.TaskObjectArray[state.currentTaskIndex] != state.TaskObjectArray[state.TaskObjectArray.length] && !activeTask.is(":last-child")) {
                 activeTask.removeClass().addClass(taskClass);
@@ -1031,7 +1035,7 @@ ITEM.Exercise = function (jsonData, settings) {
                 const time = new Date(_msecsSinceTaskStart);
                 const min = String(time.getMinutes()).padStart(2, '0');
                 const sec = String(time.getSeconds()).padStart(2, '0');
-                $('.taskTimerSpan').text('Tid: ' + min + ':' + sec);
+                $(`.${debugTaskTimerClass}`).text('Tid: ' + min + ':' + sec);
             }
         }, 1000);
     }
@@ -1293,74 +1297,35 @@ ITEM.Exercise = function (jsonData, settings) {
         return percentageObj;
     }
 
-    function getHeaderBtn(materialIconString, callback, config = {}) {
-        let headerBtnLi = document.createElement('li');
-        let tooltip = config.tooltip
-        let btn = document.createElement('a');
-        let btnSpan = document.createElement('span');
-        let btnSpanTextNode = document.createTextNode(materialIconString);
-
-        if (typeof tooltip == 'string') {
-            btn.setAttribute('title', tooltip);
-        }
-
-        btnSpan.classList.add('material-icons');
-        btn.classList.add('task-tool');
-        btn.setAttribute('href', '#');
-        headerBtnLi.classList.add(headerToolLiClass)
-
-        btnSpan.appendChild(btnSpanTextNode);
-        btn.appendChild(btnSpan);
-        headerBtnLi.appendChild(btn)
-
-        if (callback) {
-            $(btn).on('click', callback)
-        }
-
-        return headerBtnLi;
-    }
 
     // ___ DEBUG _____________________________________________________________________
 
     
     function initDebug() {
         debugLog("initDebug", state)
-        // debug overlay & other
 
-        // header notices
-        // todo: refactor markup generation in to _markupController
-        let taskTimerSpan = document.createElement('span');
-        let taskCountSpan = document.createElement('span');
-        let debugMsgSpan = document.createElement('span');
-        let debugMsgSpanInfo = document.createElement('input');
-        let debugMsgSpanNoticeSpan = document.createElement('span');
-        // header tool btns
-        initDebugDisplays();
-        initDebugControls();
+        initDebugDisplays(); // header notice (task count, timer, rectangles)
+        initDebugControls(); // header rightside btns
+        initDebugOverlay();
 
+    };
+    function initDebugOverlay() {
+        $("#debug--finish-exercise").on("click", debugFinishAllTask);
 
-        $(taskCountSpan).addClass(['taskCountSpan', 'debug-tool']);
-        $(taskTimerSpan).addClass(['taskTimerSpan', 'debug-tool']);
-        $(debugMsgSpan).attr('id', debugMsgId).addClass('debug-tool');
-        $(debugMsgSpan).on('click', function () {
-            let copyValue = $(debugMsgSpanInfo).val();
-            navigator.clipboard.writeText(copyValue);
-            debugLog('copied to clipboard:', { copyValue: copyValue });
-            $(this).find('span').text(` --copied!`)
-        });
-        $(debugMsgSpanInfo).on('input', editMockInteractionRectangle);
-        $(taskCountSpan).text(`Opgave: ${state.currentTaskIndex + 1}`);
-        $("#debug--finish-exercise").on("click", debugFinishAllTask)
-
-
-        debugMsgSpan.append(debugMsgSpanInfo, debugMsgSpanNoticeSpan)
-        $(debugHeaderContainerSelector).append(taskCountSpan, taskTimerSpan, debugMsgSpan); 
-
-        
     }
     function initDebugDisplays() {
-        // refactor
-    }
+        if (_markupController) {
+            debugLog("initDebugDisplays")
+            let debugMsgInput = _markupController.GetDebugMsgInput(handleDebugInputClick, handleDebugInputChange);
+            let debugTaskTimer = _markupController.GetDebugTaskTimer("00:00");
+            let debugTaskCount = _markupController.GetDebugTaskCount(1);
+
+            $(debugHeaderContainerSelector).append(debugTaskTimer);
+            $(debugHeaderContainerSelector).append(debugTaskCount);
+            $(debugHeaderContainerSelector).append(debugMsgInput);
+        };
+    };
+
     function initDebugControls() {
         if (_markupController) {
             let debugMenuBtn = _markupController?.GetHeaderBtn('bug_report', toggleDebugOverlay, { tooltip: 'Debug Menu' })
@@ -1375,7 +1340,19 @@ ITEM.Exercise = function (jsonData, settings) {
             $(headerToolListSelector).append(debugSkipTaskBtn)
         }
     }
+    function handleDebugInputClick(e) {
+        if ($(e.target).val().length > 0) {
+            let copyValue = $(e.target).val();
+            navigator.clipboard.writeText(copyValue);
+            debugLog('copied to clipboard:', { copyValue: copyValue });
 
+            $(e.target).next().text(` --copied!`);
+        }
+        
+    }
+    function handleDebugInputChange(e) {
+        editMockInteractionRectangle(e);
+    };
     function editMockInteractionRectangle(e) {
         let mockInteractionRectangles = $(`${activeTaskSelector} .${debugMockInteractionClass}`);
         let inputString = $(e.target).val();
@@ -1395,7 +1372,7 @@ ITEM.Exercise = function (jsonData, settings) {
         if (mockInteractionRectangles.length > 0) {
             mockInteractionRectangles.css(cssObj)
         }
-    };
+    }
 
     function handleMockInteractionRectangleError(error) {
         $(`#${debugMsgId} span`).text('Input JSON error.')

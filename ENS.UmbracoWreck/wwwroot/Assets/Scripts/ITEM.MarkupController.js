@@ -11,6 +11,12 @@
     const taskClass = "task"
     const taskInteractionsClass = "interactions";
 
+    const debugToolClass = "debug__tool"
+    const debugTaskCountClass = "debug__task-count"
+    const debugTaskTimerClass = "debug__task-timer"
+    const debugMsgId = "debug-msg";
+
+
 
     // selectors 
     const exerciseOverlayResultAttemptListSelector = "#result-attempt-list";
@@ -44,7 +50,6 @@
 
     // major components
     function generateExerciseMarkup(json) {
-        // todo: move into markupController.js
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
         const container = $(settings.exerciseSelector);
 
@@ -358,6 +363,51 @@
         }
         
     }
+    // debug DOM components
+    function getDebugMsgInput(onClick, onInput) {
+        let debugMsgContainer = document.createElement('div');
+        let debugMsgInput = document.createElement('input');
+        let debugMsgNoticeSpan = document.createElement('span');
+
+        $(debugMsgContainer).attr('id', debugMsgId).addClass(debugToolClass);
+
+        if (typeof onClick == 'function') {
+            $(debugMsgInput).on('input', onInput);
+        }
+        if (typeof onInput == 'function') {
+            $(debugMsgInput).on('click', onClick)
+
+        }
+
+        $(debugMsgContainer).append(debugMsgInput);
+        $(debugMsgContainer).append(debugMsgNoticeSpan);
+
+        return debugMsgContainer;
+    };
+
+    function getDebugTaskTimer(initTaskTime) {
+        let taskTimerSpan = document.createElement('span');
+        $(taskTimerSpan).addClass([debugToolClass, debugTaskTimerClass]);
+
+        if (initTaskTime) {
+            $(taskTimerSpan).text(initTaskTime);
+        }
+
+        return taskTimerSpan;
+    };
+
+    function getDebugTaskCount(initTaskCount) {
+        let taskCountSpan = document.createElement('span');
+        $(taskCountSpan).addClass([debugToolClass, debugTaskCountClass])
+        if (initTaskCount) {
+            $(taskCountSpan).text(`Opgave: ${initTaskCount + 1}`);
+
+        } else {
+            $(taskCountSpan).text(`Opgave: ...`);
+        }
+
+        return taskCountSpan;
+    };
 
     // ---- misc. helpers
     function roundNumber(value, precision) {
@@ -393,6 +443,9 @@
     this.GenerateExerciseHeader = generateExerciseHeader;
     this.GenerateExerciseIntroOverlay = generateExerciseIntroOverlay
     this.GenerateExerciseResultMarkup = generateExerciseResultMarkup;
+    this.GetDebugMsgInput = getDebugMsgInput;
+    this.GetDebugTaskCount = getDebugTaskCount;
+    this.GetDebugTaskTimer = getDebugTaskTimer;
     this.GetHeaderBtn = getHeaderBtn;
 
     return this;
