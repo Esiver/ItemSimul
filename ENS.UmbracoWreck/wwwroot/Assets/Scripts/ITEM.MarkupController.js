@@ -396,11 +396,11 @@
         return taskTimerSpan;
     };
 
-    function getDebugTaskCount(initTaskCount) {
+    function getDebugTaskCount(initTaskCount = 1) {
         let taskCountSpan = document.createElement('span');
         $(taskCountSpan).addClass([debugToolClass, debugTaskCountClass])
-        if (initTaskCount) {
-            $(taskCountSpan).text(`Opgave: ${initTaskCount + 1}`);
+        if (typeof initTaskCount == 'number') {
+            $(taskCountSpan).text(`Opgave: ${initTaskCount}`);
 
         } else {
             $(taskCountSpan).text(`Opgave: ...`);

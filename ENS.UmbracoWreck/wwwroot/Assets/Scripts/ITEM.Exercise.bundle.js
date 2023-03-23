@@ -272,21 +272,44 @@ ITEM.Exercise = function (jsonData, settings) {
         debugLog("init Exercise.js")
 
         initSettings(state.jsonData)
-        initControllers();
-
-        if (settings.debugMode) {
-            initDebug();
-        }
-
-        initState(state.jsonData);
-        initObjects(state.jsonData);
-        initMarkup(state.jsonData);
-        initEventListeners();
-        initFirstTask();
+        .then(initControllers())
+        .then(
+            initDebug(),
+            initState(state.jsonData),
+            initObjects(state.jsonData),
+            initMarkup(state.jsonData),
+            initEventListeners(),
+            initFirstTask(),
+        )
 
         updateHeaderIcons();
+    };
+
+    function initState(json) {
+        state.exerciseName = json.name
+    }
+    async function initSettings(jsonData) {
+        debugLog("initSettings(), {jsonData, settings}:", { jsonData: jsonData, settings: settings });
+        if (typeof jsonData.exerciseSettingsModel != 'undefined') {
+            settings.debugMode = jsonData.exerciseSettingsModel?.exerciseDebugMode;
+        }
+        if (typeof jsonData.exerciseSettingsModel?.exerciseCustomCss != 'undefined') {
+            settings.customCss = jsonData.exerciseSettingsModel.exerciseCustomCss;
+        }
     }
 
+    function initMarkup(json) {
+        handleExerciseCustomCss(json)
+        _markupController.GenerateExerciseHeader(json);
+        _markupController.GenerateExerciseIntroOverlay(json);
+        _markupController.GenerateExerciseMarkup(json);
+    }
+
+    function initObjects(json) {
+        generateExerciseTaskObjects(json);
+        generateExerciseInteractionObjects(json);
+        generateExerciseFeedbackObjects(json);
+    }
     function initEventListeners() {
         _inputController.InitInputController(state.TaskObjectArray[state.currentTaskIndex])
 
@@ -320,13 +343,13 @@ ITEM.Exercise = function (jsonData, settings) {
             .on('focus', handleFocus);
         
     }
-
+    
     function initIntro() {
         $(introOverlaySelector).addClass(activeOverlayClass)
         $(introOverlaySelector).find(introBeginSelector).on("click", handleBeginExerciseBtn)
     }
     
-    function initControllers() {
+    async function initControllers() {
         _logController = ITEM.LogController({ debugMode: settings.debugMode }, state.EventLog);
         _inputController = ITEM.InputController({
             exerciseContainerSelector: exerciseSelector,
@@ -695,11 +718,11 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function showResults() {
-        let exerciseResultObjectArray = _resultsController.GetExerciseResultObjectArray(state);
+        let exerciseResultObjectArray = _resultsController?.GetExerciseResultObjectArray(state);
 
         clearResultsOverlay();
         toggleResultsOverlay();
-        _markupController.GenerateExerciseResultMarkup(exerciseResultObjectArray)
+        _markupController?.GenerateExerciseResultMarkup(exerciseResultObjectArray)
     }
 
     // ___ OVERLAY _____________________________________________________________________
@@ -964,17 +987,17 @@ ITEM.Exercise = function (jsonData, settings) {
         })
     }
     function clearTaskAudioFile() {
-        _audioController.ClearAudioFile();
+        _audioController?.ClearAudioFile();
     }
     function loadTaskAudioFile() {
-        _audioController.LoadAudioFile(settings.assetsPath + state.TaskObjectArray[state.currentTaskIndex][taskAudioObjectSelector]);
+        _audioController?.LoadAudioFile(settings.assetsPath + state.TaskObjectArray[state.currentTaskIndex][taskAudioObjectSelector]);
     }
     function playTaskAudioFile() {
         debugLog("playTaskAudioFile")
-        _audioController.PlayAudio();
+        _audioController?.PlayAudio();
     }
     function pauseTaskAudioFile() {
-        _audioController.PauseAudio();
+        _audioController?.PauseAudio();
     }
     function replayTaskAudioFile() {
         debugLog("replayTaskAudioFile (exercise.js)", state)
@@ -991,9 +1014,9 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function handleMuteAudio() {
         if (state.isMuted) {
-            _audioController.MuteAudio();
+            _audioController?.MuteAudio();
         } else {
-            _audioController.UnmuteAudio();
+            _audioController?.UnmuteAudio();
         }
     }
 
@@ -1001,7 +1024,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function storeTaskEvents() {
         let currentTask = state.TaskObjectArray[state.currentTaskIndex];
-        _logController.StoreLogEntriesToTask(currentTask)
+        _logController?.StoreLogEntriesToTask(currentTask)
 
     }
 
@@ -1016,9 +1039,9 @@ ITEM.Exercise = function (jsonData, settings) {
     function handleFeedbackState() {
         debugLog("handleFeedbackState() ... state.hideFeedback = ", state.hideFeedback)
         if (state.hideFeedback) {
-            _feedbackController.DisableFeedback();
+            _feedbackController?.DisableFeedback();
         } else {
-            _feedbackController.EnableFeedback();
+            _feedbackController?.EnableFeedback();
         }
     }
 
@@ -1053,52 +1076,7 @@ ITEM.Exercise = function (jsonData, settings) {
         }
     }
 
-    // ___ Handling JSON _____________________________________________________________________
-
-    function getCurrentTaskObject() {
-        return state.TaskObjectArray[state.currentTaskIndex]
-    }
-
-    function initState(json) {
-        state.exerciseName = json.name
-    }
-
-    function initSettings(jsonData) {
-        debugLog("initSettings(), {jsonData, settings}:", { jsonData: jsonData, settings: settings });
-        if (typeof jsonData.exerciseSettingsModel != 'undefined') {
-            settings.debugMode = jsonData.exerciseSettingsModel?.exerciseDebugMode;
-        }
-        if (typeof jsonData.exerciseSettingsModel?.exerciseCustomCss != 'undefined') {
-            settings.customCss = jsonData.exerciseSettingsModel.exerciseCustomCss;
-        }
-    }
-
-    function initMarkup(json) {
-        handleExerciseCustomCss(json)
-        _markupController.GenerateExerciseHeader(json);
-        _markupController.GenerateExerciseIntroOverlay(json);
-        _markupController.GenerateExerciseMarkup(json);
-    }
-
-    function initObjects(json) {
-        generateExerciseTaskObjects(json);
-        generateExerciseInteractionObjects(json);
-        generateExerciseFeedbackObjects(json);
-    }
-    
-    function handleExerciseCustomCss() {
-        let customCssString = settings.customCss;
-        debugLog("handleExerciseCustomCss, string", { customCssString: customCssString , json:json, settings:settings})
-
-        if (typeof customCssString != 'undefined') {
-            let styleSheet = document.createElement('style');
-            styleSheet.type = 'text/css';
-            styleSheet.innerHTML = customCssString;
-            $(settings.contentWrapSelector).append(styleSheet);
-
-            state.customCssSheet = styleSheet;
-        }
-    }
+    // ___ OBJECTS (from json) _____________________________________________________________________
 
     function generateExerciseTaskObjects(json) {
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
@@ -1116,8 +1094,8 @@ ITEM.Exercise = function (jsonData, settings) {
             tObj[taskFeedbackListObjectSelector] = task[taskFeedbackListObjectSelector];
             tObj[taskDelayObjectSelector] = task[taskDelayObjectSelector];
             tObj.callback = onTaskEnd;
-            tObj.taskFeedback = _feedbackController.ShowTaskFeedback;
-            tObj.interactionFeedbackList = [_feedbackController.ShowInteractionFeedback];
+            tObj.taskFeedback = _feedbackController?.ShowTaskFeedback;
+            tObj.interactionFeedbackList = [_feedbackController?.ShowInteractionFeedback];
             tObj.userObject =
             {
                 taskLog: [],
@@ -1153,7 +1131,7 @@ ITEM.Exercise = function (jsonData, settings) {
                 iObj[taskInteractionTypeObjectSelector] = interactionObject[taskInteractionTypeObjectSelector];
                 iObj[taskInteractionDimensionsObjectSelector] = interactionObject[taskInteractionDimensionsObjectSelector];
                 iObj.onCompleteId = interactionObject.onCompleteId;
-                iObj.callback = _feedbackController.ShowInteractionFeedback;
+                iObj.callback = _feedbackController?.ShowInteractionFeedback;
             })
             state.InteractionArray.push(iObj)
         });
@@ -1167,7 +1145,7 @@ ITEM.Exercise = function (jsonData, settings) {
             let taskInteractionList = taskObj[taskInteractionListObjectSelector];
             let taskFeedbackList = taskObj[taskFeedbackListObjectSelector];
 
-            if (taskFeedbackList) {
+            if (taskFeedbackList && _feedbackController) {
                 taskFeedbackList.forEach(feedback => {
                     let feedbackText = feedback[taskFeedbackTextObjectSelector];
                     let feedbackDisplay = feedback[taskFeedbackDisplayObjectSelector];
@@ -1222,7 +1200,7 @@ ITEM.Exercise = function (jsonData, settings) {
                     _feedbackController.AddFeedbackToArray(feedbackItem);
                 });
             }
-            if (taskInteractionList) {
+            if (taskInteractionList && _feedbackController) {
                 taskInteractionList.forEach(interaction => {
                     let interactionId = interaction[taskInteractionIdObjectSelector];
                     let interactionFeedbackList = interaction[taskInteractionFeedbackListObjectSelector];
@@ -1287,38 +1265,32 @@ ITEM.Exercise = function (jsonData, settings) {
         });
     }
 
-    function makePercentage(obj) {
-        let percentageObj = obj;
-        Object.keys(percentageObj).forEach(key => {
-            if (typeof percentageObj[key] == 'number') {
-                percentageObj[key] = percentageObj[key] + "%";
-            }
-        }); // turns dimension decimals into 'percentage-string' if in number format.
-        return percentageObj;
-    }
-
+    
 
     // ___ DEBUG _____________________________________________________________________
 
     
     function initDebug() {
-        debugLog("initDebug", state)
+        if (settings.debugMode) {
+            debugLog("initDebug", state);
 
-        initDebugDisplays(); // header notice (task count, timer, rectangles)
-        initDebugControls(); // header rightside btns
-        initDebugOverlay();
+            initDebugDisplays(); // header notice (task count, timer, rectangles)
+            initDebugControls(); // header rightside btns
+            initDebugOverlay();
+        }
+        
 
     };
     function initDebugOverlay() {
         $("#debug--finish-exercise").on("click", debugFinishAllTask);
 
-    }
+    };
     function initDebugDisplays() {
         if (_markupController) {
             debugLog("initDebugDisplays")
             let debugMsgInput = _markupController.GetDebugMsgInput(handleDebugInputClick, handleDebugInputChange);
             let debugTaskTimer = _markupController.GetDebugTaskTimer("00:00");
-            let debugTaskCount = _markupController.GetDebugTaskCount(1);
+            let debugTaskCount = _markupController.GetDebugTaskCount();
 
             $(debugHeaderContainerSelector).append(debugTaskTimer);
             $(debugHeaderContainerSelector).append(debugTaskCount);
@@ -1338,8 +1310,8 @@ ITEM.Exercise = function (jsonData, settings) {
             $(headerToolListSelector).append(debugMenuBtn);
             $(headerToolListSelector).append(debugGenerateRectangleBtn);
             $(headerToolListSelector).append(debugSkipTaskBtn)
-        }
-    }
+        };
+    };
     function handleDebugInputClick(e) {
         if ($(e.target).val().length > 0) {
             let copyValue = $(e.target).val();
@@ -1348,8 +1320,8 @@ ITEM.Exercise = function (jsonData, settings) {
 
             $(e.target).next().text(` --copied!`);
         }
-        
-    }
+    };
+
     function handleDebugInputChange(e) {
         editMockInteractionRectangle(e);
     };
@@ -1384,7 +1356,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
         state.isGeneratingRectanglesMode = !state.isGeneratingRectanglesMode;
         updateHeaderIcons();
-        _inputController.ToggleReportRectangle(state.isGeneratingRectanglesMode, null)
+        _inputController?.ToggleReportRectangle(state.isGeneratingRectanglesMode, null)
         return false;
     }
     function toggleDebugSight() {
@@ -1405,8 +1377,32 @@ ITEM.Exercise = function (jsonData, settings) {
             console.log(msg, obj)
         }
     }
-    
+    // ________________________________ Helpers & Gets __________________________________
+    function getCurrentTaskObject() {
+        return state.TaskObjectArray[state.currentTaskIndex]
+    }
+    function makePercentage(obj) {
+        let percentageObj = obj;
+        Object.keys(percentageObj).forEach(key => {
+            if (typeof percentageObj[key] == 'number') {
+                percentageObj[key] = percentageObj[key] + "%";
+            }
+        }); // turns dimension decimals into 'percentage-string' if in number format.
+        return percentageObj;
+    }
+    function handleExerciseCustomCss() {
+        let customCssString = settings.customCss;
+        debugLog("handleExerciseCustomCss, string", { customCssString: customCssString, json: json, settings: settings })
 
+        if (typeof customCssString != 'undefined') {
+            let styleSheet = document.createElement('style');
+            styleSheet.type = 'text/css';
+            styleSheet.innerHTML = customCssString;
+            $(settings.contentWrapSelector).append(styleSheet);
+
+            state.customCssSheet = styleSheet;
+        }
+    }
     // ___ Globals _____________________________________________________________________
     this.Start = start;
     this.GetCurrentTaskObject = getCurrentTaskObject;
@@ -2016,11 +2012,11 @@ ITEM.MarkupController = function (settings, state, config) {
         return taskTimerSpan;
     };
 
-    function getDebugTaskCount(initTaskCount) {
+    function getDebugTaskCount(initTaskCount = 1) {
         let taskCountSpan = document.createElement('span');
         $(taskCountSpan).addClass([debugToolClass, debugTaskCountClass])
-        if (initTaskCount) {
-            $(taskCountSpan).text(`Opgave: ${initTaskCount + 1}`);
+        if (typeof initTaskCount == 'number') {
+            $(taskCountSpan).text(`Opgave: ${initTaskCount}`);
 
         } else {
             $(taskCountSpan).text(`Opgave: ...`);
