@@ -42,11 +42,11 @@ ITEM.LogController = function (settings, eventLog) {
 
     // handleInputLogEntry, handleOutputLogEntry, and handleSecretLogEntry do mostly the same, but are seperate functions for the sake of possible future changes...
     function handleInputLogEntry(taskObj, eventObject, commentObject) {
-
         checkEventObject(eventObject)
+        
 
         let logEntryObject = {
-            logID: taskObj.id + Date.now(),
+            logID: taskObj?.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "input",
@@ -61,7 +61,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id + Date.now(),
+            logID: taskObj?.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "output",
@@ -75,7 +75,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id + Date.now(),
+            logID: taskObj?.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "secret",

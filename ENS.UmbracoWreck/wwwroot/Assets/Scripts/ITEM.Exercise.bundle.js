@@ -260,7 +260,7 @@ ITEM.Exercise = function (jsonData, settings) {
         if (!settings.showIntro && !state.didStart) {
             _startDate = new Date();
             state.didStart = true;
-            _inputController.InitInputController(state.TaskObjectArray[state.currentTaskIndex]);
+            _inputController?.InitInputController(state.TaskObjectArray[state.currentTaskIndex]);
             initTask();
         } else {
             initIntro()
@@ -270,25 +270,25 @@ ITEM.Exercise = function (jsonData, settings) {
     // _________________________________ INIT _________________________________________
     function init() {
         debugLog("init Exercise.js")
-
-        initSettings(state.jsonData)
-        .then(initControllers())
-        .then(
-            initDebug(),
-            initState(state.jsonData),
-            initObjects(state.jsonData),
-            initMarkup(state.jsonData),
-            initEventListeners(),
-            initFirstTask(),
-        )
+        
+        initSettings()
+            .then(initControllers())
+            .then(initState())
+            //.then(initObjects())
+            .then(initMarkup()) // markup requires objects to work correctly ... initObjects(initMarkup)?
+            .then(initEventListeners())
+            .then(
+                initFirstTask(),
+                initDebug(),
+            );
 
         updateHeaderIcons();
     };
 
-    function initState(json) {
+    function initState(json = state.jsonData) {
         state.exerciseName = json.name
     }
-    async function initSettings(jsonData) {
+    async function initSettings(jsonData = state.jsonData) {
         debugLog("initSettings(), {jsonData, settings}:", { jsonData: jsonData, settings: settings });
         if (typeof jsonData.exerciseSettingsModel != 'undefined') {
             settings.debugMode = jsonData.exerciseSettingsModel?.exerciseDebugMode;
@@ -298,14 +298,14 @@ ITEM.Exercise = function (jsonData, settings) {
         }
     }
 
-    function initMarkup(json) {
+    function initMarkup(json = state.jsonData) {
         handleExerciseCustomCss(json)
         _markupController.GenerateExerciseHeader(json);
         _markupController.GenerateExerciseIntroOverlay(json);
         _markupController.GenerateExerciseMarkup(json);
     }
 
-    function initObjects(json) {
+    function initObjects(json = state.jsonData) {
         generateExerciseTaskObjects(json);
         generateExerciseInteractionObjects(json);
         generateExerciseFeedbackObjects(json);
@@ -387,15 +387,20 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function initFirstTask() {
         state.currentTaskIndex = 0;
-        state.currentTaskId = state.TaskObjectArray[0][taskIdObjectSelector];
-        state.currentTaskObject = state.TaskObjectArray[0];
+
+        if (typeof state.TaskObjectArray[0] != 'undefined') {
+            state.currentTaskId = state.TaskObjectArray[0][taskIdObjectSelector];
+            state.currentTaskObject = state.TaskObjectArray[0];
+        } else {
+            handleInitTaskError();
+        }
 
         $(settings.exerciseSelector).find(taskSelector).removeClass(activeTaskClass);
         $(settings.exerciseSelector).find(firstTaskSelector).addClass(activeTaskClass);
-    }
+    };
 
     function initTask() {
-        if (!state.isFinished && state.didStart) {
+        if (!state.isFinished && state.didStart && _inputController) {
             debugLog("initTask (Exercise.js)", state.TaskObjectArray[state.currentTaskIndex])
 
             if ($(activeClassSelector).before().find("input")) {
@@ -414,12 +419,18 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
     }
+    function handleInitTaskError() {
+        
+    }
+
     // __ TASK FLOW _____________________________________________________________________
 
     function startTask() {
         if (!state.isFinished && state.didStart) {
             debugLog("startTask", state.TaskObjectArray[state.currentTaskIndex]);
-            debugLog("startTask, audioControllerState:", _audioController.GetAudioControllerState());
+            let currentTask = state.TaskObjectArray[state.currentTaskIndex];
+            let currentTaskInteractionList = typeof currentTask != 'undefined' ? currentTask[taskInteractionListObjectSelector] : [];
+            let currentTaskDelay = typeof currentTask != 'undefined' ? currentTask[taskDelayObjectSelector] : 0;
             
             let startDelay = 0;
             if (!startDelay || startDelay == "") {
@@ -431,11 +442,11 @@ ITEM.Exercise = function (jsonData, settings) {
             }
 
             // if no interactions && no delay (task has issues, discreetly proceed...?)
-            if (state.TaskObjectArray[state.currentTaskIndex][taskInteractionListObjectSelector].length == 0 && state.TaskObjectArray[state.currentTaskIndex][taskDelayObjectSelector] == 0) {
+            if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
                 proceedDelay = 500;
-            } else if (state.TaskObjectArray[state.currentTaskIndex][taskInteractionListObjectSelector].length == 0 && state.TaskObjectArray[state.currentTaskIndex][taskDelayObjectSelector] != 0) {
+            } else if (currentTaskInteractionList.length == 0 && currentTaskDelay != 0) {
                 // if no interactions, but delay specified (ie. the audio has to finish playing before we proceed)
-                proceedDelay = state.TaskObjectArray[state.currentTaskIndex][taskDelayObjectSelector];
+                proceedDelay = currentTaskDelay;
             }
 
             let timerId = window.setTimeout(function () {
@@ -453,12 +464,12 @@ ITEM.Exercise = function (jsonData, settings) {
             playTaskAudioFile();
 
             // no task interactions or delay
-            if (state.TaskObjectArray[state.currentTaskIndex][taskInteractionListObjectSelector].length == 0 && state.TaskObjectArray[state.currentTaskIndex][taskDelayObjectSelector] == 0) {
+            if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
                 debugLog("startTask (task issues, no interaction && delay)")
                 setTimeout(onTaskEnd, proceedDelay)
             }
             // if no interactions but delay! (if fx we want to listen to an audiofile before proceeding or to have a 10 second coffee break)
-            if ((state.TaskObjectArray[state.currentTaskIndex][taskInteractionListObjectSelector].length == 0) && state.TaskObjectArray[state.currentTaskIndex][taskDelayObjectSelector] > 0) {
+            if (currentTaskInteractionList.length == 0 && currentTaskDelay > 0) {
                 debugLog("startTask (no interactions, auto-proceed)", proceedDelay)
                 setTimeout(onTaskEnd, proceedDelay)
             }
@@ -827,7 +838,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function loadTaskSubtitles() {
         let currentTask = state.TaskObjectArray[state.currentTaskIndex];
-        let subtitles = currentTask.subtitles;
+        let subtitles = currentTask?.subtitles;
         debugLog("loadTaskSubtitles", { currentTask: currentTask, subtitles: subtitles });
 
         if (state.isSubtitled && typeof subtitles != 'undefined' && subtitles != null && subtitles != "") {
@@ -990,7 +1001,9 @@ ITEM.Exercise = function (jsonData, settings) {
         _audioController?.ClearAudioFile();
     }
     function loadTaskAudioFile() {
-        _audioController?.LoadAudioFile(settings.assetsPath + state.TaskObjectArray[state.currentTaskIndex][taskAudioObjectSelector]);
+        let currentTask = typeof state.TaskObjectArray[state.currentTaskIndex] != 'undefined' ? state.TaskObjectArray[state.currentTaskIndex] : null
+        let currentTaskAudio = currentTask != null ? currentTask[taskAudioObjectSelector] : "";
+        _audioController?.LoadAudioFile(settings.assetsPath + currentTaskAudio);
     }
     function playTaskAudioFile() {
         debugLog("playTaskAudioFile")
@@ -1070,8 +1083,8 @@ ITEM.Exercise = function (jsonData, settings) {
     function showTaskFeedback() {
         let currentTask = state.TaskObjectArray[state.currentTaskIndex];
         let taskFeedbackList = currentTask[taskFeedbackListObjectSelector];
-
-        if (currentTask && taskFeedbackList.length > 0) {
+        
+        if (currentTask && typeof currentTask.taskFeedback != 'undefined' && taskFeedbackList.length > 0) {
             currentTask.taskFeedback(currentTask.id, "time", { msecsSinceTaskStart: _msecsSinceTaskStart });
         }
     }
@@ -1132,7 +1145,8 @@ ITEM.Exercise = function (jsonData, settings) {
                 iObj[taskInteractionDimensionsObjectSelector] = interactionObject[taskInteractionDimensionsObjectSelector];
                 iObj.onCompleteId = interactionObject.onCompleteId;
                 iObj.callback = _feedbackController?.ShowInteractionFeedback;
-            })
+            });
+            
             state.InteractionArray.push(iObj)
         });
     }
@@ -2577,10 +2591,14 @@ ITEM.InputController = function (settings) {
         }
     }
     function initMouseOver(task) {
-        let mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector].filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString)
+        
+        let mouseoverInteractionObjectsArray = null;
+        if (typeof InputControllerState?.currentTaskObject != 'undefined') {
+            mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector]?.filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString);
+        }
         debugLog("initMouseOver", { task: task, currentTask: InputControllerState.currentTaskObject, state: InputControllerState, mouseoverObjects: mouseoverInteractionObjectsArray })
 
-        mouseoverInteractionObjectsArray.forEach(iObj => {
+        mouseoverInteractionObjectsArray?.forEach(iObj => {
             debugLog("initMouseOver iObj", iObj)
 
             let $currentTask = $(`#${InputControllerState.currentTaskObject[taskInteractionIdObjectSelector]}`)
@@ -2608,13 +2626,16 @@ ITEM.InputController = function (settings) {
 
                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            feedback(interactionId, "correct", {
-                                interactionAttempts: attemptCount,
-                                callback: InputControllerState.currentTaskObject.callback
-                            })
+                            if (typeof feedback != 'undefined') {
+
+                                feedback(interactionId, "correct", {
+                                    interactionAttempts: attemptCount,
+                                    callback: InputControllerState.currentTaskObject.callback
+                                })
+                            }
                         });
                     } else {
-                        InputControllerState.currentTaskObject.callback();
+                        InputControllerState.currentTaskObject?.callback();
                     }
                 }
             })
@@ -2657,42 +2678,56 @@ ITEM.InputController = function (settings) {
                     case "click":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj });
+                            }
                         })
                         break;
                     case "dblclick":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            }
                         })
                         break;
                     case "rightclick":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+
+                            }
                         })
                         break;
                     case "keydown":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+
+                            }
                         })
                         break;
                     case "stringinput":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+
+                            }
                         })
                         break;
                     default:
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            }
                         })
                         break;
                 }
             }
-
         }
     }
 
@@ -2845,19 +2880,25 @@ ITEM.InputController = function (settings) {
 
                                 interactionFeedbackList.forEach(feedback => {
                                     debugLog("checkMatchKeyPress [CORRECT, LOOPING FEEDBACK]:", feedback);
-                                    feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                                    if (typeof feedback != 'undefined') {
+
+                                        feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                                    }
                                 });
                             } else {
                                 debugLog("checkMatchKeyPress [CORRECT, NO FEEDBACK]", iObj)
 
-                                InputControllerState.currentTaskObject.callback();
+                                InputControllerState.currentTaskObject?.callback();
                             }
                         } else {
                             if (settings.discreteFeedback) {
                                 debugLog("checkMatchKeyPress [WRONG]", InputControllerState.currentTaskObject[taskFeedbackObjectListSelector])
                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                                     debugLog("checkMatchKeyPress [WRONG], feedback", feedback)
-                                    feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                    if (typeof feedback != 'undefined') {
+
+                                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                    }
                                 })
                             }
                         }
@@ -2911,10 +2952,13 @@ ITEM.InputController = function (settings) {
                             stdLogEntry("Task Complete.", "status", attemptCount);
                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                    feedback(interactionId, "correct", {
-                                        interactionAttempts: attemptCount,
-                                        callback: InputControllerState.currentTaskObject.callback
-                                    })
+                                    if (typeof feedback != 'undefined') {
+                                        feedback(interactionId, "correct", {
+                                            interactionAttempts: attemptCount,
+                                            callback: InputControllerState.currentTaskObject.callback
+                                        })
+                                    }
+                                    
                                 })
                             } else {
                                 InputControllerState.currentTaskObject.callback();
@@ -2922,7 +2966,9 @@ ITEM.InputController = function (settings) {
 
                         } else if (attemptCount > longestString.length) {
                             InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                if (typeof feedback != 'undefined') {
+                                    feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                }
                             })
                         }
 
@@ -2960,10 +3006,13 @@ ITEM.InputController = function (settings) {
                                             debugLog("checkMatchString (correctInput)", iObj)
                                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                                    feedback(interactionId, "correct", {
-                                                        interactionAttempts: attemptCount,
-                                                        callback: InputControllerState.currentTaskObject.callback
-                                                    })
+                                                    if (typeof feedback != 'undefined') {
+                                                        feedback(interactionId, "correct", {
+                                                            interactionAttempts: attemptCount,
+                                                            callback: InputControllerState.currentTaskObject.callback
+                                                        })
+                                                    }
+                                                    
                                                 })
                                             }
                                             else {
@@ -2976,7 +3025,10 @@ ITEM.InputController = function (settings) {
 
                                             if (settings.discreteFeedback) {
                                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                                    feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                                    if (typeof feedback != 'undefined') {
+                                                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+
+                                                    }
                                                 })
                                             }
                                         }
@@ -2999,10 +3051,12 @@ ITEM.InputController = function (settings) {
                                     stdLogEntry("Task Complete.", "status", attemptCount);
                                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                            feedback(interactionId, "correct", {
-                                                interactionAttempts: attemptCount,
-                                                callback: InputControllerState.currentTaskObject.callback
-                                            })
+                                            if (typeof feedback != 'undefined') {
+                                                feedback(interactionId, "correct", {
+                                                    interactionAttempts: attemptCount,
+                                                    callback: InputControllerState.currentTaskObject.callback
+                                                })
+                                            }
                                         })
                                     }
                                     else {
@@ -3012,7 +3066,10 @@ ITEM.InputController = function (settings) {
                                 } else {
                                     if (settings.discreteFeedback) {
                                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                            if (typeof feedback != 'undefined') {
+                                                feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+
+                                            }
                                         })
                                     }
                                 }
@@ -3044,7 +3101,10 @@ ITEM.InputController = function (settings) {
                 stdLogEntry("Task Complete.", "status", attemptCount);
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                        }
                     })
                 } else {
                     InputControllerState.currentTaskObject.callback();
@@ -3054,7 +3114,10 @@ ITEM.InputController = function (settings) {
                 if (settings.discreteFeedback) {
                     debugLog("checkMatchClick (WRONG)", { event: event, attempts: attemptCount, interactionFeedback: InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector] })
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        }
                     });
                 }
             }
@@ -3078,10 +3141,13 @@ ITEM.InputController = function (settings) {
 
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "correct", {
-                            interactionAttempts: attemptCount,
-                            callback: InputControllerState.currentTaskObject.callback
-                        })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "correct", {
+                                interactionAttempts: attemptCount,
+                                callback: InputControllerState.currentTaskObject.callback
+                            })
+                        }
                     });
                 } else {
                     InputControllerState.currentTaskObject.callback();
@@ -3091,7 +3157,10 @@ ITEM.InputController = function (settings) {
                 if (settings.discreteFeedback) {
                     debugLog("checkMatchRightClick (WRONG) feedback", InputControllerState.currentTaskObject);
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        }
                     })
                 }
             }
@@ -3121,20 +3190,25 @@ ITEM.InputController = function (settings) {
                     debugLog("dblClick (running through interactionFeedbackList", InputControllerState.currentTaskObject)
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         debugLog("dblClick feedback (correct)", feedback)
-                        feedback(interactionId, "correct", {
-                            interactionAttempts: attemptCount,
-                            callback: InputControllerState.currentTaskObject.callback
-                        })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "correct", {
+                                interactionAttempts: attemptCount,
+                                callback: InputControllerState.currentTaskObject.callback
+                            })
+                        }
                     });
                 } else {
-                    InputControllerState.currentTaskObject.callback();
+                    InputControllerState.currentTaskObject?.callback();
                 }
 
             } else {
                 if (settings.discreteFeedback) {
                     debugLog("checkMatchDblClick (WRONG) feedback", InputControllerState.currentTaskObject);
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        if (typeof feedback != 'undefined') {
+                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        }
                     })
                 }
             }
@@ -3614,11 +3688,11 @@ ITEM.LogController = function (settings, eventLog) {
 
     // handleInputLogEntry, handleOutputLogEntry, and handleSecretLogEntry do mostly the same, but are seperate functions for the sake of possible future changes...
     function handleInputLogEntry(taskObj, eventObject, commentObject) {
-
         checkEventObject(eventObject)
+        
 
         let logEntryObject = {
-            logID: taskObj.id + Date.now(),
+            logID: taskObj?.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "input",
@@ -3633,7 +3707,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id + Date.now(),
+            logID: taskObj?.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "output",
@@ -3647,7 +3721,7 @@ ITEM.LogController = function (settings, eventLog) {
         checkEventObject(eventObject)
 
         let logEntryObject = {
-            logID: taskObj.id + Date.now(),
+            logID: taskObj?.id + Date.now(),
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "secret",

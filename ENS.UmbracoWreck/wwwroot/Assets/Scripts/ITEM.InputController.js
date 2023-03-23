@@ -192,10 +192,14 @@
         }
     }
     function initMouseOver(task) {
-        let mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector].filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString)
+        
+        let mouseoverInteractionObjectsArray = null;
+        if (typeof InputControllerState?.currentTaskObject != 'undefined') {
+            mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector]?.filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString);
+        }
         debugLog("initMouseOver", { task: task, currentTask: InputControllerState.currentTaskObject, state: InputControllerState, mouseoverObjects: mouseoverInteractionObjectsArray })
 
-        mouseoverInteractionObjectsArray.forEach(iObj => {
+        mouseoverInteractionObjectsArray?.forEach(iObj => {
             debugLog("initMouseOver iObj", iObj)
 
             let $currentTask = $(`#${InputControllerState.currentTaskObject[taskInteractionIdObjectSelector]}`)
@@ -223,13 +227,16 @@
 
                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            feedback(interactionId, "correct", {
-                                interactionAttempts: attemptCount,
-                                callback: InputControllerState.currentTaskObject.callback
-                            })
+                            if (typeof feedback != 'undefined') {
+
+                                feedback(interactionId, "correct", {
+                                    interactionAttempts: attemptCount,
+                                    callback: InputControllerState.currentTaskObject.callback
+                                })
+                            }
                         });
                     } else {
-                        InputControllerState.currentTaskObject.callback();
+                        InputControllerState.currentTaskObject?.callback();
                     }
                 }
             })
@@ -272,42 +279,56 @@
                     case "click":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj });
+                            }
                         })
                         break;
                     case "dblclick":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            }
                         })
                         break;
                     case "rightclick":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+
+                            }
                         })
                         break;
                     case "keydown":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+
+                            }
                         })
                         break;
                     case "stringinput":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+
+                            }
                         })
                         break;
                     default:
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                             debugLog("checkInteractionFeedback, feedback", feedback)
-                            feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            if (typeof feedback != 'undefined') {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            }
                         })
                         break;
                 }
             }
-
         }
     }
 
@@ -460,19 +481,25 @@
 
                                 interactionFeedbackList.forEach(feedback => {
                                     debugLog("checkMatchKeyPress [CORRECT, LOOPING FEEDBACK]:", feedback);
-                                    feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                                    if (typeof feedback != 'undefined') {
+
+                                        feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                                    }
                                 });
                             } else {
                                 debugLog("checkMatchKeyPress [CORRECT, NO FEEDBACK]", iObj)
 
-                                InputControllerState.currentTaskObject.callback();
+                                InputControllerState.currentTaskObject?.callback();
                             }
                         } else {
                             if (settings.discreteFeedback) {
                                 debugLog("checkMatchKeyPress [WRONG]", InputControllerState.currentTaskObject[taskFeedbackObjectListSelector])
                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                                     debugLog("checkMatchKeyPress [WRONG], feedback", feedback)
-                                    feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                    if (typeof feedback != 'undefined') {
+
+                                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                    }
                                 })
                             }
                         }
@@ -526,10 +553,13 @@
                             stdLogEntry("Task Complete.", "status", attemptCount);
                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                    feedback(interactionId, "correct", {
-                                        interactionAttempts: attemptCount,
-                                        callback: InputControllerState.currentTaskObject.callback
-                                    })
+                                    if (typeof feedback != 'undefined') {
+                                        feedback(interactionId, "correct", {
+                                            interactionAttempts: attemptCount,
+                                            callback: InputControllerState.currentTaskObject.callback
+                                        })
+                                    }
+                                    
                                 })
                             } else {
                                 InputControllerState.currentTaskObject.callback();
@@ -537,7 +567,9 @@
 
                         } else if (attemptCount > longestString.length) {
                             InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                if (typeof feedback != 'undefined') {
+                                    feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                }
                             })
                         }
 
@@ -575,10 +607,13 @@
                                             debugLog("checkMatchString (correctInput)", iObj)
                                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                                    feedback(interactionId, "correct", {
-                                                        interactionAttempts: attemptCount,
-                                                        callback: InputControllerState.currentTaskObject.callback
-                                                    })
+                                                    if (typeof feedback != 'undefined') {
+                                                        feedback(interactionId, "correct", {
+                                                            interactionAttempts: attemptCount,
+                                                            callback: InputControllerState.currentTaskObject.callback
+                                                        })
+                                                    }
+                                                    
                                                 })
                                             }
                                             else {
@@ -591,7 +626,10 @@
 
                                             if (settings.discreteFeedback) {
                                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                                    feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                                    if (typeof feedback != 'undefined') {
+                                                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+
+                                                    }
                                                 })
                                             }
                                         }
@@ -614,10 +652,12 @@
                                     stdLogEntry("Task Complete.", "status", attemptCount);
                                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                            feedback(interactionId, "correct", {
-                                                interactionAttempts: attemptCount,
-                                                callback: InputControllerState.currentTaskObject.callback
-                                            })
+                                            if (typeof feedback != 'undefined') {
+                                                feedback(interactionId, "correct", {
+                                                    interactionAttempts: attemptCount,
+                                                    callback: InputControllerState.currentTaskObject.callback
+                                                })
+                                            }
                                         })
                                     }
                                     else {
@@ -627,7 +667,10 @@
                                 } else {
                                     if (settings.discreteFeedback) {
                                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                                            if (typeof feedback != 'undefined') {
+                                                feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+
+                                            }
                                         })
                                     }
                                 }
@@ -659,7 +702,10 @@
                 stdLogEntry("Task Complete.", "status", attemptCount);
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
+                        }
                     })
                 } else {
                     InputControllerState.currentTaskObject.callback();
@@ -669,7 +715,10 @@
                 if (settings.discreteFeedback) {
                     debugLog("checkMatchClick (WRONG)", { event: event, attempts: attemptCount, interactionFeedback: InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector] })
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        }
                     });
                 }
             }
@@ -693,10 +742,13 @@
 
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "correct", {
-                            interactionAttempts: attemptCount,
-                            callback: InputControllerState.currentTaskObject.callback
-                        })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "correct", {
+                                interactionAttempts: attemptCount,
+                                callback: InputControllerState.currentTaskObject.callback
+                            })
+                        }
                     });
                 } else {
                     InputControllerState.currentTaskObject.callback();
@@ -706,7 +758,10 @@
                 if (settings.discreteFeedback) {
                     debugLog("checkMatchRightClick (WRONG) feedback", InputControllerState.currentTaskObject);
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        }
                     })
                 }
             }
@@ -736,20 +791,25 @@
                     debugLog("dblClick (running through interactionFeedbackList", InputControllerState.currentTaskObject)
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         debugLog("dblClick feedback (correct)", feedback)
-                        feedback(interactionId, "correct", {
-                            interactionAttempts: attemptCount,
-                            callback: InputControllerState.currentTaskObject.callback
-                        })
+                        if (typeof feedback != 'undefined') {
+
+                            feedback(interactionId, "correct", {
+                                interactionAttempts: attemptCount,
+                                callback: InputControllerState.currentTaskObject.callback
+                            })
+                        }
                     });
                 } else {
-                    InputControllerState.currentTaskObject.callback();
+                    InputControllerState.currentTaskObject?.callback();
                 }
 
             } else {
                 if (settings.discreteFeedback) {
                     debugLog("checkMatchDblClick (WRONG) feedback", InputControllerState.currentTaskObject);
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                        feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        if (typeof feedback != 'undefined') {
+                            feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
+                        }
                     })
                 }
             }
