@@ -388,7 +388,7 @@ ITEM.Exercise = function (jsonData, settings) {
     function initFirstTask() {
         state.currentTaskIndex = 0;
 
-        if (typeof state.TaskObjectArray[0] != 'undefined') {
+        if (typeof state.TaskObjectArray[0] != 'undefined' && state.TaskObjectArray[0]) {
             state.currentTaskId = state.TaskObjectArray[0][taskIdObjectSelector];
             state.currentTaskObject = state.TaskObjectArray[0];
         } else {
@@ -1411,7 +1411,7 @@ ITEM.Exercise = function (jsonData, settings) {
         let customCssString = settings.customCss;
         debugLog("handleExerciseCustomCss, string", { customCssString: customCssString, json: json, settings: settings })
 
-        if (typeof customCssString != 'undefined') {
+        if (typeof customCssString != 'undefined' && customCssString) {
             let styleSheet = document.createElement('style');
             styleSheet.type = 'text/css';
             styleSheet.innerHTML = customCssString;
@@ -3740,17 +3740,16 @@ ITEM.LogController = function (settings, eventLog) {
     };
 
     function storeLogEntriesToTaskObject(taskObject) {
+        debugLog("storeLogEntry() :", taskObject)
         let id, matchingLogs;
 
+        if (typeof taskObject !== 'undefined' && taskObject) {
+            matchingLogs = getLogsById(id);
+            taskObject.userObject.taskLog = (matchingLogs)
 
-        if (!isUndefined(taskObject.id)) {
-            id = taskObject.id
         } else {
-            id = null;
-        };
-
-        matchingLogs = getLogsById(id);
-        id != null ? taskObject.userObject.taskLog = (matchingLogs) : null;
+            debugLog("storeLogEntry() - taskObject ERROR")
+        }
     }
 
     function getLogsById(id) {
@@ -3768,7 +3767,13 @@ ITEM.LogController = function (settings, eventLog) {
     }
     // _____________________________________________________________
     function isUndefined(variable){
-        return variable === void 0;
+        return variable === void 0 && variable;
+    }
+
+    function debugLog(msg, obj) {
+        if (settings.debugMode) {
+            console.log(msg, obj)
+        }
     }
 
 

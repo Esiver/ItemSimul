@@ -91,17 +91,16 @@ ITEM.LogController = function (settings, eventLog) {
     };
 
     function storeLogEntriesToTaskObject(taskObject) {
+        debugLog("storeLogEntry() :", taskObject)
         let id, matchingLogs;
 
+        if (typeof taskObject !== 'undefined' && taskObject) {
+            matchingLogs = getLogsById(id);
+            taskObject.userObject.taskLog = (matchingLogs)
 
-        if (!isUndefined(taskObject.id)) {
-            id = taskObject.id
         } else {
-            id = null;
-        };
-
-        matchingLogs = getLogsById(id);
-        id != null ? taskObject.userObject.taskLog = (matchingLogs) : null;
+            debugLog("storeLogEntry() - taskObject ERROR")
+        }
     }
 
     function getLogsById(id) {
@@ -119,7 +118,13 @@ ITEM.LogController = function (settings, eventLog) {
     }
     // _____________________________________________________________
     function isUndefined(variable){
-        return variable === void 0;
+        return variable === void 0 && variable;
+    }
+
+    function debugLog(msg, obj) {
+        if (settings.debugMode) {
+            console.log(msg, obj)
+        }
     }
 
 
