@@ -1394,6 +1394,15 @@ ITEM.Exercise = function (jsonData, settings) {
             console.log(msg, obj)
         }
     }
+
+    //_________________________________ error handler __________________________________
+    function handleObjectError() {
+
+    }
+    function exerciseShortCircuit() {
+
+    }
+
     // ________________________________ Helpers & Gets __________________________________
     function getCurrentTaskObject() {
         return state.TaskObjectArray[state.currentTaskIndex]
