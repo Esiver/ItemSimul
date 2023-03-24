@@ -46,7 +46,7 @@ ITEM.LogController = function (settings, eventLog) {
         
 
         let logEntryObject = {
-            logID: taskObj?.id + Date.now(),
+            logID: taskObj?.id + Date.now(), // leave as NaN if no taskObj (no taskObj = big problem!)
             logTimeStamp: Date.now(),
             logEvent: eventObject,
             logType: "input",
@@ -90,20 +90,39 @@ ITEM.LogController = function (settings, eventLog) {
         eventLog.push(logEntry);
     };
 
-    function storeLogEntriesToTask(task) {
-        let id = task.id;
-        let matchingLogs = getLogsById(id);
-        task.userObject.taskLog = (matchingLogs); 
+    function storeLogEntriesToTaskObject(taskObject) {
+        let id, matchingLogs;
+
+
+        if (!isUndefined(taskObject.id)) {
+            id = taskObject.id
+        } else {
+            id = null;
+        };
+
+        matchingLogs = getLogsById(id);
+        id != null ? taskObject.userObject.taskLog = (matchingLogs) : null;
     }
 
     function getLogsById(id) {
-        let array = logEntries.filter(entry => entry.logID == id)
+        let array
+        if (id) {
+            array = logEntries.filter(entry => entry.logID == id)
+        } else {
+            array = []
+        };
 
         return array
     }
     function getLogs() {
         return logEntries;
     }
+    // _____________________________________________________________
+    function isUndefined(variable){
+        return variable === void 0;
+    }
+
+
 
     init();
 
@@ -111,7 +130,7 @@ ITEM.LogController = function (settings, eventLog) {
     this.HandleOutputLogEntry = handleOutputLogEntry;
     this.HandleSecretLogEntry = handleSecretLogEntry;
     this.StoreLogEntry = storeLogEntry;
-    this.StoreLogEntriesToTask = storeLogEntriesToTask;
+    this.StoreLogEntriesToTaskObject = storeLogEntriesToTaskObject;
     this.GetLogsById = getLogsById;
     this.GetLogs = getLogs;
 

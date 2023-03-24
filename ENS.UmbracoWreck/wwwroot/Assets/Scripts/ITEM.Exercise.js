@@ -468,7 +468,8 @@ ITEM.Exercise = function (jsonData, settings) {
                 debugLog("startTask (task issues, no interaction && delay)")
                 setTimeout(onTaskEnd, proceedDelay)
             }
-            // if no interactions but delay! (if fx we want to listen to an audiofile before proceeding or to have a 10 second coffee break)
+            // if no interactions but delay! 
+            // (if fx we want to listen to an audiofile before proceeding)
             if (currentTaskInteractionList.length == 0 && currentTaskDelay > 0) {
                 debugLog("startTask (no interactions, auto-proceed)", proceedDelay)
                 setTimeout(onTaskEnd, proceedDelay)
@@ -1036,19 +1037,21 @@ ITEM.Exercise = function (jsonData, settings) {
     // ___ FEEDBACK _____________________________________________________________________
 
     function storeTaskEvents() {
-        let currentTask = state.TaskObjectArray[state.currentTaskIndex];
-        _logController?.StoreLogEntriesToTask(currentTask)
+        let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
+        _logController?.StoreLogEntriesToTaskObject(currentTaskObject)
 
     }
 
     function showInstructions() {
 
     }
+
     function toggleFeedback() {
         state.hideFeedback = !state.hideFeedback;
         handleFeedbackState();
         updateHeaderIcons();
     }
+
     function handleFeedbackState() {
         debugLog("handleFeedbackState() ... state.hideFeedback = ", state.hideFeedback)
         if (state.hideFeedback) {
