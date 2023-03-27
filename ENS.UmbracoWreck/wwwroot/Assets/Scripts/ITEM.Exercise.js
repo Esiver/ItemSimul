@@ -110,6 +110,8 @@ ITEM.Exercise = function (jsonData, settings) {
     const confirmRestartOverlaySelector = "#confirm-restart-overlay";
     const confirmRestartBtnSelector = "#confirm-restart-btn";
     const cancelRestartBtnSelector = "#cancel-restart-btn";
+    const shortcircuitOverlaySelector = "#shortcircuit-overlay";
+    const shortcircuitOverlayMsgSelector = "#shortcircuit-overlay-msg"
 
     // ____ settings overlay
     
@@ -263,20 +265,26 @@ ITEM.Exercise = function (jsonData, settings) {
             _inputController?.InitInputController(state.TaskObjectArray[state.currentTaskIndex]);
             initTask();
         } else {
-            initIntro()
+            initIntro();
         }
     }
     // hvad er forskellen på start() & init() ?  - init kommer først.
     // _________________________________ INIT _________________________________________
     function init() {
         debugLog("init Exercise.js")
-        
+        // initObjects requires controllers (initControllers()) to generate its controllers & their callbacks
+        // initMarkup requires objects (initObjects()) to generate its markup from objects
+        // initEventListeners requires markup (initMarkup()) to attach eventlisteners to
+        // => initObjects -> initMarkup -> initEventlisteners -> ... init the rest
+
         initSettings()
             .then(initControllers())
             .then(initState())
-            //.then(initObjects())
-            .then(initMarkup()) // markup requires objects to work correctly ... initObjects(initMarkup)?
+            .then(initObjects())
+            //.then(initMarkup()) // markup requires objects to work correctly ... initObjects(initMarkup)?
             .then(initEventListeners())
+            .then(initMarkup()) // markup requires objects to work correctly ... initObjects(initMarkup)?
+
             .then(
                 initFirstTask(),
                 initDebug(),
@@ -311,36 +319,42 @@ ITEM.Exercise = function (jsonData, settings) {
         generateExerciseFeedbackObjects(json);
     }
     function initEventListeners() {
-        _inputController.InitInputController(state.TaskObjectArray[state.currentTaskIndex])
+        let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex]
+        if (!currentTaskObject || currentTaskObject === void 0) {
+            handleObjectError();
+        } else {
+            _inputController?.InitInputController(currentTaskObject);
 
-        // Navigation / Exercise Control
-        $(settingsBtnSelector).on('click', handleSettingsBtn);
-        $(prevTaskSelector).on('click', goToPrevTask);
-        $(pauseTaskSelector).on('click', pauseTask);
-        $(playTaskSelector).on('click', resumeTask);
-        $(skipTaskSelector).on('click', skipTask);
-        $(replayAudioSelector).on('click', replayTaskAudioFile);
-        $(enableAudioSelector).on('click', handleEnableAudioBtn);
-        $(disableAudioSelector).on('click', handleDisableAudioBtn);
-        $(enableSubtitlesSelector).on('click', handleEnableSubtitlesBtn);
-        $(disableSubtitlesSelector).on('click', handleDisableSubtitlesBtn)
-        $(restartExerciseHeaderBtnSelector).on('click', handleRestartExerciseOverlayBtn);
-        $(confirmRestartBtnSelector).on('click', handleRestartExerciseConfirmBtn);
-        $(cancelRestartBtnSelector).on('click', hideConfirmResetOverlay);
-        
-        $(unfocusOverlaySelector).on('click', function () { resumeTask(); $(exerciseSelector).focus() });
-        //settings overlay toggles...
-        $(toggleMuteSelector).on('click', toggleMuteAudio);
-        $(toggleSubtitlesSelector).on('click', toggleSubtitles);
-        $(toggleFeedbackSelector).on('click', toggleFeedback);
-        //subtitles
-        $(subtitlesCloseSelector).on('click', handleCloseSubtitlesClick);
-        $(subtitlesMoveSelector).on('click', moveTaskSubtitles);
-        $(exerciseSelector)
-            .attr("tabindex", "0")
-            .trigger('focus')
-            .on('focusout', handleUnfocus)
-            .on('focus', handleFocus);
+            // Navigation / Exercise Control
+            $(settingsBtnSelector).on('click', handleSettingsBtn);
+            $(prevTaskSelector).on('click', goToPrevTask);
+            $(pauseTaskSelector).on('click', pauseTask);
+            $(playTaskSelector).on('click', resumeTask);
+            $(skipTaskSelector).on('click', skipTask);
+            $(replayAudioSelector).on('click', replayTaskAudioFile);
+            $(enableAudioSelector).on('click', handleEnableAudioBtn);
+            $(disableAudioSelector).on('click', handleDisableAudioBtn);
+            $(enableSubtitlesSelector).on('click', handleEnableSubtitlesBtn);
+            $(disableSubtitlesSelector).on('click', handleDisableSubtitlesBtn)
+            $(restartExerciseHeaderBtnSelector).on('click', handleRestartExerciseOverlayBtn);
+            $(confirmRestartBtnSelector).on('click', handleRestartExerciseConfirmBtn);
+            $(cancelRestartBtnSelector).on('click', hideConfirmResetOverlay);
+
+            $(unfocusOverlaySelector).on('click', function () { resumeTask(); $(exerciseSelector).focus() });
+            //settings overlay toggles...
+            $(toggleMuteSelector).on('click', toggleMuteAudio);
+            $(toggleSubtitlesSelector).on('click', toggleSubtitles);
+            $(toggleFeedbackSelector).on('click', toggleFeedback);
+            //subtitles
+            $(subtitlesCloseSelector).on('click', handleCloseSubtitlesClick);
+            $(subtitlesMoveSelector).on('click', moveTaskSubtitles);
+            $(exerciseSelector)
+                .attr("tabindex", "0")
+                .trigger('focus')
+                .on('focusout', handleUnfocus)
+                .on('focus', handleFocus);
+
+        }
         
     }
     
@@ -350,7 +364,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     
     async function initControllers() {
-        _logController = ITEM.LogController({ debugMode: settings.debugMode }, state.EventLog);
+        _logController = ITEM.LogController({ debugMode: settings.debugMode }, state.EventLog); // logController should be initialized first so the other controllers can log.
         _inputController = ITEM.InputController({
             exerciseContainerSelector: exerciseSelector,
             dblClickDetect: true,
@@ -400,84 +414,101 @@ ITEM.Exercise = function (jsonData, settings) {
     };
 
     function initTask() {
-        if (!state.isFinished && state.didStart && _inputController) {
-            debugLog("initTask (Exercise.js)", state.TaskObjectArray[state.currentTaskIndex])
+        let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
+        if (currentTaskObject === void 0 || !currentTaskObject) {
+            handleInitTaskError()
+        } else {
+            if (!state.isFinished && state.didStart && _inputController) {
+                debugLog("initTask (Exercise.js)", state.TaskObjectArray[state.currentTaskIndex])
 
-            if ($(activeClassSelector).before().find("input")) {
-                $(exerciseSelector).trigger("focus");
-            }
+                if ($(activeClassSelector).before().find("input")) {
+                    $(exerciseSelector).trigger("focus");
+                }
 
-            _inputController.InitTask(state.TaskObjectArray[state.currentTaskIndex]);
+                _inputController.InitTask(currentTaskObject);
 
-            clearTaskAudioFile();
-            loadTaskAudioFile();
-            loadTaskSubtitles();
-            showTaskSubtitles();
-            cleanTask();
+                clearTaskAudioFile();
+                loadTaskAudioFile();
+                loadTaskSubtitles();
+                showTaskSubtitles();
+                cleanTask();
 
-            startTask();
-        }
+                startTask();
+            };
+        };
+    };
 
-    }
     function handleInitTaskError() {
-        
+        let errorObject = {currentState: state, errorLocation: "inittask", errortype: "Object"}
+        handleObjectError(errorObject)
     }
 
     // __ TASK FLOW _____________________________________________________________________
 
     function startTask() {
-        if (!state.isFinished && state.didStart) {
-            debugLog("startTask", state.TaskObjectArray[state.currentTaskIndex]);
-            let currentTask = state.TaskObjectArray[state.currentTaskIndex];
-            let currentTaskInteractionList = typeof currentTask != 'undefined' ? currentTask[taskInteractionListObjectSelector] : [];
-            let currentTaskDelay = typeof currentTask != 'undefined' ? currentTask[taskDelayObjectSelector] : 0;
-            
-            let startDelay = 0;
-            if (!startDelay || startDelay == "") {
-                startDelay = 0;
-            }
-            let proceedDelay = 0;
-            if (!proceedDelay || proceedDelay == "") {
-                proceedDelay = 0;
-            }
+        let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
+        if (currentTaskObject === void 0 || !currentTaskObject) {
+            handleStartTaskError()
 
-            // if no interactions && no delay (task has issues, discreetly proceed...?)
-            if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
-                proceedDelay = 500;
-            } else if (currentTaskInteractionList.length == 0 && currentTaskDelay != 0) {
-                // if no interactions, but delay specified (ie. the audio has to finish playing before we proceed)
-                proceedDelay = currentTaskDelay;
-            }
+        } else {
+            if (!state.isFinished && state.didStart) {
+                debugLog("startTask", currentTaskObject);
 
-            let timerId = window.setTimeout(function () {
-                if (typeof proceedDelay == 'undefined' || proceedDelay) {
-                    showInstructions();
+                let currentTaskInteractionList = typeof currentTaskObject != 'undefined' ? currentTaskObject[taskInteractionListObjectSelector] : [];
+                let currentTaskDelay = typeof currentTaskObject != 'undefined' ? currentTaskObject[taskDelayObjectSelector] : 0;
+
+                let startDelay = 0;
+                if (!startDelay || startDelay == "") {
+                    startDelay = 0;
+                }
+                let proceedDelay = 0;
+                if (!proceedDelay || proceedDelay == "") {
+                    proceedDelay = 0;
                 }
 
-                addTimerId("proceedTimer", timerId);
-                startTaskTimer();
+                // if no interactions && no delay (task has issues, discreetly proceed...?)
+                if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
+                    proceedDelay = 500;
+                } else if (currentTaskInteractionList.length == 0 && currentTaskDelay != 0) {
+                    // if no interactions, but delay specified (ie. the audio has to finish playing before we proceed)
+                    proceedDelay = currentTaskDelay;
+                }
 
-            }, startDelay);
+                let timerId = window.setTimeout(function () {
+                    if (typeof proceedDelay == 'undefined' || proceedDelay) {
+                        showInstructions();
+                    }
 
-            handleFeedbackState();
-            handleMuteAudio();
-            playTaskAudioFile();
+                    addTimerId("proceedTimer", timerId);
+                    startTaskTimer();
 
-            // no task interactions or delay
-            if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
-                debugLog("startTask (task issues, no interaction && delay)")
-                setTimeout(onTaskEnd, proceedDelay)
+                }, startDelay);
+
+                handleFeedbackState();
+                handleMuteAudio();
+                playTaskAudioFile();
+
+                // no task interactions or delay
+                if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
+                    debugLog("startTask (task issues, no interaction && delay)")
+                    setTimeout(onTaskEnd, proceedDelay)
+                }
+                // if no interactions but delay! 
+                // (if fx we want to listen to an audiofile before proceeding)
+                if (currentTaskInteractionList.length == 0 && currentTaskDelay > 0) {
+                    debugLog("startTask (no interactions, auto-proceed)", proceedDelay)
+                    setTimeout(onTaskEnd, proceedDelay)
+                }
+
             }
-            // if no interactions but delay! 
-            // (if fx we want to listen to an audiofile before proceeding)
-            if (currentTaskInteractionList.length == 0 && currentTaskDelay > 0) {
-                debugLog("startTask (no interactions, auto-proceed)", proceedDelay)
-                setTimeout(onTaskEnd, proceedDelay)
-            }
-
-            updateHeaderIcons();
         }
-    }
+        updateHeaderIcons();
+    };
+
+    function handleStartTaskError() {
+        let errorObject = { currentState: state, errorLocation: "starttask", errortype: "Object" };
+        handleObjectError(errorObject);
+    };
 
     function onTaskEnd() {
         // only engage in taskflow if exercise is not finished.
@@ -513,7 +544,7 @@ ITEM.Exercise = function (jsonData, settings) {
             state.isPaused = false;
             debugLog("resumeTask", activeTask);
             
-            hideAllOverlays()
+            hideAllOverlays();
 
             if (activeTask.find("input").length > 0) {
                 activeTask.find("input").trigger("focus");
@@ -564,17 +595,18 @@ ITEM.Exercise = function (jsonData, settings) {
         }
     }
     function goToNextTask() {
+        let $activeTask = $(settings.exerciseSelector).find(activeClassSelector);
+        let activeTaskObject = state.TaskObjectArray[state.currentTaskIndex];
         clearTaskSubtitles();
         if (!state.isFinished && state.didStart) {
-            let activeTask = $(settings.exerciseSelector).find(activeClassSelector);
             state.currentTaskIndex++;
-            debugLog("goToNextTask (start)", activeTask)
+            debugLog("goToNextTask (start)", $activeTask)
             if (settings.debugMode) {
                 $(`.${debugTaskCountClass}`).text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
             }
-            if (state.TaskObjectArray[state.currentTaskIndex] != state.TaskObjectArray[state.TaskObjectArray.length] && !activeTask.is(":last-child")) {
-                activeTask.removeClass().addClass(taskClass);
-                activeTask.next().addClass(activeTaskClass);
+            if (activeTaskObject != state.TaskObjectArray[state.TaskObjectArray.length] && !$activeTask.is(":last-child")) {
+                $activeTask.removeClass().addClass(taskClass);
+                $activeTask.next().addClass(activeTaskClass);
                 state.currentTask = $(settings.exerciseSelector).find(activeClassSelector);
 
                 initTask();
@@ -1396,11 +1428,30 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     //_________________________________ error handler __________________________________
-    function handleObjectError() {
-
+    function handleObjectError(errorObject) {
+        debugLog("handleObjectError()", { state: state, errorObject: errorObject });
+        exerciseShortCircuit(errorObject);
     }
-    function exerciseShortCircuit() {
 
+    function exerciseShortCircuit(errorObject) {
+        debugLog("exerciseShortCircuit()", { state: state, errorObject: errorObject });
+
+        writeShortCircuitMsg(errorObject);
+        toggleShortCircuit();
+    }
+
+    function toggleShortCircuit() {
+        $(shortcircuitOverlaySelector).addClass(activeOverlayClass);
+    }
+    function writeShortCircuitMsg(errorObject) {
+        let msg;
+        if (errorObject?.errortype != void 0) {
+            msg = `Fejl: ${errorObject.errortype}`;
+        } else {
+            msg = `Ukendt Fejl`;
+        };
+
+        $(shortcircuitOverlayMsgSelector).text(msg);
     }
 
     // ________________________________ Helpers & Gets __________________________________

@@ -53,7 +53,7 @@
         taskKeyDownLogArray: [],
         taskInputfieldArray: [],
 
-        flavorKeys: ["Control", "Shift", "Alt"],
+        flavorKeys: ["Control", "Shift", "Alt"], // keys that come in combination with other keys, eg. Control + P, Shift + Enter, etc.
 
         isReportingRectangles: false,
         reportTarget: null,
@@ -62,7 +62,7 @@
     };
 
     function initInputController(firstTaskObject) {
-
+        // the input 
         InputControllerState.currentTaskObject = firstTaskObject
         debugLog("inputcontroller init", InputControllerState.currentTask)
 
@@ -247,10 +247,10 @@
 
     function clearInteractionArray() {
         InputControllerState.interactionObjectArray = [];
-    }
+    };
     function clearStringInstance() {
         InputControllerState.currentStringInstance = "";
-    }
+    };
 
     function checkInteractionFeedback(event) {
         InputControllerState.interactionCount++;
@@ -258,12 +258,7 @@
         // pre-sort interactions with feedback
         // pre-sort for those with relevant feedback threshold (ie. current attempts == threshold)
         // for each of these, call feedback()
-        //let interactionsWithFeedback = InputControllerState.currentTaskObject[taskInteractionListObjectSelector].filter(interaction => interaction.feedbackList.length > 0);
-        //let allTaskInteractionFeedback = new Array();
-        //interactionsWithFeedback.forEach(interaction => {
-        //    interaction.feedbackList.forEach(feedback => allTaskInteractionFeedback.push(feedback));
-        //})
-        //let relevantFeedback = allTaskInteractionFeedback.filter(feedback => feedback.display.threshold == InputControllerState.interactionCount)
+        
 
         // discreteFeedback ...
         if (!settings.discreteFeedback) {
