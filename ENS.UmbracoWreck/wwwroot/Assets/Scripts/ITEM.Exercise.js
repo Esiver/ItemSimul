@@ -1,5 +1,7 @@
-﻿
-const ITEM = new Object();
+﻿/*jshint esversion: 11 */
+
+
+const ITEM = {};//new Object();
 
 function startExercise(json) {
     if (typeof json == 'undefined') {
@@ -21,8 +23,8 @@ function startExercise(json) {
             });
             exercise.Start();
         }, function (response) {
-            console.error("Unable to load exercise JSON:", response)
-        })
+            console.error("Unable to load exercise JSON:", response);
+        });
     } else {
         
         let exercise = new ITEM.Exercise(json, {
@@ -53,7 +55,7 @@ function mapJsonToExerciseJson(successCallback, errorCallback) {
             if (typeof successCallback == 'function') {
                 successCallback(exerciseJSON);
             } else {
-                console.error("No success callback specified.")
+                console.error("No success callback specified.");
             }
 
         },
@@ -67,19 +69,19 @@ function mapJsonToExerciseJson(successCallback, errorCallback) {
         }
     });
 
-};
+}
 
 ITEM.Exercise = function (jsonData, settings) {
-    debugLog("jsonData:", typeof jsonData)
+    debugLog("jsonData:", typeof jsonData);
 
     //_____ Html selectors
     const exerciseHeaderTitleSelector = "#exercise-title";
     const exerciseTitleSelector = "#exercise-title";
-    const exerciseDescriptionSelector = "#exercise-description"
+    const exerciseDescriptionSelector = "#exercise-description";
     const introBeginSelector = "#intro-begin";
 
     // _____ Header
-    const headerToolListSelector = ".exercise-header__tools-list"
+    const headerToolListSelector = ".exercise-header__tools-list";
     const headerToolItemSelector = ".task-tool";
     const settingsBtnSelector = "#exerciseSettings";
     const prevTaskSelector = "#prevTask";
@@ -111,21 +113,21 @@ ITEM.Exercise = function (jsonData, settings) {
     const confirmRestartBtnSelector = "#confirm-restart-btn";
     const cancelRestartBtnSelector = "#cancel-restart-btn";
     const shortcircuitOverlaySelector = "#shortcircuit-overlay";
-    const shortcircuitOverlayMsgSelector = "#shortcircuit-overlay-msg"
+    const shortcircuitOverlayMsgSelector = "#shortcircuit-overlay-msg";
 
     // ____ settings overlay
-    
+
     const toggleMuteSelector = "#mute-checkbox";
     const toggleSubtitlesSelector = "#subtitles-checkbox-settings";
-    const toggleFeedbackSelector = "#feedback-checkbox"
-    const feedbackComponentSelector = "feedback-component"
+    const toggleFeedbackSelector = "#feedback-checkbox";
+    const feedbackComponentSelector = "feedback-component";
     const feedbackWrapperSelector = ".feedback-wrapper";
 
     const subtitlesSelector = "#subtitles";
     const subtitlesCloseSelector = "#subtitles-hide";
     const subtitlesMoveSelector = '#subtitles-move';
 
-    const taskSelector = ".task"
+    const taskSelector = ".task";
     const firstTaskSelector = ".task:first";
     const activeTaskSelector = ".task.active:first";
     const taskInteractionSelector = ".interactions";
@@ -136,7 +138,7 @@ ITEM.Exercise = function (jsonData, settings) {
     //_____ Html classes
     const taskClass = "task";
     const hiddenClass = "hidden";
-    const taskInteractionsClass = "interactions"
+    const taskInteractionsClass = "interactions";
     const activeOverlayClass = "active-overlay";
     const activeSubtitlesClass = "active-subtitles";
     const activeTaskClass = "active";
@@ -147,10 +149,10 @@ ITEM.Exercise = function (jsonData, settings) {
     const debugHeaderContainerSelector = "#exercise-debug-container";
     const debugSightClass = "debug-sight";
     const debugRecordRectangleClass = "debug-record-rect";
-    const debugMockInteractionClass ="mock-interaction"
+    const debugMockInteractionClass = "mock-interaction";
     const debugMsgId = "debug-msg";
-    const debugTaskTimerClass = "debug__task-timer"
-    const debugTaskCountClass = "debug__task-count"
+    const debugTaskTimerClass = "debug__task-timer";
+    const debugTaskCountClass = "debug__task-count";
 
 
     // ____ JSON (object) selectors
@@ -175,7 +177,7 @@ ITEM.Exercise = function (jsonData, settings) {
     const taskInteractionDimensionsObjectSelector = "dimensions";
     const taskInteractionAssessmentListObjectSelector = "assessmentList";
     //interaction feedback
-    const taskInteractionFeedbackIdObjectSelector = "id"
+    const taskInteractionFeedbackIdObjectSelector = "id";
     const taskInteractionFeedbackTextObjectSelector = "text";
     const taskInteractionFeedbackDisplayObjectSelector = "display";
     const taskInteractionFeedbackDisplayTypeObjectSelector = "type";
@@ -206,10 +208,10 @@ ITEM.Exercise = function (jsonData, settings) {
     const taskFeedbackDismissTypeObjectSelector = "type";
     const taskFeedbackDismissTimeoutObjectSelector = "timeout";
 
-    let _startDate = null;
-    let _endDate = null;
-    let _timers = new Object();
-    let _skippedTasks = new Array();
+    //let _startDate = null;
+    //let _endDate = null;
+    //let _timers = new Object();
+    //let _skippedTasks = new Array();
     let _msecsSinceTaskStart = 0;
     let _taskTimerId;
     let autoCompleteEffectTimeout;
@@ -223,8 +225,8 @@ ITEM.Exercise = function (jsonData, settings) {
 
     var state = {
         jsonData: jsonData,
-        currentTaskObject: new Object(),
-        currentTaskId: new String,
+        currentTaskObject: {},
+        currentTaskId: new String(),
         currentTaskIndex: 0,
         exerciseAttemptCount: 0,
 
@@ -243,8 +245,8 @@ ITEM.Exercise = function (jsonData, settings) {
         isMuted: false,
         isSubtitled: true,
 
-        isGeneratingRectanglesMode:false,
-    }
+        isGeneratingRectanglesMode: false,
+    };
     function clearState() {
         state.didStart = false;
         state.isFinished = false;
@@ -255,7 +257,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function start() {
         //run upon json load succes in startExercise()
-        debugLog("start")
+        debugLog("start");
 
         if (!settings.showIntro && !state.didStart) {
             _startDate = new Date();
@@ -266,11 +268,11 @@ ITEM.Exercise = function (jsonData, settings) {
             initIntro();
         }
     }
-    
-    
+
+
     // _________________________________ INIT _________________________________________
     function init() {
-        debugLog("init Exercise.js")
+        debugLog("init Exercise.js");
         // initObjects requires controllers (initControllers()) to generate its controllers & their callbacks
         // initMarkup requires objects (initObjects()) to generate its markup from objects
         // initEventListeners requires markup (initMarkup()) to attach eventlisteners to
@@ -288,11 +290,11 @@ ITEM.Exercise = function (jsonData, settings) {
             );
 
         updateHeaderIcons();
-    };
+    }
 
     function initState(json = state.jsonData) {
         state.exerciseName = json.name;
-    };
+    }
     async function initSettings(jsonData = state.jsonData) {
         debugLog("initSettings(), {jsonData, settings}:", { jsonData: jsonData, settings: settings });
         if (typeof jsonData.exerciseSettingsModel != 'undefined') {
@@ -304,7 +306,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function initMarkup(json = state.jsonData) {
-        handleExerciseCustomCss(json)
+        handleExerciseCustomCss(json);
         _markupController.GenerateExerciseHeader(json);
         _markupController.GenerateExerciseIntroOverlay(json);
         _markupController.GenerateExerciseMarkup(json);
@@ -316,7 +318,7 @@ ITEM.Exercise = function (jsonData, settings) {
         generateExerciseFeedbackObjects(json);
     }
     function initEventListeners() {
-        let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex]
+        let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
 
         if (!currentTaskObject || currentTaskObject === void 0) {
             handleObjectError();
@@ -332,12 +334,12 @@ ITEM.Exercise = function (jsonData, settings) {
             $(enableAudioSelector).on('click', handleEnableAudioBtn);
             $(disableAudioSelector).on('click', handleDisableAudioBtn);
             $(enableSubtitlesSelector).on('click', handleEnableSubtitlesBtn);
-            $(disableSubtitlesSelector).on('click', handleDisableSubtitlesBtn)
+            $(disableSubtitlesSelector).on('click', handleDisableSubtitlesBtn);
             $(restartExerciseHeaderBtnSelector).on('click', handleRestartExerciseOverlayBtn);
             $(confirmRestartBtnSelector).on('click', handleRestartExerciseConfirmBtn);
             $(cancelRestartBtnSelector).on('click', hideConfirmResetOverlay);
 
-            $(unfocusOverlaySelector).on('click', function () { resumeTask(); $(exerciseSelector).focus() });
+            $(unfocusOverlaySelector).on('click', function () { resumeTask(); $(exerciseSelector).focus(); });
             //settings overlay toggles...
             $(toggleMuteSelector).on('click', toggleMuteAudio);
             $(toggleSubtitlesSelector).on('click', toggleSubtitles);
@@ -352,14 +354,14 @@ ITEM.Exercise = function (jsonData, settings) {
                 .on('focus', handleFocus);
 
         }
-        
+
     }
-    
+
     function initIntro() {
         $(introOverlaySelector).addClass(activeOverlayClass);
         $(introOverlaySelector).find(introBeginSelector).on("click", handleBeginExerciseBtn);
     }
-    
+
     async function initControllers() {
         _logController = ITEM.LogController({ debugMode: settings.debugMode }, state.EventLog); // logController should be initialized first so the other controllers can log.
         _inputController = ITEM.InputController({
@@ -408,15 +410,15 @@ ITEM.Exercise = function (jsonData, settings) {
 
         $(settings.exerciseSelector).find(taskSelector).removeClass(activeTaskClass);
         $(settings.exerciseSelector).find(firstTaskSelector).addClass(activeTaskClass);
-    };
+    }
 
     function initTask() {
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
         if (currentTaskObject === void 0 || !currentTaskObject) {
-            handleInitTaskError()
+            handleInitTaskError();
         } else {
             if (!state.isFinished && state.didStart && _inputController) {
-                debugLog("initTask (Exercise.js)", state.TaskObjectArray[state.currentTaskIndex])
+                debugLog("initTask (Exercise.js)", state.TaskObjectArray[state.currentTaskIndex]);
 
                 if ($(activeClassSelector).before().find("input")) {
                     $(exerciseSelector).trigger("focus");
@@ -429,23 +431,22 @@ ITEM.Exercise = function (jsonData, settings) {
                 loadTaskSubtitles();
                 showTaskSubtitles();
                 cleanTask();
-
                 startTask();
-            };
-        };
-    };
+            }
+        }
+    }
 
     function handleInitTaskError() {
-        let errorObject = {currentState: state, errorLocation: "inittask", errortype: "Object"}
-        handleObjectError(errorObject)
+        let errorObject = { currentState: state, errorLocation: "inittask", errortype: "Object" };
+        handleObjectError(errorObject);
     }
 
     // __ TASK FLOW _____________________________________________________________________
-    
+
     function startTask() {
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
         if (currentTaskObject === void 0 || !currentTaskObject) {
-            handleStartTaskError()
+            handleStartTaskError();
 
         } else {
             if (!state.isFinished && state.didStart) {
@@ -487,32 +488,32 @@ ITEM.Exercise = function (jsonData, settings) {
 
                 // no task interactions or delay
                 if (currentTaskInteractionList.length == 0 && currentTaskDelay == 0) {
-                    debugLog("startTask (task issues, no interaction && delay)")
-                    setTimeout(onTaskEnd, proceedDelay)
+                    debugLog("startTask (task issues, no interaction && delay)");
+                    setTimeout(onTaskEnd, proceedDelay);
                 }
                 // if no interactions but delay! 
                 // (if fx we want to listen to an audiofile before proceeding)
                 if (currentTaskInteractionList.length == 0 && currentTaskDelay > 0) {
-                    debugLog("startTask (no interactions, auto-proceed)", proceedDelay)
-                    setTimeout(onTaskEnd, proceedDelay)
+                    debugLog("startTask (no interactions, auto-proceed)", proceedDelay);
+                    setTimeout(onTaskEnd, proceedDelay);
                 }
 
             }
         }
         updateHeaderIcons();
-    };
+    }
 
     function handleStartTaskError() {
         let errorObject = { currentState: state, errorLocation: "starttask", errortype: "Object" };
         handleObjectError(errorObject);
-    };
+    }
 
     function onTaskEnd() {
         // only engage in taskflow if exercise is not finished.
         if (!state.isFinished && state.didStart) {
             let taskEndObj = {
                 timeSpentOnTask: _msecsSinceTaskStart
-            }
+            };
             debugLog("OnTaskEnd", taskEndObj);
 
             storeTaskEvents();
@@ -524,7 +525,7 @@ ITEM.Exercise = function (jsonData, settings) {
         if (!state.isFinished && state.didStart && !state.isPaused) {
             state.isPaused = true;
             showPauseOverlay();
-            pauseTaskAudioFile()
+            pauseTaskAudioFile();
             pauseTaskTimer();
             hideTaskSubtitles();
 
@@ -532,7 +533,7 @@ ITEM.Exercise = function (jsonData, settings) {
             _logController.HandleOutputLogEntry(state.TaskObjectArray[state.currentTaskIndex], eObj);
         }
         debugLog("pauseTask, current EventLog:", state.EventLog);
-        updateHeaderIcons()
+        updateHeaderIcons();
     }
 
     function resumeTask() {
@@ -540,7 +541,7 @@ ITEM.Exercise = function (jsonData, settings) {
             let activeTask = $(settings.exerciseSelector).find(activeClassSelector);
             state.isPaused = false;
             debugLog("resumeTask", activeTask);
-            
+
             hideAllOverlays();
 
             if (activeTask.find("input").length > 0) {
@@ -570,7 +571,7 @@ ITEM.Exercise = function (jsonData, settings) {
             goToNextTask();
         }
     }
-    
+
     function goToPrevTask() {
         clearTaskSubtitles();
 
@@ -587,7 +588,7 @@ ITEM.Exercise = function (jsonData, settings) {
                 activeTask.prev().addClass(activeTaskClass);
                 initTask();
             } else {
-                debugLog("First Task - can not go back.")
+                debugLog("First Task - can not go back.");
             }
         }
     }
@@ -597,7 +598,7 @@ ITEM.Exercise = function (jsonData, settings) {
         clearTaskSubtitles();
         if (!state.isFinished && state.didStart) {
             state.currentTaskIndex++;
-            debugLog("goToNextTask (start)", $activeTask)
+            debugLog("goToNextTask (start)", $activeTask);
             if (settings.debugMode) {
                 $(`.${debugTaskCountClass}`).text(`Opgave: ${state.currentTaskIndex + 1}`); // todo
             }
@@ -621,30 +622,30 @@ ITEM.Exercise = function (jsonData, settings) {
         _msecsSinceTaskStart = 0;
     }
     function autoCompleteTask() {
-        debugLog('autoCompleteTask (start)', state.TaskObjectArray)
-        state.TaskObjectArray[state.currentTaskIndex].userObject.taskDetailObject.autoComplete = true
+        debugLog('autoCompleteTask (start)', state.TaskObjectArray);
+        state.TaskObjectArray[state.currentTaskIndex].userObject.taskDetailObject.autoComplete = true;
 
         let eObj = {
             event: 'Task Auto-Completed.',
             timeStamp: Date.now(),
             task: state.TaskObjectArray[state.currentTaskIndex],
             explainer: 'User autocompleted/skipped task.'
-        }
+        };
         _logController.HandleOutputLogEntry(state.TaskObjectArray[state.currentTaskIndex], eObj, 'User autocompleted/skipped task.');
 
         for (var interaction of state.TaskObjectArray[state.currentTaskIndex][taskInteractionListObjectSelector]) {
             switch (interaction[taskInteractionTypeObjectSelector]) {
                 case "stringinput":
-                    for (var asm of interaction[taskInteractionAssessmentListObjectSelector]) {
-                        
-                        if (asm.correctInput[0] != undefined) {
+                    for (var assesment of interaction[taskInteractionAssessmentListObjectSelector]) {
+
+                        if (assesment.correctInput[0] != undefined) {
                             $(activeClassSelector + ' input:first').val('');
-                            var string = asm.correctInput[0];
+                            var string = assesment.correctInput[0];
                             var i = 0;
                             function typeString() {
                                 if (i < string.length) {
-                                    $(activeClassSelector + ' input:first').val($(activeClassSelector + ' input:first').val() + string[i])
-                                    i++
+                                    $(activeClassSelector + ' input:first').val($(activeClassSelector + ' input:first').val() + string[i]);
+                                    i++;
                                     setTimeout(typeString, 75);
                                 } else if (i === string.length) {
                                     autoCompleteEffectTimeout = setTimeout(onTaskEnd, 400);
@@ -671,9 +672,9 @@ ITEM.Exercise = function (jsonData, settings) {
                     autoCompleteEffectTimeout = setTimeout(onTaskEnd, 1200);
                     break;
                 case "keydown":
-                    for (var asm of interaction[taskInteractionAssessmentListObjectSelector]) {
-                        if (asm.correctInput != undefined) {
-                            var key = asm.correctInput;
+                    for (var assesment of interaction[taskInteractionAssessmentListObjectSelector]) {
+                        if (assesment.correctInput != undefined) {
+                            var key = assesment.correctInput;
                             var keyContainer = document.createElement('div');
                             keyContainer.classList.add('show-keydown-effect');
                             var keyWrapper = document.createElement('div');
@@ -693,7 +694,7 @@ ITEM.Exercise = function (jsonData, settings) {
                                     return: '⏎ enter',
                                     capsLock: 'caps lock',
                                     tab: '↹ tab',
-                                }
+                                };
                                 const prettyMapKey = prettyMap[key] || key;
                                 return prettyMapKey;
                             }
@@ -723,11 +724,11 @@ ITEM.Exercise = function (jsonData, settings) {
     // __ EXERCISE FLOW __________________________________________________________________
 
     function restartExercise() {
-        debugLog("restartExercise", state)
+        debugLog("restartExercise", state);
         hideAllOverlays();
 
         clearState();
-        
+
         _inputController.ICHandleRestartExercise();
         _feedbackController.FCHandleRestartExercise();
 
@@ -738,16 +739,16 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function handleEndExercise() {
         state.isFinished = true;
-        debugLog("handleEndExercise", state)
+        debugLog("handleEndExercise", state);
 
         let eObj = {
             event: 'Exercise Complete.',
             timeStamp: Date.now(),
             task: state.TaskObjectArray[state.currentTaskIndex],
             explainer: 'User completed the exercise.'
-        }
-        
-        _logController.HandleOutputLogEntry(state.TaskObjectArray[state.TaskObjectArray.length -1], eObj, 'Exercise Complete.');
+        };
+
+        _logController.HandleOutputLogEntry(state.TaskObjectArray[state.TaskObjectArray.length - 1], eObj, 'Exercise Complete.');
 
         clearTaskAudioFile();
         clearTaskSubtitles();
@@ -763,16 +764,16 @@ ITEM.Exercise = function (jsonData, settings) {
 
         clearResultsOverlay();
         toggleResultsOverlay();
-        _markupController?.GenerateExerciseResultMarkup(exerciseResultObjectArray)
+        _markupController?.GenerateExerciseResultMarkup(exerciseResultObjectArray);
     }
 
     // ___ OVERLAY _____________________________________________________________________
     function handleFocus() {
-        debugLog("handleFocus", { showingResults: state.isShowingResults, pause: state.isPaused })
-        resumeTask()
+        debugLog("handleFocus", { showingResults: state.isShowingResults, pause: state.isPaused });
+        resumeTask();
     }
     function handleUnfocus(e) {
-        debugLog("handleUnfocus", { isSubtitles: $(e.relatedTarget).is(subtitlesSelector), event: e, relatedTarget: e.relatedTarget })
+        debugLog("handleUnfocus", { isSubtitles: $(e.relatedTarget).is(subtitlesSelector), event: e, relatedTarget: e.relatedTarget });
 
         // conditions for ignoring the unfocus
         if ($(e.relatedTarget).is($(settings.exerciseSelector))) { // avoid clicks on the actual exercise triggering focus/unfocus
@@ -788,7 +789,7 @@ ITEM.Exercise = function (jsonData, settings) {
             //input.stringinput to also catch header-bar <input> interactions.
             pauseTask();
         }
-        
+
         $(exerciseSelector).removeClass('ignore-unfocus');
     }
 
@@ -813,7 +814,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function toggleSettingsOverlay() {
         state.isShowingSettings = !state.isShowingSettings;
-        $(settingsOverlaySelector).toggleClass(activeOverlayClass)
+        $(settingsOverlaySelector).toggleClass(activeOverlayClass);
     }
     function toggleDebugOverlay() {
         $(debugOverlaySelector).toggleClass(activeOverlayClass);
@@ -831,16 +832,16 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function clearResultsOverlay() {
         $(resultOverlayAttemptListSelector).html('');
-        
+
     }
     function showSettingsOverlay() {
         state.isShowingSettings = true;
-        $(settingsOverlaySelector).addClass(activeOverlayClass)
+        $(settingsOverlaySelector).addClass(activeOverlayClass);
 
     }
     function hideSettingsOverlay() {
         state.isShowingSettings = false;
-        $(settingsOverlaySelector).removeClass(activeOverlayClass)
+        $(settingsOverlaySelector).removeClass(activeOverlayClass);
 
     }
     function showConfirmResetOverlay() {
@@ -877,17 +878,17 @@ ITEM.Exercise = function (jsonData, settings) {
         }
     }
     function clearTaskSubtitles() {
-        debugLog("clearTaskSubtitles")
+        debugLog("clearTaskSubtitles");
         $(subtitlesSelector).removeClass(activeSubtitlesClass);
         $(subtitlesSelector).find("p:first").html("");
     }
 
     function moveTaskSubtitles() {
-        debugLog("moveTaskSubtitles()", subtitlesMoveSelector)
+        debugLog("moveTaskSubtitles()", subtitlesMoveSelector);
         $(subtitlesSelector).toggleClass("moved");
-        return false
+        return false;
     }
-    
+
     function toggleSubtitles() {
         state.isSubtitled = !state.isSubtitled;
         updateHeaderIcons();
@@ -905,9 +906,9 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function updateSettingIcons() {
         if (!state.isMuted && $(toggleMuteSelector).is(':checked')) {
-            $(toggleMuteSelector).toggle('checked')
+            $(toggleMuteSelector).toggle('checked');
         } else {
-            console.log("hehe")
+            // hehe
         }
     }
 
@@ -916,7 +917,7 @@ ITEM.Exercise = function (jsonData, settings) {
         if (!state.isFinished) {
             $(exerciseSettings).removeClass(hiddenClass);
             $(replayAudioSelector).removeClass(hiddenClass);
-            
+
         } else {
             $(exerciseSettings).addClass(hiddenClass);
             $(replayAudioSelector).addClass(hiddenClass);
@@ -924,7 +925,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
         if (!state.isPaused) {
             $(playTaskSelector).addClass(hiddenClass);
-            $(pauseTaskSelector).removeClass(hiddenClass); 
+            $(pauseTaskSelector).removeClass(hiddenClass);
 
         } else {
             $(pauseTaskSelector).addClass(hiddenClass);
@@ -932,19 +933,19 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
         if (state.isMuted) {
-            $(enableAudioSelector).removeClass(hiddenClass)
-            $(disableAudioSelector).addClass(hiddenClass)
+            $(enableAudioSelector).removeClass(hiddenClass);
+            $(disableAudioSelector).addClass(hiddenClass);
         } else {
-            $(enableAudioSelector).addClass(hiddenClass)
-            $(disableAudioSelector).removeClass(hiddenClass)
+            $(enableAudioSelector).addClass(hiddenClass);
+            $(disableAudioSelector).removeClass(hiddenClass);
         }
 
         if (state.isSubtitled) {
-            $(enableSubtitlesSelector).addClass(hiddenClass)
-            $(disableSubtitlesSelector).removeClass(hiddenClass)
+            $(enableSubtitlesSelector).addClass(hiddenClass);
+            $(disableSubtitlesSelector).removeClass(hiddenClass);
         } else {
-            $(enableSubtitlesSelector).removeClass(hiddenClass)
-            $(disableSubtitlesSelector).addClass(hiddenClass)
+            $(enableSubtitlesSelector).removeClass(hiddenClass);
+            $(disableSubtitlesSelector).addClass(hiddenClass);
         }
     }
 
@@ -956,12 +957,12 @@ ITEM.Exercise = function (jsonData, settings) {
     function handleEnableAudioBtn() {
         toggleMuteAudio();
         updateHeaderIcons();
-        return false
+        return false;
     }
     function handleDisableAudioBtn() {
         toggleMuteAudio();
         updateHeaderIcons();
-        return false
+        return false;
     }
     function handleEnableSubtitlesBtn() {
         state.isSubtitled = true;
@@ -971,7 +972,7 @@ ITEM.Exercise = function (jsonData, settings) {
     function handleDisableSubtitlesBtn() {
         state.isSubtitled = false;
         hideTaskSubtitles();
-        updateHeaderIcons()
+        updateHeaderIcons();
     }
     function handleRestartExerciseOverlayBtn() {
         if ($(confirmRestartOverlaySelector).hasClass(activeOverlayClass)) {
@@ -982,9 +983,9 @@ ITEM.Exercise = function (jsonData, settings) {
         }
     }
     function handleRestartExerciseConfirmBtn() { // the overlay confirm restart btn - not the header btn. Here bc btn!
-        debugLog("handleRestartExerciseConfirmBtn", state)
+        debugLog("handleRestartExerciseConfirmBtn", state);
         restartExercise();
-        return false
+        return false;
     }
 
     function hideHeaderTools() {
@@ -999,18 +1000,18 @@ ITEM.Exercise = function (jsonData, settings) {
         $(disableSubtitlesSelector).addClass(headerToolHiddenClass);
         $(replayAudioSelector).addClass(headerToolHiddenClass);
         $(settingsBtnSelector).addClass(headerToolHiddenClass);
-        
+
     }
 
     function handleBeginExerciseBtn(e) {
-        debugLog("handlerBeginExerciseBtn", e)
+        debugLog("handlerBeginExerciseBtn", e);
         e.preventDefault();
 
         _startDate = new Date();
         state.didStart = true;
 
         $(introOverlaySelector).removeClass(activeOverlayClass);
-        
+
         initTask();
     }
 
@@ -1018,35 +1019,35 @@ ITEM.Exercise = function (jsonData, settings) {
     function showOverlayAudioError(error) {
         pauseTaskTimer();
         showAudioOverlay();
-        $(audioOverlaySelector).find(".error-action:first").html("Tryk her for at prøve igen.")
-        $(audioOverlaySelector).find(".error-detail:first").html(error)
+        $(audioOverlaySelector).find(".error-action:first").html("Tryk her for at prøve igen.");
+        $(audioOverlaySelector).find(".error-detail:first").html(error);
         $(audioOverlaySelector).on("click", function clickAudioError() {
 
             hideAudioOverlay();
-            playTaskAudioFile()
+            playTaskAudioFile();
             startTaskTimer();
-        })
+        });
     }
     function clearTaskAudioFile() {
         _audioController?.ClearAudioFile();
     }
     function loadTaskAudioFile() {
-        let currentTask = typeof state.TaskObjectArray[state.currentTaskIndex] != 'undefined' ? state.TaskObjectArray[state.currentTaskIndex] : null
+        let currentTask = typeof state.TaskObjectArray[state.currentTaskIndex] != 'undefined' ? state.TaskObjectArray[state.currentTaskIndex] : null;
         let currentTaskAudio = currentTask != null ? currentTask[taskAudioObjectSelector] : "";
         _audioController?.LoadAudioFile(settings.assetsPath + currentTaskAudio);
     }
     function playTaskAudioFile() {
-        debugLog("playTaskAudioFile")
+        debugLog("playTaskAudioFile");
         _audioController?.PlayAudio();
     }
     function pauseTaskAudioFile() {
         _audioController?.PauseAudio();
     }
     function replayTaskAudioFile() {
-        debugLog("replayTaskAudioFile (exercise.js)", state)
+        debugLog("replayTaskAudioFile (exercise.js)", state);
         if (!state.isFinished) {
             _audioController.ReplayAudio();
-            resumeTask()
+            resumeTask();
         }
     }
 
@@ -1067,7 +1068,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function storeTaskEvents() {
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
-        _logController?.StoreLogEntriesToTaskObject(currentTaskObject)
+        _logController?.StoreLogEntriesToTaskObject(currentTaskObject);
 
     }
 
@@ -1082,7 +1083,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function handleFeedbackState() {
-        debugLog("handleFeedbackState() ... state.hideFeedback = ", state.hideFeedback)
+        debugLog("handleFeedbackState() ... state.hideFeedback = ", state.hideFeedback);
         if (state.hideFeedback) {
             _feedbackController?.DisableFeedback();
         } else {
@@ -1115,7 +1116,7 @@ ITEM.Exercise = function (jsonData, settings) {
     function showTaskFeedback() {
         let currentTask = state.TaskObjectArray[state.currentTaskIndex];
         let taskFeedbackList = currentTask[taskFeedbackListObjectSelector];
-        
+
         if (currentTask && typeof currentTask.taskFeedback != 'undefined' && taskFeedbackList.length > 0) {
             currentTask.taskFeedback(currentTask.id, "time", { msecsSinceTaskStart: _msecsSinceTaskStart });
         }
@@ -1125,7 +1126,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function generateExerciseTaskObjects(json) {
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
-        debugLog("generateExerciseTaskObject", json)
+        debugLog("generateExerciseTaskObject", json);
 
         exerciseTaskModels.forEach((task, index) => {
             let tObj = {};
@@ -1133,7 +1134,7 @@ ITEM.Exercise = function (jsonData, settings) {
             tObj.index = index;
             tObj[taskAudioObjectSelector] = task[taskAudioObjectSelector];
             tObj[taskScreenshotObjectSelector] = task[taskScreenshotObjectSelector];
-            tObj[taskSubtitlesObjectSelector] = task[taskSubtitlesObjectSelector]
+            tObj[taskSubtitlesObjectSelector] = task[taskSubtitlesObjectSelector];
             tObj[taskIdObjectSelector] = task[taskIdObjectSelector];
             tObj[taskInteractionListObjectSelector] = task[taskInteractionListObjectSelector];
             tObj[taskFeedbackListObjectSelector] = task[taskFeedbackListObjectSelector];
@@ -1141,19 +1142,18 @@ ITEM.Exercise = function (jsonData, settings) {
             tObj.callback = onTaskEnd;
             tObj.taskFeedback = _feedbackController?.ShowTaskFeedback;
             tObj.interactionFeedbackList = [_feedbackController?.ShowInteractionFeedback];
-            tObj.userObject =
-            {
+            tObj.userObject = {
                 taskLog: [],
                 taskDetailObject: {} // Object open for potential extra information
-            }
+            };
             state.TaskObjectArray.push(tObj);
-        })
+        });
     }
 
-    
+
     function getTaskInteractionCssObject(taskInteractionDimensionsRect) {
         let taskInteractionCssObject;
-        taskInteractionDimensionsRect = makePercentage(taskInteractionDimensionsRect)
+        taskInteractionDimensionsRect = makePercentage(taskInteractionDimensionsRect);
         taskInteractionCssObject = {
             left: taskInteractionDimensionsRect.x,
             top: taskInteractionDimensionsRect.y,
@@ -1169,7 +1169,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
         exerciseTaskModels.forEach(taskObj => {
             let taskInteractionList = taskObj[taskInteractionListObjectSelector];
-            let iObj = {}
+            let iObj = {};
             taskInteractionList.forEach(interactionObject => {
                 iObj[taskInteractionIdObjectSelector] = interactionObject[taskInteractionIdObjectSelector];
                 iObj[taskInteractionNameObjectSelector] = interactionObject[taskInteractionNameObjectSelector];
@@ -1178,8 +1178,8 @@ ITEM.Exercise = function (jsonData, settings) {
                 iObj.onCompleteId = interactionObject.onCompleteId;
                 iObj.callback = _feedbackController?.ShowInteractionFeedback;
             });
-            
-            state.InteractionArray.push(iObj)
+
+            state.InteractionArray.push(iObj);
         });
     }
 
@@ -1239,9 +1239,9 @@ ITEM.Exercise = function (jsonData, settings) {
                             feedbackItem.SetDismiss(feedbackDismissType, feedbackDismissTimeout, feedbackDismissBtnText, undefined, feedbackDismissCallback);
                         }
                     } else {
-                        feedbackItem.SetDismiss("auto", "8000", undefined, false, undefined)
+                        feedbackItem.SetDismiss("auto", "8000", undefined, false, undefined);
                     }
-                    debugLog("_feedbackArray - adding taskfeedback item:", feedbackItem)
+                    debugLog("_feedbackArray - adding taskfeedback item:", feedbackItem);
 
                     _feedbackController.AddFeedbackToArray(feedbackItem);
                 });
@@ -1250,7 +1250,7 @@ ITEM.Exercise = function (jsonData, settings) {
                 taskInteractionList.forEach(interaction => {
                     let interactionId = interaction[taskInteractionIdObjectSelector];
                     let interactionFeedbackList = interaction[taskInteractionFeedbackListObjectSelector];
-                    debugLog("interactionFeedbackList", interactionFeedbackList)
+                    debugLog("interactionFeedbackList", interactionFeedbackList);
 
                     if (interactionFeedbackList) {
                         interactionFeedbackList.forEach(feedback => {
@@ -1294,16 +1294,16 @@ ITEM.Exercise = function (jsonData, settings) {
                             }
                             if (interactionFeedbackDismiss) {
                                 if (interactionFeedbackDismissDoItForMe == true) {
-                                    feedbackItem.SetDismiss(interactionFeedbackDismissType, interactionFeedbackDismissTimeout, interactionFeedbackDismissBtnText, autoCompleteTask, interactionFeedbackDismissCallback)
+                                    feedbackItem.SetDismiss(interactionFeedbackDismissType, interactionFeedbackDismissTimeout, interactionFeedbackDismissBtnText, autoCompleteTask, interactionFeedbackDismissCallback);
                                 } else {
-                                    feedbackItem.SetDismiss(interactionFeedbackDismissType, interactionFeedbackDismissTimeout, interactionFeedbackDismissBtnText, undefined, interactionFeedbackDismissCallback)
+                                    feedbackItem.SetDismiss(interactionFeedbackDismissType, interactionFeedbackDismissTimeout, interactionFeedbackDismissBtnText, undefined, interactionFeedbackDismissCallback);
                                 }
                             } else {
-                                feedbackItem.SetDismiss("auto", "8000", undefined, false, undefined)
+                                feedbackItem.SetDismiss("auto", "8000", undefined, false, undefined);
                             }
-                            debugLog("_feedbackArray - adding interaction item:", feedbackItem)
+                            debugLog("_feedbackArray - adding interaction item:", feedbackItem);
 
-                            _feedbackController.AddFeedbackToArray(feedbackItem)
+                            _feedbackController.AddFeedbackToArray(feedbackItem);
                         });
                     }
                 });
@@ -1311,11 +1311,11 @@ ITEM.Exercise = function (jsonData, settings) {
         });
     }
 
-    
+
 
     // ___ DEBUG _____________________________________________________________________
 
-    
+
     function initDebug() {
         if (settings.debugMode) {
             debugLog("initDebug", state);
@@ -1324,16 +1324,16 @@ ITEM.Exercise = function (jsonData, settings) {
             initDebugControls(); // header rightside btns
             initDebugOverlay();
         }
-        
 
-    };
+
+    }
     function initDebugOverlay() {
         $("#debug--finish-exercise").on("click", debugFinishAllTask);
 
-    };
+    }
     function initDebugDisplays() {
         if (_markupController) {
-            debugLog("initDebugDisplays")
+            debugLog("initDebugDisplays");
             let debugMsgInput = _markupController.GetDebugMsgInput(handleDebugInputClick, handleDebugInputChange);
             let debugTaskTimer = _markupController.GetDebugTaskTimer("00:00");
             let debugTaskCount = _markupController.GetDebugTaskCount();
@@ -1341,12 +1341,12 @@ ITEM.Exercise = function (jsonData, settings) {
             $(debugHeaderContainerSelector).append(debugTaskTimer);
             $(debugHeaderContainerSelector).append(debugTaskCount);
             $(debugHeaderContainerSelector).append(debugMsgInput);
-        };
-    };
+        }
+    }
 
     function initDebugControls() {
         if (_markupController) {
-            let debugMenuBtn = _markupController?.GetHeaderBtn('bug_report', toggleDebugOverlay, { tooltip: 'Debug Menu' })
+            let debugMenuBtn = _markupController?.GetHeaderBtn('bug_report', toggleDebugOverlay, { tooltip: 'Debug Menu' });
             let debugSightBtn = _markupController?.GetHeaderBtn('local_fire_department', toggleDebugSight, { tooltip: 'Debug Sight' });
             let debugGenerateRectangleBtn = _markupController?.GetHeaderBtn('image_aspect_ratio', toggleMakeInteractionRectangle, { tooltip: 'Make Interaction Rectangles' });
             let debugSkipTaskBtn = _markupController?.GetHeaderBtn('skip_next', skipTask, { tooltip: 'Skip Task' });
@@ -1355,9 +1355,9 @@ ITEM.Exercise = function (jsonData, settings) {
             $(headerToolListSelector).append(debugSightBtn);
             $(headerToolListSelector).append(debugMenuBtn);
             $(headerToolListSelector).append(debugGenerateRectangleBtn);
-            $(headerToolListSelector).append(debugSkipTaskBtn)
-        };
-    };
+            $(headerToolListSelector).append(debugSkipTaskBtn);
+        }
+    }
     function handleDebugInputClick(e) {
         if ($(e.target).val().length > 0) {
             let copyValue = $(e.target).val();
@@ -1366,11 +1366,11 @@ ITEM.Exercise = function (jsonData, settings) {
 
             $(e.target).next().text(` --copied!`);
         }
-    };
+    }
 
     function handleDebugInputChange(e) {
         editMockInteractionRectangle(e);
-    };
+    }
     function editMockInteractionRectangle(e) {
         let mockInteractionRectangles = $(`${activeTaskSelector} .${debugMockInteractionClass}`);
         let inputString = $(e.target).val();
@@ -1381,20 +1381,20 @@ ITEM.Exercise = function (jsonData, settings) {
             inputObject = JSON.parse(sanitizedInputString);
         }
         catch (error) {
-            handleMockInteractionRectangleError(error, e)
+            handleMockInteractionRectangleError(error, e);
         }
 
-        let cssObj = getTaskInteractionCssObject(inputObject)
+        let cssObj = getTaskInteractionCssObject(inputObject);
         cssObj = makePercentage(cssObj);
 
         if (mockInteractionRectangles.length > 0) {
-            mockInteractionRectangles.css(cssObj)
+            mockInteractionRectangles.css(cssObj);
         }
     }
 
     function handleMockInteractionRectangleError(error) {
-        $(`#${debugMsgId} span`).text('Input JSON error.')
-        debugLog("JSON input error: ", { error: error })
+        $(`#${debugMsgId} span`).text('Input JSON error.');
+        debugLog("JSON input error: ", { error: error });
     }
     function toggleMakeInteractionRectangle() {
         $('body').toggleClass(debugRecordRectangleClass);
@@ -1402,7 +1402,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
         state.isGeneratingRectanglesMode = !state.isGeneratingRectanglesMode;
         updateHeaderIcons();
-        _inputController?.ToggleReportRectangle(state.isGeneratingRectanglesMode, null)
+        _inputController?.ToggleReportRectangle(state.isGeneratingRectanglesMode, null);
         return false;
     }
     function toggleDebugSight() {
@@ -1413,14 +1413,14 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function debugFinishAllTask() {
         state.didStart = true;
-        let tasksArray = Array.from($(taskSelector))
+        let tasksArray = Array.from($(taskSelector));
         for (let t = 0; t < tasksArray.length; t++) {
             skipTask();
         }
     }
-    function debugLog(msg, obj) { 
+    function debugLog(msg, obj) {
         if (settings.debugMode) {
-            console.log(msg, obj)
+            console.log(msg, obj);
         }
     }
 
@@ -1446,14 +1446,14 @@ ITEM.Exercise = function (jsonData, settings) {
             msg = `Fejl: ${errorObject.errortype}`;
         } else {
             msg = `Ukendt Fejl`;
-        };
+        }
 
         $(shortcircuitOverlayMsgSelector).text(msg);
     }
 
     // ________________________________ Helpers & Gets __________________________________
     function getCurrentTaskObject() {
-        return state.TaskObjectArray[state.currentTaskIndex]
+        return state.TaskObjectArray[state.currentTaskIndex];
     }
     function makePercentage(obj) {
         let percentageObj = obj;
@@ -1466,7 +1466,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function handleExerciseCustomCss() {
         let customCssString = settings.customCss;
-        debugLog("handleExerciseCustomCss, string", { customCssString: customCssString, json: json, settings: settings })
+        debugLog("handleExerciseCustomCss, string", { customCssString: customCssString, json: json, settings: settings });
 
         if (typeof customCssString != 'undefined' && customCssString) {
             let styleSheet = document.createElement('style');
@@ -1484,8 +1484,8 @@ ITEM.Exercise = function (jsonData, settings) {
     // ___ init' m8 _____________________________________________________________________
 
     init();
-    
+
 
     return this;
-}
+};
 
