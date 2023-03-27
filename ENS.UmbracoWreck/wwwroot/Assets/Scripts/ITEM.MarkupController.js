@@ -149,7 +149,7 @@
         let resultSummaryDom = document.createElement('div');
 
         let headerDom = document.createElement('h2');
-        let attemptCountString = typeof exerciseResultObject.index != 'undefined' ? `Forsøg nr. ${exerciseResultObject.index + 1}` : '';
+        let attemptCountString = exerciseResultObject?.index != void 0 ? `Forsøg nr. ${exerciseResultObject.index + 1}` : '';
         let headerTextNode = document.createTextNode(`${attemptCountString} - Flot klaret `);
         headerDom.append(headerTextNode);
 

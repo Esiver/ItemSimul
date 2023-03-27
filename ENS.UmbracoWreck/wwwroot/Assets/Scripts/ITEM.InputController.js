@@ -62,7 +62,6 @@
     };
 
     function initInputController(firstTaskObject) {
-        // the input 
         InputControllerState.currentTaskObject = firstTaskObject
         debugLog("inputcontroller init", InputControllerState.currentTask)
 
@@ -111,7 +110,7 @@
         clearStringInstance();
         clearInteractionArray();
 
-        if (typeof InputControllerState.currentTaskObject != 'undefined') {
+        if (typeof InputControllerState.currentTaskObject != 'undefined' && InputControllerState.currentTaskObject) {
             InputControllerState.currentTaskObject[taskInteractionListObjectSelector].forEach(iObj => {
                 InputControllerState.interactionObjectArray.push(iObj)
             });
@@ -166,7 +165,7 @@
         }
     }
 
-    function inputfieldHandler(event) {
+    function inputfieldHandler(event) { //...
         InputControllerState.taskInputfieldArray.forEach(inputfieldObj => {
             if (inputfieldObj.id == event.target.getAttribute("id")) {
                 inputfieldObj.value = $(event.target).val()
@@ -194,7 +193,7 @@
     function initMouseOver(task) {
         
         let mouseoverInteractionObjectsArray = null;
-        if (typeof InputControllerState?.currentTaskObject != 'undefined') {
+        if (typeof InputControllerState?.currentTaskObject != 'undefined' && InputControllerState?.currentTaskObject) {
             mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector]?.filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString);
         }
         debugLog("initMouseOver", { task: task, currentTask: InputControllerState.currentTaskObject, state: InputControllerState, mouseoverObjects: mouseoverInteractionObjectsArray })
@@ -204,12 +203,11 @@
 
             let $currentTask = $(`#${InputControllerState.currentTaskObject[taskInteractionIdObjectSelector]}`)
             let interactionId = iObj[taskInteractionIdObjectSelector];
-            let interactionFeedbackList = iObj[taskInteractionFeedbackListSelector]
+            let interactionFeedbackList = iObj[taskInteractionFeedbackListSelector];
 
             let interactionTarget = $currentTask.find(`[data-interaction='${interactionId}']`);
             let attemptCount = 1;
-
-            
+                        
             interactionTarget.on("mouseover", function (e) {
                 if (interactionTarget.hasClass("mouseover")) {
                     let eObj = {
@@ -227,7 +225,7 @@
 
                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            if (typeof feedback != 'undefined') {
+                            if (typeof feedback != 'undefined' && feedback) {
 
                                 feedback(interactionId, "correct", {
                                     interactionAttempts: attemptCount,
@@ -258,8 +256,6 @@
         // pre-sort interactions with feedback
         // pre-sort for those with relevant feedback threshold (ie. current attempts == threshold)
         // for each of these, call feedback()
-        
-
         // discreteFeedback ...
         if (!settings.discreteFeedback) {
             // cycle through all interactions on task since we want to check all task feedbacks
@@ -330,8 +326,8 @@
     function checkMouseInteraction(event) {
         debugLog("checkMouseInteraction (start)", event);
 
-        // multiple pre-checks to see if we should check for match and react to the click. Partly because we dont want a click on a feedback-box to trigger anything.
-        if (typeof InputControllerState.currentTaskObject != 'undefined'
+        // multiple pre-checks to see if we should check for match and react to the click. Partly because we want to ensure that a click on a feedback-box triggers anything.
+        if (typeof InputControllerState.currentTaskObject != 'undefined' && InputControllerState.currentTaskObject
             && InputControllerState.currentTask != null
             && InputControllerState.currentTask.hasClass("active")
             && $(event.target).parents('.feedback-wrapper').length == 0 ) { 
@@ -362,7 +358,9 @@
 
     function checkKeyboardInteraction(event) {
         debugLog("checkKeyboardInteraction (event):", event)
-        if (typeof InputControllerState.currentTaskObject != 'undefined' && InputControllerState.currentTask != null && InputControllerState.currentTask.hasClass("active")) {
+        let currentTaskObject = InputControllerState?.currentTaskObject;
+        let currentTask = InputControllerState.currentTask;
+        if (typeof currentTaskObject != 'undefined' && currentTask != null && currentTask.hasClass("active")) {
             for (let i = 0; i < InputControllerState.currentTaskObject[taskInteractionListObjectSelector].length; i++) {
                 let iObj = InputControllerState.currentTaskObject[taskInteractionListObjectSelector][i]
                 let interactionType = iObj[taskInteractionTypeObjectSelector]
@@ -455,7 +453,7 @@
 
                     debugLog(`checkMatchKeyPress (assessment loop: #${a})`, { iObj: iObj, assessment: asm })
 
-                    if (typeof assessmentCorrectInputList != 'undefined') {
+                    if (typeof assessmentCorrectInputList != 'undefined' && assessmentCorrectInputList) {
                         let attemptCount = InputControllerState.taskAttemptKeyCount;
                         let eventKeyArray = [];
                         let correctKeyArray = [];
@@ -523,7 +521,7 @@
 
 
         if (targetMatchId == interactionId) {
-            if (typeof interactionAssessmentList != 'undefined' && interactionAssessmentList.length > 0) {
+            if (typeof interactionAssessmentList != 'undefined' && interactionAssessmentList && interactionAssessmentList.length > 0) {
 
                 for (let a = 0; a < interactionAssessmentList.length; a++) {
                     let asm = iObj[taskInteractionAssessmentListObjectSelector][a];
@@ -573,8 +571,6 @@
                         // we check all possible event-triggers
                         for (let t = 0; t < assessmentAttemptTriggerList.length; t++) {
                             let trigger = assessmentAttemptTriggerList[t];
-
-
                             // if specific button-press is considered an "attempt", eg. [enter]
                             // we MAY NOT assume the user is at the correct inputfield.
                             // we MAY assume the user is at an inputfield.
@@ -693,7 +689,7 @@
             let attemptCount = InputControllerState.taskAttemptClickCount;
             debugLog("checkMatchClick (start)", { event: event, attempts: attemptCount, target: target })
 
-            if (event.type == 'mousedown' && typeof targetId != 'undefined' && interactionId == targetId && $(target).hasClass("click")) {
+            if (event.type == 'mousedown' && typeof targetId != 'undefined' && targetId && interactionId == targetId && $(target).hasClass("click")) {
                 stdLogEntry("Task Complete.", "status", attemptCount);
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
@@ -811,21 +807,16 @@
 
         } else {
             debugLog("Error (Input Controller): No task object found.", { event: event, iObj: iObj })
-
-
         }
     }
 
-
     function storeMouseDown(e) {
-        let exerciseWidth = $(settings.exerciseContainerSelector).width();
-        let exerciseHeight = $(settings.exerciseContainerSelector).height();
-
-        let relEventX = e.pageX - e.currentTarget.offsetLeft;
-        let relEventY = e.pageY - e.currentTarget.offsetTop;
-
-        let relEventXpc = Math.round((relEventX / exerciseWidth) * 100);
-        let relEventYpc = Math.round((relEventY / exerciseHeight) * 100);
+        let $container = $(taskActiveSelector)
+        let mouseClickCoordObject = getMouseClickCoordinatesObject(e, $container);
+        let relEventX = mouseClickCoordObject.relX;
+        let relEventY = mouseClickCoordObject.relY;
+        let relEventXpc = mouseClickCoordObject.relXpercent;
+        let relEventYpc = mouseClickCoordObject.relYpercent;
 
         let eventObj = {
             timeStamp: Date.now(),
@@ -846,14 +837,12 @@
     }
 
     function storeRightClick(e) {
-        let exerciseWidth = $(settings.exerciseContainerSelector).width();
-        let exerciseHeight = $(settings.exerciseContainerSelector).height();
-
-        let relEventX = e.pageX - e.currentTarget.offsetLeft;
-        let relEventY = e.pageY - e.currentTarget.offsetTop;
-
-        let relEventXpc = Math.round((relEventX / exerciseWidth) * 100);
-        let relEventYpc = Math.round((relEventY / exerciseHeight) * 100);
+        let $container = $(taskActiveSelector)
+        let mouseClickCoordObject = getMouseClickCoordinatesObject(e, $container);
+        let relEventX = mouseClickCoordObject.relX;
+        let relEventY = mouseClickCoordObject.relY;
+        let relEventXpc = mouseClickCoordObject.relXpercent;
+        let relEventYpc = mouseClickCoordObject.relYpercent;
 
         let eventObj = {
             timeStamp: Date.now(),
@@ -876,14 +865,12 @@
     }
 
     function storeDblClick(e) {
-        let exerciseWidth = $(settings.exerciseContainerSelector).width();
-        let exerciseHeight = $(settings.exerciseContainerSelector).height();
-
-        let relEventX = e.pageX - e.currentTarget.offsetLeft;
-        let relEventY = e.pageY - e.currentTarget.offsetTop;
-
-        let relEventXpc = Math.round((relEventX / exerciseWidth) * 100);
-        let relEventYpc = Math.round((relEventY / exerciseHeight) * 100);
+        let $container = $(taskActiveSelector)
+        let mouseClickCoordObject = getMouseClickCoordinatesObject(e, $container);
+        let relEventX = mouseClickCoordObject.relX;
+        let relEventY = mouseClickCoordObject.relY;
+        let relEventXpc = mouseClickCoordObject.relXpercent;
+        let relEventYpc = mouseClickCoordObject.relYpercent;
 
         let eventObj = {
             timeStamp: Date.now(),
@@ -935,8 +922,14 @@
 
     }
 
-    function getMouseClickCoordinatesObject(event) {
-        const target = event.target;
+    function getMouseClickCoordinatesObject(event, $targetContainer) {
+        let target;
+        
+        if ($targetContainer === void 0 || !$targetContainer) {
+            target = event.target
+        } else {
+            target = $targetContainer.get(0)
+        }
 
         if (target && event) {
             const bcRect = target.getBoundingClientRect();
@@ -946,6 +939,7 @@
             const yPercent = (y / bcRect.height) * 100;
 
             const clickCoordinatesObj = { relX: x, relY: y, relXpercent: xPercent, relYpercent: yPercent };
+            
 
             return clickCoordinatesObj;
         }
@@ -981,6 +975,7 @@
         // Indeed it is difficult to quantify an "attempt".
         // One might even be tempted to completely ignore the "attempt"-counting, and instead measure time spent while setting time thresholds for task scores?
     }
+
     function stdLogEntry(string, eventType, attemptCount = null) {
         // default log Entry, use whenever.
         let eventObj = {
@@ -1018,7 +1013,7 @@
         InputControllerState.taskMouseDownLogArray = [];
         InputControllerState.taskDblClickLogArray = [];
 
-    }
+    };
     
 
     function clearState() {
@@ -1037,7 +1032,7 @@
     function clearInputFields() {
         debugLog("clearInputFields (inputController.js)");
         $(settings.exerciseContainerSelector).find('input').val('');
-    }
+    };
     
 
     function clearAttempts() {
@@ -1048,13 +1043,13 @@
         InputControllerState.taskAttemptDblclickCount = 0;
         InputControllerState.taskAttemptClickCount = 0;
         InputControllerState.taskAttemptRightClickCount = 0;
-    }
+    };
 
     function handleRestartExercise() {
         debugLog("handleRestartExercise (inputcontroller)", InputControllerState)
         clearInputFields();
         clearAttempts();
-    }
+    };
     
     function clearGlobalEventListeners() {
         $(settings.exerciseContainerSelector).off()
@@ -1067,29 +1062,19 @@
         let task = $("#assetContentWrapper .task:first"); 
         debugLog("initGlobalEventListeners", { task: task, taskObject: InputControllerState.currentTaskObject })
 
-
         if (settings.keyDownDetect) {
-            $(task).parent()
-            //$(settings.exerciseContainerSelector)  // this should equal to parent()? but not.
-                .on("keyup", keyUpHandler);
-        }
+            $(task).parent().on("keyup", keyUpHandler);
+        };
 
         if (settings.mouseDownDetect) {
-            $(task).parent()
-            //$(settings.exerciseContainerSelector)
-                .on("mousedown", mouseClickHandler)
-
-            $(task).parent()
-            //$(settings.exerciseContainerSelector)
-                .on("contextmenu", rightClickHandler)
-        }
+            $(task).parent().on("mousedown", mouseClickHandler);
+            $(task).parent().on("contextmenu", rightClickHandler);
+        };
 
         if (settings.dblClickDetect) {
-            $(task).parent()
-            //$(settings.exerciseContainerSelector)
-                .on("dblclick", dblClickHandler);
-        }
-    }
+            $(task).parent().on("dblclick", dblClickHandler);
+        };
+    };
 
 
     // =================================================================================================

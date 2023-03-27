@@ -11,7 +11,7 @@
 
     function showTaskFeedback(taskId, displayType, args) {
         log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray })
-        if (settings.showFeedback) {
+        if (settings?.showFeedback) {
             const matchingFeedback = _feedbackArray.filter(item => {
                 return item.ScopeId === taskId && item.Type === "task" && item.DisplayType === displayType && item.DisplayThreshold === args.msecsSinceTaskStart;
             });
@@ -28,10 +28,9 @@
     function showInteractionFeedback(interactionId, displayType, args) {
         log("showInteractionFeedback (feedbackController.js)", { interactionId: interactionId, displayType: displayType, args: args })
         
-        if (settings.showFeedback) {
+        if (settings?.showFeedback) {
             switch (displayType) {
                 case 'attempts':
-
                     var matchingFeedback = _feedbackArray.filter(item => {
                         
                         return item.ScopeId === interactionId && item.Type === "interaction" && item.DisplayType === displayType && item.DisplayThreshold === args.interactionAttempts;
@@ -75,9 +74,6 @@
         log('setupFeedbackComp() (start)', { showFeedback: settings.showFeedback, feedbackItem: feedbackItem, wrapper: wrapper })
         var feedbackComp = $(selectorDictionary.feedbackComponentSelector);
 
-        if (feedbackComp) {
-            // $(feedbackComp).remove();
-        }
         feedbackComp = document.createElement(selectorDictionary.feedbackComponentSelector);
         $(wrapper).append(feedbackComp);
 
@@ -94,11 +90,11 @@
 
         _logController.HandleOutputLogEntry(tObj, eObj);
 
-        if (feedbackItem.InteractionHighlights.length > 0) {
+        if (feedbackItem?.InteractionHighlights?.length > 0) {
             log('setupFeedbackComp() (InteractionHighlights.length > 0)', { showFeedback: settings.showFeedback, feedbackItem: feedbackItem, wrapper: wrapper })
 
             for (var highlight of feedbackItem.InteractionHighlights) {
-                var highlightSelector = `[data-interaction="${highlight}"]`;
+                let highlightSelector = `[data-interaction="${highlight}"]`;
                 if ($(highlightSelector).is("input")) {
                     highlightSelector = $(highlightSelector).closest("div");
                 }

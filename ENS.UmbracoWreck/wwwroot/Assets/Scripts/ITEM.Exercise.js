@@ -253,10 +253,8 @@ ITEM.Exercise = function (jsonData, settings) {
         state.isShowingResults = false;
     }
 
-
-    
-
     function start() {
+        //run upon json load succes in startExercise()
         debugLog("start")
 
         if (!settings.showIntro && !state.didStart) {
@@ -268,7 +266,8 @@ ITEM.Exercise = function (jsonData, settings) {
             initIntro();
         }
     }
-    // hvad er forskellen på start() & init() ?  - init kommer først.
+    
+    
     // _________________________________ INIT _________________________________________
     function init() {
         debugLog("init Exercise.js")
@@ -281,10 +280,8 @@ ITEM.Exercise = function (jsonData, settings) {
             .then(initControllers())
             .then(initState())
             .then(initObjects())
-            //.then(initMarkup()) // markup requires objects to work correctly ... initObjects(initMarkup)?
-            .then(initEventListeners())
             .then(initMarkup()) // markup requires objects to work correctly ... initObjects(initMarkup)?
-
+            .then(initEventListeners())
             .then(
                 initFirstTask(),
                 initDebug(),
@@ -294,8 +291,8 @@ ITEM.Exercise = function (jsonData, settings) {
     };
 
     function initState(json = state.jsonData) {
-        state.exerciseName = json.name
-    }
+        state.exerciseName = json.name;
+    };
     async function initSettings(jsonData = state.jsonData) {
         debugLog("initSettings(), {jsonData, settings}:", { jsonData: jsonData, settings: settings });
         if (typeof jsonData.exerciseSettingsModel != 'undefined') {
@@ -320,11 +317,11 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function initEventListeners() {
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex]
+
         if (!currentTaskObject || currentTaskObject === void 0) {
             handleObjectError();
         } else {
             _inputController?.InitInputController(currentTaskObject);
-
             // Navigation / Exercise Control
             $(settingsBtnSelector).on('click', handleSettingsBtn);
             $(prevTaskSelector).on('click', goToPrevTask);
@@ -359,8 +356,8 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     
     function initIntro() {
-        $(introOverlaySelector).addClass(activeOverlayClass)
-        $(introOverlaySelector).find(introBeginSelector).on("click", handleBeginExerciseBtn)
+        $(introOverlaySelector).addClass(activeOverlayClass);
+        $(introOverlaySelector).find(introBeginSelector).on("click", handleBeginExerciseBtn);
     }
     
     async function initControllers() {
@@ -444,7 +441,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     // __ TASK FLOW _____________________________________________________________________
-
+    
     function startTask() {
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
         if (currentTaskObject === void 0 || !currentTaskObject) {
