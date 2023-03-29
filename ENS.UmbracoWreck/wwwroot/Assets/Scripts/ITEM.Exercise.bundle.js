@@ -966,8 +966,13 @@ ITEM.Exercise = function (jsonData, settings) {
         return false;
     }
     function handleEnableSubtitlesBtn() {
-        $(toggleSubtitlesSelector).trigger('click');
+        console.log("lol",state.isSubtitled)
+
+        $(toggleSubtitlesSelector).trigger('click'); // to make settingsoverlay toggles mindlessly correspond.
+        console.log("lol", state.isSubtitled)
         state.isSubtitled = true;
+        console.log("lol", state.isSubtitled)
+
         showTaskSubtitles();
         updateHeaderIcons();
     }
