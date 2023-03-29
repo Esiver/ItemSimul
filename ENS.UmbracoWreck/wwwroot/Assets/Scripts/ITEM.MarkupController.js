@@ -6,16 +6,31 @@
     settings.showTaskAutocomplete = true;
 
     // classes
-    const headerToolLiClass = "tools-list__item"
+    const headerToolLiClass = "tools-list__item";
+    const headerToolBtnClass = "task-tool";
 
-    const taskClass = "task"
+    const taskClass = "task";
     const taskInteractionsClass = "interactions";
 
-    const debugToolClass = "debug__tool"
-    const debugTaskCountClass = "debug__task-count"
-    const debugTaskTimerClass = "debug__task-timer"
+    const debugToolClass = "debug__tool";
+    const debugTaskCountClass = "debug__task-count";
+    const debugTaskTimerClass = "debug__task-timer";
     const debugMsgId = "debug-msg";
 
+    const alertClass = "alert";
+    const hiddenClass = "hidden";
+    const buttonPlayingClass = 'button--playing';
+
+    const resultClass = "result"
+    const resultTaskListClass = `${resultClass}__task-list`;
+    const resultItemClass = `${resultClass}__item`;
+    const resultInfoClass = `${resultClass}__info`;
+    const resultInfoItemClass = `${resultClass}__info-item`;
+    const resultDetailsClass = `${resultClass}__details`;
+    const resultNoticeClass = `${resultClass}__notice`;
+    const resultQuoteClass = `${resultClass}__quote`;
+
+    const materialIconsClass = 'material-icons';
 
 
     // selectors 
@@ -29,6 +44,8 @@
     const resultsOverlayTaskListSelector = "#result-task-list";
     const resultsOverlayTaskStatsSelector = "#result-stats-list";
     const introOverlaySelector = "#intro-overlay";
+    const introSoundNoticeCardSelector = "#audio-info"
+    const introSubtitleNoticeCardSelector = "#subtitle-info";
 
     const taskInteractionSelector = ".interactions"
 
@@ -107,11 +124,11 @@
             let exerciseAttemptInstanceTaskResultObjectArray = exerciseAttemptInstance.exerciseTaskResultObjectArray;
             let exerciseAttemptInstanceResultsDom = document.createElement('li');
             let taskResultList = document.createElement('ul');
-            taskResultList.classList.add('result__task-list');
+            taskResultList.classList.add(resultTaskListClass);
 
             exerciseAttemptInstanceTaskResultObjectArray.forEach(taskEventObject => {
                 let taskResultLiDom = document.createElement("li");
-                taskResultLiDom.classList.add("result__item")
+                taskResultLiDom.classList.add(resultItemClass)
                 taskResultLiDom.setAttribute('data-task-index', taskEventObject.index)
 
                 //let itemDetailsDom = getTaskDetailsDom(taskEventObject);
@@ -172,9 +189,9 @@
         let taskAutoCompleteNoticeTextNode = document.createTextNode(`Du trykkede på 'Gør det for mig', og fik hjælp til en eller flere opgaver. Antal: ${exerciseResultObject.exerciseAutocompleteCount}`);
         let taskAutocompleteNoticeIconDom = document.createElement('span');
         let taskAutocompleteNoticeIconTextNode = document.createTextNode('warning');
-        taskAutocompleteNoticeIconDom.classList.add('material-icons');
+        taskAutocompleteNoticeIconDom.classList.add(materialIconsClass);
         taskAutocompleteNoticeIconDom.append(taskAutocompleteNoticeIconTextNode)
-        taskAutocompleteNoticeDom.classList.add("alert", "result__notice");
+        taskAutocompleteNoticeDom.classList.add(alertClass, resultNoticeClass);
         taskAutocompleteNoticeDom.append(taskAutocompleteNoticeIconDom, taskAutoCompleteNoticeTextNode);
 
         resultSummaryDom.append(headerDom, subheaderDom);
@@ -190,14 +207,14 @@
 
     function getTaskDetailsDom(task) {
         let detailsDom = document.createElement('div');
-        detailsDom.classList.add('result__details');
+        detailsDom.classList.add(resultDetailsClass);
 
         return detailsDom;
     };
 
     function getTaskInfoDom(taskResultObject) {
         let infoDom = document.createElement('div');
-        infoDom.classList.add('result__info');
+        infoDom.classList.add(resultInfoClass);
 
         if (settings.showTaskAutocomplete) {
             if (taskResultObject.userDidAutoCompleteEvent) {
@@ -219,8 +236,8 @@
         let taskSubtitlesDom = document.createElement('div')
         let taskSubtitlesTextNode = document.createTextNode(`“ ${taskResultObject.subtitles} ”`)
         taskSubtitlesDom.append(taskSubtitlesTextNode)
-        taskSubtitlesDom.classList.add('result__quote');
-        taskSubtitlesDom.classList.add('info-item');
+        taskSubtitlesDom.classList.add(resultQuoteClass);
+        taskSubtitlesDom.classList.add(resultInfoItemClass);
 
         infoDom.append(taskSubtitlesDom);
         // -------------------------------
@@ -255,7 +272,7 @@
         titleDom.append(headerTextNode); 
 
         let iconTextNode = document.createTextNode('expand_more');
-        iconDom.classList.add('material-icons');
+        iconDom.classList.add(materialIconsClass);
         iconDom.append(iconTextNode);
 
         headerDom.append(titleDom);
@@ -266,12 +283,12 @@
     function getUserAutoCompleteResultDom() {
         let noticeSpanDom = document.createElement('span');
 
-        noticeSpanDom.classList.add('alert');
-        noticeSpanDom.classList.add('info-item');
+        noticeSpanDom.classList.add(alertClass);
+        noticeSpanDom.classList.add(resultInfoItemClass);
 
         let spanTextNode = `Tryk på 'Gør det for mig'. Vil du prøve igen?`;
         let spanAlertIcon = document.createElement('span')
-        spanAlertIcon.classList.add('material-icons');
+        spanAlertIcon.classList.add(materialIconsClass);
         let iconTextNode = document.createTextNode('warning')
         spanAlertIcon.append(iconTextNode);
 
@@ -285,7 +302,7 @@
     function getTaskSuccessDom() {
         let noticeSpanDom = document.createElement('span');
         let spanDoneIcon = document.createElement('span')
-        spanDoneIcon.classList.add('material-icons');
+        spanDoneIcon.classList.add(materialIconsClass);
         let iconTextNode = document.createTextNode('done')
         spanDoneIcon.append(iconTextNode);
         noticeSpanDom.append(spanDoneIcon);
@@ -304,8 +321,8 @@
             btn.setAttribute('title', tooltip);
         }
 
-        btnSpan.classList.add('material-icons');
-        btn.classList.add('task-tool');
+        btnSpan.classList.add(materialIconsClass);
+        btn.classList.add(headerToolBtnClass);
         btn.setAttribute('href', '#');
         headerBtnLi.classList.add(headerToolLiClass)
 
@@ -339,16 +356,16 @@
         let exerciseExampleAudioFile = json[exerciseAudiofileObjectSelector]
 
         if (exerciseExampleAudioFile.length > 0) {
-            $(introOverlaySelector).find('.settings-check__item.audio-check').addClass('active-check');
+            $(introOverlaySelector).find(introSoundNoticeCardSelector).removeClass(hiddenClass);
             let examplePlayBtn = $(introOverlaySelector).find('.settings-check__item.audio-check:first a');
             let exampleAudioFile = exerciseExampleAudioFile;
             let exampleAudioObject = new Audio(settings.assetsPath + exampleAudioFile);
 
             exampleAudioObject.addEventListener('ended', function () {
-                examplePlayBtn.removeClass('button--playing');
+                examplePlayBtn.removeClass(buttonPlayingClass);
             })
             exampleAudioObject.addEventListener('play', function () {
-                examplePlayBtn.addClass('button--playing');
+                examplePlayBtn.addClass(buttonPlayingClass);
             })
 
             examplePlayBtn.on('click', function () {
@@ -359,7 +376,8 @@
             $(introBeginSelector).on('click', function () { exampleAudioObject.pause(); })
         }
         if (exerciseWithSubtitles.length > 0) {
-            $(introOverlaySelector).find('.settings-check__item.subtitles-check:first').addClass('active-check')
+            $(introOverlaySelector).find(introSubtitleNoticeCardSelector).removeClass(hiddenClass);
+
         }
         
     }

@@ -1,0 +1,55 @@
+﻿
+.switch {
+    
+    $self:&;
+
+    &__label {
+        
+        display: flex;
+        gap: 1rem;
+        cursor: pointer;
+    }
+
+    &__icon {
+        &--crossed {
+            position: relative;
+            svg {
+                position: absolute;
+                width: 23px;
+                height: 23px;
+                left: 1px;
+            }
+        }
+    }
+
+    &__slider {
+        position: relative;
+        display: flex;
+        width: 60px;
+        height: 28px;
+        border: 2px solid #2c2c2c;
+        border-radius: 5px;
+        background-color: #eaeaea;
+    }
+
+    &__slider-marker {
+        position: absolute;
+        top: 2px;
+        bottom: 2px;
+        left: 2px;
+        display: block;
+        width: 20px;
+        transition: left 400ms;
+        border: 1px solid #2c2c2c;
+        border-radius: 3px;
+        background-color: #404040;
+
+        #{$self}__slider-input:checked + & {
+            left: calc(100% - 22px);
+        }
+    }
+
+    &__slider-input {
+        opacity: 0;
+    }
+}

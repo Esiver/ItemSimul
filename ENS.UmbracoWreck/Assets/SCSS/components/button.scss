@@ -1,0 +1,64 @@
+﻿.button {
+    height: 36px;
+    line-height: 36px;
+    min-width: 88px;
+    font-size: 14px;
+    padding: 0 16px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    display: inline-block;
+    text-decoration: none;
+    background-color: var(--btn-color);
+    color: var(--card-text-color);
+    vertical-align: middle;
+    text-align: center;
+    transition-property: color, background-color;
+    transition-duration: 150ms;
+    transition-timing-function: ease-in-out;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5em;
+
+    &:hover {
+        background-color: var(--btn-color-hover);
+    }
+
+    &--large {
+        font-size: 1.2em;
+        height: 3em;
+        min-width: 124px;
+        line-height: 1.2;
+        font-weight: 800;
+        padding: 0 32px;
+    }
+
+    &--positive {
+        background-color: var(--color-positive);
+        color: var(--color-white);
+
+        &:hover {
+            background-color: var(--color-positive);
+            color: var(--color-white);
+        }
+    }
+
+    &--alert {
+        background-color: var(--color-negative);
+        color: var(--color-white);
+    }
+
+    &__wrapper {
+        display: flex;
+        gap: 1em;
+        flex-direction: row;
+        padding: 1em 0;
+    }
+
+    &#intro-begin {
+        margin-left: auto;
+        border: 2px solid;
+        margin: 1em 0 0 0;
+    }
+}

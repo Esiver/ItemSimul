@@ -1,0 +1,57 @@
+﻿
+.exercise-header {
+    width: 100%;
+    padding: 1em 2em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--navbar-height);
+    background-color: var(--navbar-color);
+    color: var(--navbar-text-color);
+    gap: 1em;
+
+    h1 {
+        font-weight: 600;
+    }
+
+    &__info {
+        display: flex;
+        align-items: center;
+    }
+
+    &__tools-list {
+        display: flex;
+        margin-left: auto;
+        list-style: none;
+        gap: 1em;
+    }
+
+        &__tools-list li {
+            display: flex;
+            border: currentColor;
+        }
+}
+
+.task-tool {
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--navbar-text-color);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    line-height: 24px;
+
+    &.active {
+        color: var(--color-active);
+    }
+
+    &:hover {
+        background-color: var(--background-color);
+    }
+
+    &.hidden {
+        display: none;
+    }
+}

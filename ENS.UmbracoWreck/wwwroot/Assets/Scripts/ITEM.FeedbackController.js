@@ -1,5 +1,7 @@
-﻿ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
-    
+﻿/*jshint esversion: 11 */
+
+ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
+
     _logController = settings.logController;
     settings.showFeedback = true;
 
@@ -10,12 +12,12 @@
     }
 
     function showTaskFeedback(taskId, displayType, args) {
-        log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray })
+        log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray });
         if (settings?.showFeedback) {
             const matchingFeedback = _feedbackArray.filter(item => {
                 return item.ScopeId === taskId && item.Type === "task" && item.DisplayType === displayType && item.DisplayThreshold === args.msecsSinceTaskStart;
             });
-            log("showTaskFeedback (feedbackController.js), matchingFeedback:", matchingFeedback)
+            log("showTaskFeedback (feedbackController.js), matchingFeedback:", matchingFeedback);
             if (matchingFeedback.length == 1) {
                 setupFeedbackComp(matchingFeedback[0], wrapper);
             } else if (matchingFeedback.length > 1) {
@@ -26,25 +28,26 @@
     }
 
     function showInteractionFeedback(interactionId, displayType, args) {
-        log("showInteractionFeedback (feedbackController.js)", { interactionId: interactionId, displayType: displayType, args: args })
-        
+        log("showInteractionFeedback (feedbackController.js)", { interactionId: interactionId, displayType: displayType, args: args });
+
         if (settings?.showFeedback) {
+            let matchingFeedback = [];
+
             switch (displayType) {
                 case 'attempts':
-                    var matchingFeedback = _feedbackArray.filter(item => {
-                        
+                    matchingFeedback = _feedbackArray.filter(item => {
                         return item.ScopeId === interactionId && item.Type === "interaction" && item.DisplayType === displayType && item.DisplayThreshold === args.interactionAttempts;
                     });
                     break;
                 case 'correct':
-                    var matchingFeedback = _feedbackArray.filter(item => {
+                    matchingFeedback = _feedbackArray.filter(item => {
                         return item.ScopeId === interactionId && item.Type === "interaction" && item.DisplayType === displayType;
                     });
                     if (matchingFeedback.length == 0) {
                         if (args.callback) {
-                            args.callback()
+                            args.callback();
                         } else {
-                            log("Warning (FeedbackController): There's no feedback to display nor any callbacks. Please check InputController", matchingFeedback)
+                            log("Warning (FeedbackController): There's no feedback to display nor any callbacks. Please check InputController", matchingFeedback);
                         }
                     } else if (args.callback) {
                         matchingFeedback[0].DismissCallback = args.callback;
@@ -56,22 +59,22 @@
                     break;
             }
 
-            log("showInteractionFeedback matchingFeedback", matchingFeedback)
+            log("showInteractionFeedback matchingFeedback", matchingFeedback);
             if (matchingFeedback.length == 1) {
-                log("showInteractionFeedback matchingFeedback.length == 1", matchingFeedback)
+                log("showInteractionFeedback matchingFeedback.length == 1", matchingFeedback);
                 setupFeedbackComp(matchingFeedback[0], wrapper);
             } else if (matchingFeedback.length > 1) {
                 for (let mf = 0; mf < matchingFeedback.length; mf++) {
                     log("Error: More than one instance of \"matchingFeedback\" was found when running showTaskfeedback()", { matchingFeedback: matchingFeedback, feedbackIndex: mf });
-                    setupFeedbackComp(matchingFeedback[mf],wrapper, args)
+                    setupFeedbackComp(matchingFeedback[mf], wrapper, args);
                 }
             } else {
-                log("showInteractionFeedback NO FEEDBACK FOUND!", displayType)
+                log("showInteractionFeedback NO FEEDBACK FOUND!", displayType);
             }
         }
     }
-    function setupFeedbackComp (feedbackItem, wrapper, args) {
-        log('setupFeedbackComp() (start)', { showFeedback: settings.showFeedback, feedbackItem: feedbackItem, wrapper: wrapper })
+    function setupFeedbackComp(feedbackItem, wrapper, args) {
+        log('setupFeedbackComp() (start)', { showFeedback: settings.showFeedback, feedbackItem: feedbackItem, wrapper: wrapper });
         var feedbackComp = $(selectorDictionary.feedbackComponentSelector);
 
         feedbackComp = document.createElement(selectorDictionary.feedbackComponentSelector);
@@ -86,12 +89,12 @@
             timeStamp: Date.now(),
             task: $(selectorDictionary.activeTaskSelector),
             explainer: `Feedback show because ${feedbackItem.DisplayType} threshold of ${feedbackItem.DisplayThreshold} reached. (text: "${feedbackItem.Text}", dismissType: ${feedbackItem.DismissType}, mood: ${feedbackItem.Mood})`
-        }
+        };
 
         _logController.HandleOutputLogEntry(tObj, eObj);
 
         if (feedbackItem?.InteractionHighlights?.length > 0) {
-            log('setupFeedbackComp() (InteractionHighlights.length > 0)', { showFeedback: settings.showFeedback, feedbackItem: feedbackItem, wrapper: wrapper })
+            log('setupFeedbackComp() (InteractionHighlights.length > 0)', { showFeedback: settings.showFeedback, feedbackItem: feedbackItem, wrapper: wrapper });
 
             for (var highlight of feedbackItem.InteractionHighlights) {
                 let highlightSelector = `[data-interaction="${highlight}"]`;
@@ -106,8 +109,8 @@
                     timeStamp: Date.now(),
                     task: $('.task.active'),
                     explainer: `Feedback HIGHLIGHT TEXT show because ${feedbackItem.DisplayType} threshold of ${feedbackItem.DisplayThreshold} reached. (text: "${feedbackItem.Text}", dismissType: ${feedbackItem.DismissType}, mood: ${feedbackItem.Mood})`
-                }
-                log("setupFeedbackComp() highlight -- ", { highlightSelector: highlightSelector, tObj: tObj, eObj: eObj })
+                };
+                log("setupFeedbackComp() highlight -- ", { highlightSelector: highlightSelector, tObj: tObj, eObj: eObj });
                 _logController.HandleOutputLogEntry(tObj, eObj);
             }
         }
@@ -124,7 +127,7 @@
             dismissBtn.classList.add('button');
             dismissBtn.innerText = feedbackItem.DismissBtnText || 'Ok';
             $(dismissBtn).on('click', dismissHandler);
-            
+
 
         } else {
             var timeout = feedbackItem.DismissTimeout || 8000;
@@ -152,27 +155,28 @@
             // Add it to the feedbackComp styled as a physical keyboard key
             // Otherwise display the plain string
             var markup = document.createElement('p');
-            $feedbackComponent.append(markup)
+            $feedbackComponent.append(markup);
 
             var stringChunk = string.split(/(\[[^\]].*?\])/g);
             for (var chunk of stringChunk) {
                 var matchedKey = chunk.match(/(\[[^\]].*?\])/g);
                 if (matchedKey) {
-                    var keyWrapper = document.createElement('div');
+                    let keyWrapper = document.createElement('div');
 
                     keyWrapper.classList.add('data-key-wrapper');
                     markup.append(keyWrapper);
-                    var key = matchedKey[0].replace(/[\[\]]/g, '');
+                    let key = matchedKey[0].replace(/[\[\]]/g, '');
+                    let keyMarkup;
                     if (key.includes('+')) {
                         var splitKeys = key.split('+');
                         var keyMarkupArr = [];
-                        for (var key of splitKeys) {
-                            keyMarkupArr.push(`<div class="data-key">${displayPrettyKey(key)}</div>`);
+                        for (var splitKey of splitKeys) {
+                            keyMarkupArr.push(`<div class="data-key">${displayPrettyKey(splitKey)}</div>`);
                         }
-                        var keyMarkup = keyMarkupArr.join('+');
+                        keyMarkup = keyMarkupArr.join('+');
                         keyWrapper.innerHTML = keyMarkup;
                     } else {
-                        var keyMarkup = `<div class="data-key">${displayPrettyKey(key)}</div>`;
+                        keyMarkup = `<div class="data-key">${displayPrettyKey(key)}</div>`;
                         keyWrapper.innerHTML = keyMarkup;
                     }
                 } else if (chunk != '') {
@@ -197,12 +201,12 @@
                 return: '⏎ enter',
                 capsLock: 'caps lock',
                 tab: '↹ tab',
-            }
+            };
             const prettyMapKey = prettyMap[key] || key;
             return prettyMapKey;
         }
         function dismissHandler() {
-            $(this).parents('feedback-component').remove()
+            $(this).parents('feedback-component').remove();
             //$(wrapper).removeClass([feedbackItem.Mood, feedbackItem.Size]);
             $('.highlight-area').removeClass('highlight-area');
             if (feedbackItem.DismissCallback) {
@@ -213,35 +217,32 @@
 
     }
     function disableFeedback() {
-        log("disableFeedback")
-        $('feedback-component').addClass("hidden")
+        log("disableFeedback");
+        $('feedback-component').addClass("hidden");
         settings.showFeedback = false;
     }
     function enableFeedback() {
-        log("enableFeedback")
-        $('feedback-component').removeClass("hidden")
+        log("enableFeedback");
+        $('feedback-component').removeClass("hidden");
         settings.showFeedback = true;
     }
 
     function clearAllFeedback() {
         $('feedback-component').remove();
-    };
+    }
 
     function log(msg, obj) {
         if (settings.debugMode === true) {
             console.log(msg, obj);
         }
-
-        if (typeof settings.logController == 'Object') {
-            // _logController.handleOutputLogEntry(msg, obj)
-        }
     }
+
     function handleRestartExercise() {
         log("handleRestartExercise (feedbackController)");
         clearAllFeedback();
     }
 
-    
+
     this.FCHandleRestartExercise = handleRestartExercise;
     this.EnableFeedback = enableFeedback;
     this.DisableFeedback = disableFeedback;
@@ -250,9 +251,8 @@
     this.ShowInteractionFeedback = showInteractionFeedback;
 
     return this;
-}
+};
 ITEM.FeedbackController.FeedbackItem = function (text) {
-
     this.ScopeId;
     this.Type;
     this.DisplayType;
@@ -300,5 +300,5 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
     this.SetInteractionHighlight = setInteractionHighlight;
     this.SetDismiss = setDismiss;
 
-    return this
-}
+    return this;
+};

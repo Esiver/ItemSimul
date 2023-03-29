@@ -1,61 +1,73 @@
 ﻿<li class="overlay__item" id="settings-overlay">
-                    <div class="overlay__wrapper">
-                        <h1> Indstillinger </h1>
-                        <ul class="settings__list">
-                            <li>
-                                <p>Lyd</p>
-                                <label for="mute-checkbox" class="switch">
-                                    <span class="material-icons">
-                                        volume_off
-                                    </span>
-                                    <span class="slider">
-                                        <input type="checkbox" id="mute-checkbox" checked="true">
-                                        <span class="slider-marker"></span>
-                                    </span>
-                                    <span class="material-icons">
-                                        volume_up
-                                    </span>
-                                </label>
-                            </li>
-                            <li>
-                                <p>Undertekster</p>
-                                <label for="subtitles-checkbox-settings" class="switch">
-                                    <span class="material-icons">
-                                        subtitles_off
-                                    </span>
-                                    <span class="slider">
-                                        <input type="checkbox" id="subtitles-checkbox-settings" checked="true">
-                                        <span class="slider-marker"></span>
-                                    </span>
-                                    <span class="material-icons">
-                                        subtitles
+    <div class="overlay__wrapper">
+        <h1> Indstillinger </h1>
+        <ul class="settings__list">
 
-                                    </span>
-                                </label>
+            <li class="settings__list-item">
+                <p class="settings__title">Lyd</p>
 
+                <label for="mute-checkbox" class="switch__label">
+                    <span class="material-icons switch__icon">
+                        volume_off
+                    </span>
 
-                            </li>
-                            <li>
-                                <p>Hjælp &amp; Hints</p>
-                                <label for="feedback-checkbox" class="switch">
-                                    <span class="material-icons material-icons--crossed">
-                                        help_center
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.701 29.701">
-                                            <path fill="#000"
-                                                  d="m0 3.017 1.76776695-1.76776695 26.6833815 26.6833815-1.76776696 1.76776694z" />
-                                            <path fill="#fff"
-                                                  d="M2.25 1.768 4.01776695.00023305l26.6833815 26.6833815-1.76776696 1.76776694z" />
-                                        </svg>
-                                    </span>
-                                    <span class="slider">
-                                        <input type="checkbox" id="feedback-checkbox" checked="true">
-                                        <span class="slider-marker"></span>
-                                    </span>
-                                    <span class="material-icons">
-                                        help_center
-                                    </span>
-                                </label>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+                    <span class="switch__slider">
+                        <input class="switch__slider-input" type="checkbox" id="mute-checkbox" checked="true">
+                        <span class="switch__slider-marker"></span>
+                    </span>
+                    <span class="material-icons switch__icon">
+                        volume_up
+                    </span>
+                </label>
+            </li>
+
+            <li class="settings__list-item">
+                <p class="settings__title">Undertekster</p>
+
+                <label for="subtitles-checkbox-settings" class="switch__label">
+
+                    <span class="material-icons switch__icon switch__icon--crossed">
+                        subtitles_off
+                    </span>
+
+                    <span class="switch__slider">
+                        <input class="switch__slider-input" type="checkbox" id="subtitles-checkbox-settings" checked="true">
+                        <span class="switch__slider-marker"></span>
+                    </span>
+
+                    <span class="material-icons switch__icon">
+                        subtitles
+
+                    </span>
+                </label>
+
+            </li>
+
+            <li class="settings__list-item">
+                <p class="settings__title">Hjælp &amp; Hints</p>
+
+                <label for="feedback-checkbox" class="switch__label">
+
+                    <span class="material-icons switch__icon switch__icon--crossed">
+                        help_center
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.701 29.701">
+                            <path fill="#000"
+                                  d="m0 3.017 1.76776695-1.76776695 26.6833815 26.6833815-1.76776696 1.76776694z" />
+                            <path fill="#fff"
+                                  d="M2.25 1.768 4.01776695.00023305l26.6833815 26.6833815-1.76776696 1.76776694z" />
+                        </svg>
+                    </span>
+
+                    <span class="switch__slider">
+                        <input class="switch__slider-input" type="checkbox" id="feedback-checkbox" checked="true">
+                        <span class="switch__slider-marker"></span>
+                    </span>
+
+                    <span class="material-icons switch__icon">
+                        help_center
+                    </span>
+                </label>
+            </li>
+        </ul>
+    </div>
+</li>

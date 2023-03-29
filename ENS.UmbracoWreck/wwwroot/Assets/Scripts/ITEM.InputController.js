@@ -17,7 +17,7 @@
     // assessments
     const taskInteractionAssessmentCorrectInputListObjectSelector = "correctInput";
     const taskInteractionAssessmentAttemptTriggerListObjectSelector = "attemptTrigger";
-    const taskInteractionAssessmentCaseSensitiveObjectSelector = "caseSensitive"
+    const taskInteractionAssessmentCaseSensitiveObjectSelector = "caseSensitive";
 
     // debug
     const debugMsgContainerSelector = '#debug-msg';
@@ -62,8 +62,8 @@
     };
 
     function initInputController(firstTaskObject) {
-        InputControllerState.currentTaskObject = firstTaskObject
-        debugLog("inputcontroller init", InputControllerState.currentTask)
+        InputControllerState.currentTaskObject = firstTaskObject;
+        debugLog("inputcontroller init", InputControllerState.currentTask);
 
         // initTask();
         clearGlobalEventListeners();
@@ -71,11 +71,11 @@
     };
 
     function initTask(taskObj) {
-        InputControllerState.currentTask = $(settings.exerciseContainerSelector).find(taskActiveSelector)
-        InputControllerState.currentTaskObject = taskObj
-        debugLog("initTask (inputcontroller)", { taskObj: taskObj, currentTask: InputControllerState.currentTask })
+        InputControllerState.currentTask = $(settings.exerciseContainerSelector).find(taskActiveSelector);
+        InputControllerState.currentTaskObject = taskObj;
+        debugLog("initTask (inputcontroller)", { taskObj: taskObj, currentTask: InputControllerState.currentTask });
 
-        initNewTaskInteraction(taskObj)
+        initNewTaskInteraction(taskObj);
     }
 
     function initNewTaskInteraction() {
@@ -83,7 +83,7 @@
         clearState();
         clearAttempts();
 
-        debugLog("initNewTaskInteraction (inputController)", InputControllerState)
+        debugLog("initNewTaskInteraction (inputController)", InputControllerState);
 
         initInteractionArray();
         initTaskInputFields(InputControllerState.currentTask);
@@ -97,13 +97,13 @@
             let ifObj = {
                 id: inputField.getAttribute("id"),
                 value: inputField.value
-            }
-            InputControllerState.taskInputfieldArray.push(ifObj)
+            };
+            InputControllerState.taskInputfieldArray.push(ifObj);
         })
         setTimeout(function () {
             task.find('input:first').trigger('focus');
 
-        }, 100)
+        }, 100);
     }
 
     function initInteractionArray() {
@@ -112,7 +112,7 @@
 
         if (typeof InputControllerState.currentTaskObject != 'undefined' && InputControllerState.currentTaskObject) {
             InputControllerState.currentTaskObject[taskInteractionListObjectSelector].forEach(iObj => {
-                InputControllerState.interactionObjectArray.push(iObj)
+                InputControllerState.interactionObjectArray.push(iObj);
             });
         }
     }
@@ -121,7 +121,7 @@
         InputControllerState.currentClickEvent = event;
         InputControllerState.currentClickTarget = event.target;
 
-        debugLog("mouseClickHandler", event)
+        debugLog("mouseClickHandler", event);
         storeMouseDown(event);
 
         if (!InputControllerState.isReportingRectangles) {
@@ -136,7 +136,7 @@
         InputControllerState.currentRightClickEvent = event.target;
 
         storeRightClick(event);
-        checkMouseInteraction(event)
+        checkMouseInteraction(event);
     }
 
     function dblClickHandler(event) {
@@ -144,14 +144,14 @@
         InputControllerState.currentDblClickTarget = event.target;
 
         storeDblClick(event);
-        checkMouseInteraction(event)
+        checkMouseInteraction(event);
     }
 
     function keyUpHandler(event) {
         event.preventDefault();
         event.stopPropagation();
 
-        debugLog("keyUpHandler (START):", { exerciseHasFocus: $("#assetContentWrapper").is(":focus").toString(), event: event })
+        debugLog("keyUpHandler (START):", { exerciseHasFocus: $("#assetContentWrapper").is(":focus").toString(), event: event });
         inputHandler(event);
         //inputfieldHandler(event);
 
@@ -161,14 +161,14 @@
 
     function debugLog(msg, obj) {
         if (settings.debugMode) {
-            console.log(msg, obj)
+            console.log(msg, obj);
         }
     }
 
     function inputfieldHandler(event) { //...
         InputControllerState.taskInputfieldArray.forEach(inputfieldObj => {
             if (inputfieldObj.id == event.target.getAttribute("id")) {
-                inputfieldObj.value = $(event.target).val()
+                inputfieldObj.value = $(event.target).val();
             }
         });
 
@@ -183,11 +183,11 @@
         InputControllerState.currentKey = inputEvent.key;
 
         if (inputEvent.key.length < 2) {
-            let newStringInstance = InputControllerState.currentStringInstance + inputEvent.key
-            InputControllerState.currentStringInstance = newStringInstance
+            let newStringInstance = InputControllerState.currentStringInstance + inputEvent.key;
+            InputControllerState.currentStringInstance = newStringInstance;
         } else if (inputEvent.key.length > 1) {
-            let newStringInstance = InputControllerState.currentStringInstance + "*"
-            InputControllerState.currentStringInstance = newStringInstance
+            let newStringInstance = InputControllerState.currentStringInstance + "*";
+            InputControllerState.currentStringInstance = newStringInstance;
         }
     }
     function initMouseOver(task) {
@@ -196,18 +196,18 @@
         if (typeof InputControllerState?.currentTaskObject != 'undefined' && InputControllerState?.currentTaskObject) {
             mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector]?.filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString);
         }
-        debugLog("initMouseOver", { task: task, currentTask: InputControllerState.currentTaskObject, state: InputControllerState, mouseoverObjects: mouseoverInteractionObjectsArray })
+        debugLog("initMouseOver", { task: task, currentTask: InputControllerState.currentTaskObject, state: InputControllerState, mouseoverObjects: mouseoverInteractionObjectsArray });
 
         mouseoverInteractionObjectsArray?.forEach(iObj => {
-            debugLog("initMouseOver iObj", iObj)
+            debugLog("initMouseOver iObj", iObj);
 
-            let $currentTask = $(`#${InputControllerState.currentTaskObject[taskInteractionIdObjectSelector]}`)
+            let $currentTask = $(`#${InputControllerState.currentTaskObject[taskInteractionIdObjectSelector]}`);
             let interactionId = iObj[taskInteractionIdObjectSelector];
             let interactionFeedbackList = iObj[taskInteractionFeedbackListSelector];
 
             let interactionTarget = $currentTask.find(`[data-interaction='${interactionId}']`);
             let attemptCount = 1;
-                        
+
             interactionTarget.on("mouseover", function (e) {
                 if (interactionTarget.hasClass("mouseover")) {
                     let eObj = {
@@ -218,9 +218,9 @@
                         task: InputControllerState.currentTask,
                         type: "mouseover"
                     }
-                    debugLog('Mouseover event', eObj)
+                    debugLog('Mouseover event', eObj);
 
-                    _logController.HandleInputLogEntry(InputControllerState.currentTaskObject, eObj)
+                    _logController.HandleInputLogEntry(InputControllerState.currentTaskObject, eObj);
                     stdLogEntry("Task Complete.", "status", attemptCount);
 
                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
@@ -230,17 +230,15 @@
                                 feedback(interactionId, "correct", {
                                     interactionAttempts: attemptCount,
                                     callback: InputControllerState.currentTaskObject.callback
-                                })
+                                });
                             }
                         });
                     } else {
                         InputControllerState.currentTaskObject?.callback();
                     }
                 }
-            })
-
-        })
-
+            });
+        });
     }
 
     function clearInteractionArray() {
@@ -269,24 +267,24 @@
                 switch (interactionType) {
                     case "click":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            debugLog("checkInteractionFeedback, feedback", feedback)
-                            if (typeof feedback != 'undefined') {
+                            debugLog("checkInteractionFeedback, feedback", feedback);
+                            if (typeof feedback != 'undefined' && feedback) {
                                 feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj });
                             }
-                        })
+                        });
                         break;
                     case "dblclick":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            debugLog("checkInteractionFeedback, feedback", feedback)
-                            if (typeof feedback != 'undefined') {
-                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
+                            debugLog("checkInteractionFeedback, feedback", feedback);
+                            if (typeof feedback != 'undefined' && feedback) {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount });
                             }
-                        })
+                        });
                         break;
                     case "rightclick":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            debugLog("checkInteractionFeedback, feedback", feedback)
-                            if (typeof feedback != 'undefined') {
+                            debugLog("checkInteractionFeedback, feedback", feedback);
+                            if (typeof feedback != 'undefined' && feedback) {
                                 feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount })
 
                             }
@@ -294,9 +292,9 @@
                         break;
                     case "keydown":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
-                            debugLog("checkInteractionFeedback, feedback", feedback)
-                            if (typeof feedback != 'undefined') {
-                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj })
+                            debugLog("checkInteractionFeedback, feedback", feedback);
+                            if (typeof feedback != 'undefined' && feedback) {
+                                feedback(interactionId, "attempts", { interactionAttempts: InputControllerState.interactionCount, iObj: iObj });
 
                             }
                         })

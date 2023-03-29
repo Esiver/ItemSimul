@@ -1,4 +1,22 @@
-﻿@import "exercise-player.scss";
+﻿@import "base/variables.scss";
+@import "base/keyframes.scss";
+@import "base/fonts.scss";
+
+@import "components/button.scss";
+@import "components/feedback.scss";
+@import "components/card.scss";
+@import "components/subtitles.scss";
+@import "components/switch.scss";
+
+@import "modules/debug.scss";
+@import "modules/exercise-player.scss";
+@import "modules/header.scss";
+@import "modules/overlay.scss";
+@import "modules/intro-overlay.scss";
+@import "modules/settings-overlay.scss";
+@import "modules/result-overlay.scss";
+
+
 
 * {
     padding: 0;

@@ -1,0 +1,56 @@
+﻿
+
+.subtitles {
+    &__wrapper {
+        display: flex;
+        z-index: 600;
+        position: absolute;
+        bottom: 5%;
+        left: 0;
+        right: 0;
+        margin: auto;
+        width: fit-content;
+        height: fit-content;
+        color: var(--color-subtitle-text);
+        padding: 1px;
+        border-radius: 0px;
+        font-size: 32px;
+        background-color: var(--color-subtitle-bg);
+        max-width: 60%;
+        transition: bottom 400ms ease-in-out;
+        text-align: center;
+
+        &.hidden {
+            display: none;
+        }
+
+        &.moved {
+            bottom: unset; bottom: 80%;
+        }
+    }
+
+    p {
+        font-size: inherit;
+    }
+
+    &__btn {
+        position: absolute;
+        top: 0;
+        text-decoration: none;
+        color: var(--color-subtitle-text);
+        background-color: var(--color-subtitle-bg);
+        display: flex;
+        width: calc(1.5em + 2px);
+        height: calc(1.5em + 2px);
+        line-height: 1em;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0px;
+        box-shadow: 0 0 4px -1px var(--box-shadow-color);
+
+        &#subtitles-hide {right:-2.25em; top: 0em;}
+        &#subtitles-move {right:-2.25em; top: 2em;}
+    }
+}
+        

@@ -1,7 +1,4 @@
-﻿/*jshint esversion: 11 */
-
-
-const ITEM = {};//new Object();
+﻿const ITEM = {};//new Object();
 
 function startExercise(json) {
     if (typeof json == 'undefined') {
@@ -106,6 +103,7 @@ ITEM.Exercise = function (jsonData, settings) {
     const unfocusOverlaySelector = "#unfocus-overlay";
     const audioOverlaySelector = "#audio-error-overlay";
     const introOverlaySelector = "#intro-overlay";
+    const introExampleSoundSelector = "#intro-example-sound";
     const resultsOverlayTaskListSelector = "#result-task-list";
     const resultsOverlayTaskStatsSelector = "#result-stats-list";
     const resultOverlayAttemptListSelector = "#result-attempt-list";
@@ -147,10 +145,11 @@ ITEM.Exercise = function (jsonData, settings) {
 
     //& debug
     const debugHeaderContainerSelector = "#exercise-debug-container";
-    const debugSightClass = "debug-sight";
-    const debugRecordRectangleClass = "debug-record-rect";
-    const debugMockInteractionClass = "mock-interaction";
     const debugMsgId = "debug-msg";
+
+    const debugSightClass = "debug--sight";
+    const debugRecordRectangleClass = "debug--record-rect";
+    const debugMockInteractionClass = "debug__mock-interaction";
     const debugTaskTimerClass = "debug__task-timer";
     const debugTaskCountClass = "debug__task-count";
 

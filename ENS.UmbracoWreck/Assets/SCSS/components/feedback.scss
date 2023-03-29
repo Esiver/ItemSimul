@@ -1,4 +1,55 @@
-﻿feedback-component {
+﻿.feedback-wrapper {
+    position: absolute; right: 2.5%; display: flex; bottom: 5%; gap: 8px; flex-direction: column; width: 40%; max-width: 35%;
+}
+feedback-component {
+    background-color: var(--card-color);
+    color: var(--card-text-color);
+    padding: 2vh 1.5vw 2vh 1.5vw;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    animation-duration: 1s;
+    animation-name: animate-card-entry;
+    flex-wrap: wrap;
+
+    &.hidden {
+        visibility: hidden;
+    }
+
+    &.neutral {
+        border-top: 0 solid var(--color-neutral);
+    }
+
+    &.negative {
+        border-top: 0 solid var(--color-negative);
+        background-color: var(--color-negative);
+        color: var(--color-white);
+    }
+
+    &.positive {
+        border-top: 0 solid var(--color-positive);
+        background-color: var(--color-positive);
+        color: var(--color-white);
+    }
+
+    .btn-wrapper {
+        display: flex;
+        gap: 12px;
+
+        &:first-of-type {
+            margin-left: auto;
+        }
+    }
+
+    .button {
+        min-width: 52px;
+    }
+}
+
+
+/*feedback-component {
     position: absolute;
     right: 5%;
     bottom: 5%;
@@ -133,4 +184,4 @@
     }
 
     100% {}
-}
+}*/

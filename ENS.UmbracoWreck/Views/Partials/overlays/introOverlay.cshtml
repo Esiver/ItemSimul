@@ -21,23 +21,46 @@
 
                                 </ul>
                             </div>
+                            @*<ul class="settings-check__list">*@
 
-                            <ul class="settings-check__list">
-
-                                <li class="settings-check__item audio-check active-check">
-                                    <p>Denne opgave kommer med lyd.</p>
-                                    <p>Husk at slå din computers lyd til</p>
-                                    <a class="button button--small" href="#">
-                                        <span class="material-icons">
+                            <ul class="overlay__card-list">
+                                
+                                <li class="overlay__card-item hidden" id="audio-info">
+                                @*<li class="settings-check__item audio-check active-check">*@
+                                    <div class="card__header">
+                                        @*<span class="material-icons icon">
                                             record_voice_over
-                                        </span>
-                                        <span>Eksempel Lyd</span>
+                                        </span>*@
+                                        <h3 class="card__title">Øvelsen kommer med Lyd</h3>
+                                    </div>
+                                    <div class="card__body">
+                                        <p>Der vil blive afsplillet lyd igennem dele eller hele opgaven.</p>
+                                        <p>Husk at slå din computers lyd til.</p>
+                                        
+                                    </div>
+                                    <div class="card__footer">
+                                        <a class="button button--small" href="#" id="intro-example-sound">
+                                            <span class="material-icons">
+                                                record_voice_over
+                                            </span>
+                                            <span>Eksempel Lyd</span>
 
-                                    </a>
+                                        </a>
+                                    </div>
+                                    
                                 </li>
-                                <li class="settings-check__item subtitles-check">
-                                    <p>Denne opgave har undertekster.</p>
-                                    <p>find læsebrillerne frem!</p>
+
+                                @*<li class="settings-check__item subtitles-check">*@
+                                <li class="overlay__card-item hidden" id="subtitle-info">
+                                    <div class="card__header">
+                                        <h3 class="card__title">Undertekster</h3>
+                                    </div>
+                                    <div class="card__body">
+                                        
+                                        <p>Hele eller dele af denne opgave har undertekster.</p>
+                                        <p>Du kan fjerne underteksterne ved at trykke på krydset over dem.</p>
+                                        <p>Du kan vælge at slå dem helt fra ved at trykke på undertekst-ikonet i den øverste bjælke, eller under indstillinger.</p>
+                                    </div>
 
                                 </li>
                             </ul>

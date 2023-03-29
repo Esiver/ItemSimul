@@ -1,0 +1,75 @@
+﻿
+
+#exercise-debug-container {
+    display: flex;
+}
+
+#debug-msg {
+    input {
+        min-width: 400px;
+    }
+    input + span {
+        margin-left: 1em;
+    }
+}
+
+.debug {
+    $self: &;
+
+    &--record-rect {
+        cursor: crosshair;
+
+        .task.active img {
+            z-index: calc(var(--z-index-base) + 2);
+            opacity: 0.75;
+        }
+
+        #{$self}__mock-interaction {
+        }
+    }
+
+    &--sight {
+        .interactions {
+            z-index: calc(var(--z-index-base) + 1);
+        }
+
+            .interactions * {
+                background: red;
+                border: 1px solid lime;
+            }
+    }
+
+    &__task-timer {
+        padding: 0 .5rem
+    }
+
+    &__task-count {
+        padding: 0 .5rem
+    }
+
+    &__tool {
+        padding: 0 .5rem;
+        background-color: none;
+        display: flex;
+    }
+
+    &__mock-interaction {
+        background: blue;
+        border: 1px solid hotpink;
+        transition: all 400ms ease;
+        display: none;
+
+        #{$self}--record-rect & {
+            display: flex;
+            outline: none;
+            background: yellow;
+            border: 1px solid red;
+        }
+
+        #{$self}--debug-sight#{$self}--debug-sight & {
+            outline: none;
+            background: lime;
+            border: 1px solid red;
+        }
+    }
+}

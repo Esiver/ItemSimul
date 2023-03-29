@@ -1,0 +1,47 @@
+﻿* {
+    --navbar-height: 3.5em;
+    --z-index-base: 1;
+    --main-color-900: #212121;
+    --main-color-800: #424242;
+    --main-color-700: #616161;
+    --main-color-600: #757575;
+    --main-color-500: #9E9E9E;
+    --main-color-400: #BDBDBD;
+    --main-color-300: #E0E0E0;
+    --main-color-200: #EEEEEE;
+    --main-color-100: #F5F5F5;
+    --main-color-50: #FAFAFA;
+    --main-color: var(--main-color-900);
+
+    --secondary-color: var(--main-color-500);
+    
+    --color-white: #fff;
+    --color-black: #000;
+    --color-grey: rgb(225, 225, 225);
+    
+    --color-active: lime;
+    --color-positive: #48903e;
+    --color-positive-hover: #0a5a00;
+    --color-negative: #8f3d3d;
+    --color-negative-hover: #890000;
+    --color-neutral-hover: #dada00;
+    --color-neutral: #ffff00;
+    --color-neutral--invisible: #ffff0000;
+    --color-subtitle-bg: #000000bf;
+    --color-subtitle-text: var(--color-white);
+    
+    --box-shadow-color: #707070;
+
+    --btn-color: var(--main-color-100);
+    --btn-color-hover: var(--main-color-300);
+    
+    --card-color: var(--main-color-200);
+    --card-text-color: var(--color-black);
+    
+    --overlay-color: var(--main-color-50);
+    --overlay-text-color: var(--color-black);
+    --navbar-color: var(--main-color-200);
+    --navbar-text-color: var(--color-black);
+    
+    --background-color: var(--main-color-400);
+}

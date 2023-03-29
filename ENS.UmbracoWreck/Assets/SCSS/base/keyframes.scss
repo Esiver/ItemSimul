@@ -1,0 +1,68 @@
+﻿ @keyframes animate-card-entry {
+        0% {
+            /*opacity: 0;*/
+            transform: translateX(15%);
+        }
+
+        100% {
+            /*opacity: 1;*/
+            transform: translateX(0);
+        }
+        }
+        @keyframes cursorPointer {
+            0% {
+                opacity: 1;
+                left: calc(50% + 30px);
+                top: calc(50% + 30px);
+            }
+            70% {
+                opacity: 1;
+                left: calc(50% - 9px);
+                top: 50%;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        @keyframes clickEffect {
+            0% {
+                opacity: 1;
+                width: 16px;
+                height: 16px;
+                top: calc(-8px + 50%);
+                left: calc(-8px + 50%);
+                border-width: 8px;
+            }
+            100% {
+                opacity: 0.2;
+                width: 100px;
+                height: 100px;
+                top: calc(-50px + 50%);
+                left: calc(-50px + 50%);
+                border-width: 0px;
+            }
+        }
+        @keyframes border-switch {
+            0% {
+                border-style: dotted;
+            }
+            50% {
+                border-style: dashed;
+            }
+        }
+        @keyframes alert-border {
+            0% {
+                border-color: var(--color-neutral);
+            }
+            100% {
+                border-color: var(--color-neutral--invisible);
+            }
+        }
+        @keyframes blink {
+            from {
+                background-color: lime;
+            }
+            to {
+                background-color: none;
+            }
+        }
