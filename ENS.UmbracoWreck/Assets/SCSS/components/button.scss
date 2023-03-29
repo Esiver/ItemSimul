@@ -39,8 +39,9 @@
         color: var(--color-white);
 
         &:hover {
-            background-color: var(--color-positive);
-            color: var(--color-white);
+            background-color: var(--color-positive-hover);
+            /*background-color: var(--color-positive);
+            color: var(--color-white);*/
         }
     }
 

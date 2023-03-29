@@ -1191,7 +1191,7 @@
         let cssObj = getInteractionCssObject(rectangleObject)
         let $taskInteractionDom = $(taskActiveSelector).find(taskInteractionSelector)
         let mockInteractionRectangleDOM = document.createElement('div');
-        let mockInteractionClass = 'mock-interaction';
+        let mockInteractionClass = 'debug__mock-interaction';
 
         $taskInteractionDom.find(`.${mockInteractionClass}`).remove()
         $(mockInteractionRectangleDOM).css(cssObj).addClass(mockInteractionClass);

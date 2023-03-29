@@ -60,12 +60,21 @@
         opacity: .925;
 
         * {
-            color:currentColor;
+            /*color:currentColor;*/
         }
 
         h2 {
             font-size: 1.35em;
         }
+
+        .richtext {
+            padding: 1em 2em;
+            background-color: var(--card-color);
+        }
+
+            .richtext ul li {
+                margin-left: 1em;
+            }
 
         #{$self}__item#confirm-restart-overlay & {
             justify-content: center;
@@ -79,20 +88,49 @@
         #{$self}__item#shortcircuit-overlay & {
             opacity: 1;
         }
+
         #intro-overlay & {
             opacity: 1;
         }
     }
+
     &__band {
-        display: flex; width: 100%; flex-direction: row; justify-content: flex-start; margin: 1em 0; gap: 1em;
+        display: flex;
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        margin: 1em 0;
+        gap: 1em;
+    }
+
+    &__card-list {
+        display: flex;
+        flex-direction: column;
+        list-style-type: none;
+        gap: 1em;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+
+    &__card-item {
+        padding: 0.95rem 1.5rem;
+        background-color: var(--card-color);
+        color: var(--card-text-color);
+        display: flex;
+        flex-direction: column;
+        height: fit-content;
+        animation-duration: 1s;
+        animation-name: animate-card-entry;
+        gap: 10px;
+        max-width: 27rem;
+        transition: opacity 400ms ease;
+
+        &.hidden {
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            margin: 0;
+            padding: 0;
+        }
     }
 }
-
-.overlay__card-list {display: flex; flex-direction: column; list-style-type: none; gap: 1em; flex-wrap: wrap; justify-content: flex-start;}
-        .overlay__card-item {padding: 0.95rem 1.5rem; background-color: var(--card-color); color: var(--card-text-color); display: flex; flex-direction: column; height: fit-content;   animation-duration: 1s; animation-name: animate-card-entry; gap: 10px; max-width: 27rem; transition: opacity 400ms ease;}
-        .overlay__card-item.hidden{opacity: 0; visibility: hidden;height:0; margin:0; padding:0;}
-
-
-                /* .overlay__wrapper .richtext ul li {margin-left: 1em; line-height: 3em;} */
-        .overlay__wrapper .richtext {padding: 1em 2em; background-color: var(--card-color);}
-        .overlay__wrapper .richtext ul li { margin-left: 1em;}

@@ -145,10 +145,11 @@ ITEM.Exercise = function (jsonData, settings) {
 
     //& debug
     const debugHeaderContainerSelector = "#exercise-debug-container";
-    const debugSightClass = "debug-sight";
-    const debugRecordRectangleClass = "debug-record-rect";
-    const debugMockInteractionClass = "mock-interaction";
     const debugMsgId = "debug-msg";
+
+    const debugSightClass = "debug--sight";
+    const debugRecordRectangleClass = "debug--record-rect";
+    const debugMockInteractionClass = "debug__mock-interaction";
     const debugTaskTimerClass = "debug__task-timer";
     const debugTaskCountClass = "debug__task-count";
 
@@ -931,19 +932,21 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
         if (state.isMuted) {
-            $(enableAudioSelector).removeClass(hiddenClass);
-            $(disableAudioSelector).addClass(hiddenClass);
-        } else {
             $(enableAudioSelector).addClass(hiddenClass);
             $(disableAudioSelector).removeClass(hiddenClass);
+            
+        } else {
+            $(enableAudioSelector).removeClass(hiddenClass);
+            $(disableAudioSelector).addClass(hiddenClass);
         }
 
         if (state.isSubtitled) {
-            $(enableSubtitlesSelector).addClass(hiddenClass);
-            $(disableSubtitlesSelector).removeClass(hiddenClass);
-        } else {
             $(enableSubtitlesSelector).removeClass(hiddenClass);
             $(disableSubtitlesSelector).addClass(hiddenClass);
+        } else {
+            $(enableSubtitlesSelector).addClass(hiddenClass);
+            $(disableSubtitlesSelector).removeClass(hiddenClass);
+            
         }
     }
 
@@ -963,11 +966,13 @@ ITEM.Exercise = function (jsonData, settings) {
         return false;
     }
     function handleEnableSubtitlesBtn() {
+        $(toggleSubtitlesSelector).trigger('click');
         state.isSubtitled = true;
         showTaskSubtitles();
         updateHeaderIcons();
     }
     function handleDisableSubtitlesBtn() {
+        $(toggleSubtitlesSelector).trigger('click');
         state.isSubtitled = false;
         hideTaskSubtitles();
         updateHeaderIcons();
@@ -1694,16 +1699,31 @@ ITEM.MarkupController = function (settings, state, config) {
     settings.showTaskAutocomplete = true;
 
     // classes
-    const headerToolLiClass = "tools-list__item"
+    const headerToolLiClass = "tools-list__item";
+    const headerToolBtnClass = "task-tool";
 
-    const taskClass = "task"
+    const taskClass = "task";
     const taskInteractionsClass = "interactions";
 
-    const debugToolClass = "debug__tool"
-    const debugTaskCountClass = "debug__task-count"
-    const debugTaskTimerClass = "debug__task-timer"
+    const debugToolClass = "debug__tool";
+    const debugTaskCountClass = "debug__task-count";
+    const debugTaskTimerClass = "debug__task-timer";
     const debugMsgId = "debug-msg";
 
+    const alertClass = "alert";
+    const hiddenClass = "hidden";
+    const buttonPlayingClass = 'button--playing';
+
+    const resultClass = "result"
+    const resultTaskListClass = `${resultClass}__task-list`;
+    const resultItemClass = `${resultClass}__item`;
+    const resultInfoClass = `${resultClass}__info`;
+    const resultInfoItemClass = `${resultClass}__info-item`;
+    const resultDetailsClass = `${resultClass}__details`;
+    const resultNoticeClass = `${resultClass}__notice`;
+    const resultQuoteClass = `${resultClass}__quote`;
+
+    const materialIconsClass = 'material-icons';
 
 
     // selectors 
@@ -1797,11 +1817,11 @@ ITEM.MarkupController = function (settings, state, config) {
             let exerciseAttemptInstanceTaskResultObjectArray = exerciseAttemptInstance.exerciseTaskResultObjectArray;
             let exerciseAttemptInstanceResultsDom = document.createElement('li');
             let taskResultList = document.createElement('ul');
-            taskResultList.classList.add('result__task-list');
+            taskResultList.classList.add(resultTaskListClass);
 
             exerciseAttemptInstanceTaskResultObjectArray.forEach(taskEventObject => {
                 let taskResultLiDom = document.createElement("li");
-                taskResultLiDom.classList.add("result__item")
+                taskResultLiDom.classList.add(resultItemClass)
                 taskResultLiDom.setAttribute('data-task-index', taskEventObject.index)
 
                 //let itemDetailsDom = getTaskDetailsDom(taskEventObject);
@@ -1862,9 +1882,9 @@ ITEM.MarkupController = function (settings, state, config) {
         let taskAutoCompleteNoticeTextNode = document.createTextNode(`Du trykkede på 'Gør det for mig', og fik hjælp til en eller flere opgaver. Antal: ${exerciseResultObject.exerciseAutocompleteCount}`);
         let taskAutocompleteNoticeIconDom = document.createElement('span');
         let taskAutocompleteNoticeIconTextNode = document.createTextNode('warning');
-        taskAutocompleteNoticeIconDom.classList.add('material-icons');
+        taskAutocompleteNoticeIconDom.classList.add(materialIconsClass);
         taskAutocompleteNoticeIconDom.append(taskAutocompleteNoticeIconTextNode)
-        taskAutocompleteNoticeDom.classList.add("alert", "result__notice");
+        taskAutocompleteNoticeDom.classList.add(alertClass, resultNoticeClass);
         taskAutocompleteNoticeDom.append(taskAutocompleteNoticeIconDom, taskAutoCompleteNoticeTextNode);
 
         resultSummaryDom.append(headerDom, subheaderDom);
@@ -1880,14 +1900,14 @@ ITEM.MarkupController = function (settings, state, config) {
 
     function getTaskDetailsDom(task) {
         let detailsDom = document.createElement('div');
-        detailsDom.classList.add('result__details');
+        detailsDom.classList.add(resultDetailsClass);
 
         return detailsDom;
     };
 
     function getTaskInfoDom(taskResultObject) {
         let infoDom = document.createElement('div');
-        infoDom.classList.add('result__info');
+        infoDom.classList.add(resultInfoClass);
 
         if (settings.showTaskAutocomplete) {
             if (taskResultObject.userDidAutoCompleteEvent) {
@@ -1909,8 +1929,8 @@ ITEM.MarkupController = function (settings, state, config) {
         let taskSubtitlesDom = document.createElement('div')
         let taskSubtitlesTextNode = document.createTextNode(`“ ${taskResultObject.subtitles} ”`)
         taskSubtitlesDom.append(taskSubtitlesTextNode)
-        taskSubtitlesDom.classList.add('result__quote');
-        taskSubtitlesDom.classList.add('info-item');
+        taskSubtitlesDom.classList.add(resultQuoteClass);
+        taskSubtitlesDom.classList.add(resultInfoItemClass);
 
         infoDom.append(taskSubtitlesDom);
         // -------------------------------
@@ -1945,7 +1965,7 @@ ITEM.MarkupController = function (settings, state, config) {
         titleDom.append(headerTextNode); 
 
         let iconTextNode = document.createTextNode('expand_more');
-        iconDom.classList.add('material-icons');
+        iconDom.classList.add(materialIconsClass);
         iconDom.append(iconTextNode);
 
         headerDom.append(titleDom);
@@ -1956,12 +1976,12 @@ ITEM.MarkupController = function (settings, state, config) {
     function getUserAutoCompleteResultDom() {
         let noticeSpanDom = document.createElement('span');
 
-        noticeSpanDom.classList.add('alert');
-        noticeSpanDom.classList.add('info-item');
+        noticeSpanDom.classList.add(alertClass);
+        noticeSpanDom.classList.add(resultInfoItemClass);
 
         let spanTextNode = `Tryk på 'Gør det for mig'. Vil du prøve igen?`;
         let spanAlertIcon = document.createElement('span')
-        spanAlertIcon.classList.add('material-icons');
+        spanAlertIcon.classList.add(materialIconsClass);
         let iconTextNode = document.createTextNode('warning')
         spanAlertIcon.append(iconTextNode);
 
@@ -1975,7 +1995,7 @@ ITEM.MarkupController = function (settings, state, config) {
     function getTaskSuccessDom() {
         let noticeSpanDom = document.createElement('span');
         let spanDoneIcon = document.createElement('span')
-        spanDoneIcon.classList.add('material-icons');
+        spanDoneIcon.classList.add(materialIconsClass);
         let iconTextNode = document.createTextNode('done')
         spanDoneIcon.append(iconTextNode);
         noticeSpanDom.append(spanDoneIcon);
@@ -1994,8 +2014,8 @@ ITEM.MarkupController = function (settings, state, config) {
             btn.setAttribute('title', tooltip);
         }
 
-        btnSpan.classList.add('material-icons');
-        btn.classList.add('task-tool');
+        btnSpan.classList.add(materialIconsClass);
+        btn.classList.add(headerToolBtnClass);
         btn.setAttribute('href', '#');
         headerBtnLi.classList.add(headerToolLiClass)
 
@@ -2028,19 +2048,17 @@ ITEM.MarkupController = function (settings, state, config) {
         let exerciseWithAudioFile = state.TaskObjectArray.filter(tObj => { return tObj.audioFile != "" })
         let exerciseExampleAudioFile = json[exerciseAudiofileObjectSelector]
 
-        console.log("lolle", typeof exerciseExampleAudioFile)
         if (exerciseExampleAudioFile.length > 0) {
-            console.log("lol")
-            $(introOverlaySelector).find(introSoundNoticeCardSelector).removeClass('hidden');
+            $(introOverlaySelector).find(introSoundNoticeCardSelector).removeClass(hiddenClass);
             let examplePlayBtn = $(introOverlaySelector).find('.settings-check__item.audio-check:first a');
             let exampleAudioFile = exerciseExampleAudioFile;
             let exampleAudioObject = new Audio(settings.assetsPath + exampleAudioFile);
 
             exampleAudioObject.addEventListener('ended', function () {
-                examplePlayBtn.removeClass('button--playing');
+                examplePlayBtn.removeClass(buttonPlayingClass);
             })
             exampleAudioObject.addEventListener('play', function () {
-                examplePlayBtn.addClass('button--playing');
+                examplePlayBtn.addClass(buttonPlayingClass);
             })
 
             examplePlayBtn.on('click', function () {
@@ -2051,7 +2069,7 @@ ITEM.MarkupController = function (settings, state, config) {
             $(introBeginSelector).on('click', function () { exampleAudioObject.pause(); })
         }
         if (exerciseWithSubtitles.length > 0) {
-            $(introOverlaySelector).find(introSubtitleNoticeCardSelector).removeClass('hidden');
+            $(introOverlaySelector).find(introSubtitleNoticeCardSelector).removeClass(hiddenClass);
 
         }
         
@@ -2147,7 +2165,7 @@ ITEM.OverlayController = function (settings, state) {
 
 
 
-    
+    // :^)
 
 
     return this;
@@ -3649,7 +3667,7 @@ ITEM.InputController = function (settings) {
         let cssObj = getInteractionCssObject(rectangleObject)
         let $taskInteractionDom = $(taskActiveSelector).find(taskInteractionSelector)
         let mockInteractionRectangleDOM = document.createElement('div');
-        let mockInteractionClass = 'mock-interaction';
+        let mockInteractionClass = 'debug__mock-interaction';
 
         $taskInteractionDom.find(`.${mockInteractionClass}`).remove()
         $(mockInteractionRectangleDOM).css(cssObj).addClass(mockInteractionClass);

@@ -1,5 +1,25 @@
-﻿        
-        .card__header { display: flex; flex-direction: row; align-items: center; gap: 1rem;}
-        .card__header .icon {height: 35px;width: 35px;background: white;display: flex;justify-content: center;align-items: center;border-radius: 50%;}
-        .card__title {margin: 0;}
-        .card__body {}
+﻿
+.card {
+    &__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    }
+    &__header .icon{
+       height: 35px;
+        width: 35px;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+    }
+    &__title {
+        margin: 0;
+
+    }
+    &__body {
+
+    }
+}

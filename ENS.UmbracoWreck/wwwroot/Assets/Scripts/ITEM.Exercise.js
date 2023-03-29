@@ -932,19 +932,21 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
         if (state.isMuted) {
-            $(enableAudioSelector).removeClass(hiddenClass);
-            $(disableAudioSelector).addClass(hiddenClass);
-        } else {
             $(enableAudioSelector).addClass(hiddenClass);
             $(disableAudioSelector).removeClass(hiddenClass);
+            
+        } else {
+            $(enableAudioSelector).removeClass(hiddenClass);
+            $(disableAudioSelector).addClass(hiddenClass);
         }
 
         if (state.isSubtitled) {
-            $(enableSubtitlesSelector).addClass(hiddenClass);
-            $(disableSubtitlesSelector).removeClass(hiddenClass);
-        } else {
             $(enableSubtitlesSelector).removeClass(hiddenClass);
             $(disableSubtitlesSelector).addClass(hiddenClass);
+        } else {
+            $(enableSubtitlesSelector).addClass(hiddenClass);
+            $(disableSubtitlesSelector).removeClass(hiddenClass);
+            
         }
     }
 
@@ -964,11 +966,13 @@ ITEM.Exercise = function (jsonData, settings) {
         return false;
     }
     function handleEnableSubtitlesBtn() {
+        $(toggleSubtitlesSelector).trigger('click');
         state.isSubtitled = true;
         showTaskSubtitles();
         updateHeaderIcons();
     }
     function handleDisableSubtitlesBtn() {
+        $(toggleSubtitlesSelector).trigger('click');
         state.isSubtitled = false;
         hideTaskSubtitles();
         updateHeaderIcons();
