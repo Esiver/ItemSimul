@@ -87,8 +87,8 @@ ITEM.Exercise = function (jsonData, settings) {
     const enableAudioSelector = "#enableAudio";
     const disableAudioSelector = "#disableAudio";
     const skipTaskSelector = "#skipTask";
-    const enableSubtitlesSelector = "#enableSubtitles";
-    const disableSubtitlesSelector = "#disableSubtitles";
+    const enableSubtitlesHeaderBtnSelector = "#enableSubtitles";
+    const disableSubtitlesHeaderBtnSelector = "#disableSubtitles";
     const replayAudioSelector = "#replayAudio";
     const restartExerciseHeaderBtnSelector = "#restartExercise";
     const headerToolLiClass = "tools-list__item";
@@ -116,7 +116,7 @@ ITEM.Exercise = function (jsonData, settings) {
     // ____ settings overlay
 
     const toggleMuteSelector = "#mute-checkbox";
-    const toggleSubtitlesSelector = "#subtitles-checkbox-settings";
+    const toggleSubtitlesSettingsOverlaySelector = "#subtitles-checkbox-settings";
     const toggleFeedbackSelector = "#feedback-checkbox";
     const feedbackComponentSelector = "feedback-component";
     const feedbackWrapperSelector = ".feedback-wrapper";
@@ -332,8 +332,8 @@ ITEM.Exercise = function (jsonData, settings) {
             $(replayAudioSelector).on('click', replayTaskAudioFile);
             $(enableAudioSelector).on('click', handleEnableAudioBtn);
             $(disableAudioSelector).on('click', handleDisableAudioBtn);
-            $(enableSubtitlesSelector).on('click', handleEnableSubtitlesBtn);
-            $(disableSubtitlesSelector).on('click', handleDisableSubtitlesBtn);
+            $(enableSubtitlesHeaderBtnSelector).on('click', handleEnableSubtitlesHeaderBtn);
+            $(disableSubtitlesHeaderBtnSelector).on('click', handleDisableSubtitlesHeaderBtn);
             $(restartExerciseHeaderBtnSelector).on('click', handleRestartExerciseOverlayBtn);
             $(confirmRestartBtnSelector).on('click', handleRestartExerciseConfirmBtn);
             $(cancelRestartBtnSelector).on('click', hideConfirmResetOverlay);
@@ -341,7 +341,7 @@ ITEM.Exercise = function (jsonData, settings) {
             $(unfocusOverlaySelector).on('click', function () { resumeTask(); $(exerciseSelector).focus(); });
             //settings overlay toggles...
             $(toggleMuteSelector).on('click', toggleMuteAudio);
-            $(toggleSubtitlesSelector).on('click', toggleSubtitles);
+            $(toggleSubtitlesSettingsOverlaySelector).on('click', toggleSubtitles);
             $(toggleFeedbackSelector).on('click', toggleFeedback);
             //subtitles
             $(subtitlesCloseSelector).on('click', handleCloseSubtitlesClick);
@@ -528,7 +528,11 @@ ITEM.Exercise = function (jsonData, settings) {
             pauseTaskTimer();
             hideTaskSubtitles();
 
-            let eObj = { event: "Pause Task", timeStamp: Date.now(), task: $(exerciseSelector).find(activeClassSelector), explainer: "Paused Task." };
+            let eObj = {
+                event: "Pause Task", timeStamp: Date.now(),
+                task: $(exerciseSelector).find(activeClassSelector),
+                explainer: "Paused Task."
+            };
             _logController.HandleOutputLogEntry(state.TaskObjectArray[state.currentTaskIndex], eObj);
         }
         debugLog("pauseTask, current EventLog:", state.EventLog);
@@ -563,8 +567,16 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function skipTask() {
         if (!state.isFinished && state.didStart) {
-            let eObj = { event: "Skip Task", timeStamp: Date.now(), task: $(exerciseSelector).find(activeClassSelector), explainer: "Brugeren sprang opgavedelen over." };
-            _logController.HandleOutputLogEntry(state.TaskObjectArray[state.currentTaskIndex], eObj);
+            let eObj = {
+                event: "Skip Task",
+                timeStamp: Date.now(),
+                task: $(exerciseSelector).find(activeClassSelector),
+                explainer: "Brugeren sprang opgavedelen over."
+            };
+            _logController.HandleOutputLogEntry(
+                state.TaskObjectArray[state.currentTaskIndex],
+                eObj
+            );
 
             storeTaskEvents();
             goToNextTask();
@@ -903,15 +915,8 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     // ____ HEADER TOOLS, SETTINGS & BTN-HANDLERS ________________________________________________________________
 
-    function updateSettingIcons() {
-        if (!state.isMuted && $(toggleMuteSelector).is(':checked')) {
-            $(toggleMuteSelector).toggle('checked');
-        } else {
-            // hehe
-        }
-    }
-
     function updateHeaderIcons() {
+        // in case a user setting is updated, also update the visual representation of these
 
         if (!state.isFinished) {
             $(exerciseSettings).removeClass(hiddenClass);
@@ -941,12 +946,35 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
         if (state.isSubtitled) {
-            $(enableSubtitlesSelector).removeClass(hiddenClass);
-            $(disableSubtitlesSelector).addClass(hiddenClass);
+            $(enableSubtitlesHeaderBtnSelector).addClass(hiddenClass);
+            $(disableSubtitlesHeaderBtnSelector).removeClass(hiddenClass);
+
         } else {
-            $(enableSubtitlesSelector).addClass(hiddenClass);
-            $(disableSubtitlesSelector).removeClass(hiddenClass);
+            $(enableSubtitlesHeaderBtnSelector).removeClass(hiddenClass);
+            $(disableSubtitlesHeaderBtnSelector).addClass(hiddenClass);
             
+        }
+    }
+
+    function updateSettingsIcons() {
+        // in case a user setting is updated, also update the visual representation of these
+
+        if (state.hideFeedback) {
+            $(toggleFeedbackSelector).prop('checked', false)
+        } else {
+            $(toggleFeedbackSelector).prop('checked', true)
+        }
+
+        if (state.isMuted) {
+            $(toggleMuteSelector).prop('checked', false)
+        } else {
+            $(toggleMuteSelector).prop('checked', true)
+        }
+
+        if (state.isSubtitled) {
+            $(toggleSubtitlesSettingsOverlaySelector).prop('checked', true)
+        } else {
+            $(toggleSubtitlesSettingsOverlaySelector).prop('checked', false)
         }
     }
 
@@ -958,29 +986,30 @@ ITEM.Exercise = function (jsonData, settings) {
     function handleEnableAudioBtn() {
         toggleMuteAudio();
         updateHeaderIcons();
+        updateSettingsIcons();
         return false;
     }
     function handleDisableAudioBtn() {
         toggleMuteAudio();
         updateHeaderIcons();
+        updateSettingsIcons();
         return false;
     }
-    function handleEnableSubtitlesBtn() {
-        console.log("lol",state.isSubtitled)
-
-        $(toggleSubtitlesSelector).trigger('click'); // to make settingsoverlay toggles mindlessly correspond.
-        console.log("lol", state.isSubtitled)
+    function handleEnableSubtitlesHeaderBtn() {
+        console.log("hest", state.isSubtitled)
         state.isSubtitled = true;
-        console.log("lol", state.isSubtitled)
-
         showTaskSubtitles();
         updateHeaderIcons();
+        updateSettingsIcons();
+        console.log("hest", state.isSubtitled)
+
     }
-    function handleDisableSubtitlesBtn() {
-        $(toggleSubtitlesSelector).trigger('click');
+    function handleDisableSubtitlesHeaderBtn() {
         state.isSubtitled = false;
         hideTaskSubtitles();
         updateHeaderIcons();
+        updateSettingsIcons();
+
     }
     function handleRestartExerciseOverlayBtn() {
         if ($(confirmRestartOverlaySelector).hasClass(activeOverlayClass)) {
@@ -1004,8 +1033,8 @@ ITEM.Exercise = function (jsonData, settings) {
         $(skipTaskSelector).addClass(headerToolHiddenClass);
         $(enableAudioSelector).addClass(headerToolHiddenClass);
         $(disableAudioSelector).addClass(headerToolHiddenClass);
-        $(enableSubtitlesSelector).addClass(headerToolHiddenClass);
-        $(disableSubtitlesSelector).addClass(headerToolHiddenClass);
+        $(enableSubtitlesHeaderBtnSelector).addClass(headerToolHiddenClass);
+        $(disableSubtitlesHeaderBtnSelector).addClass(headerToolHiddenClass);
         $(replayAudioSelector).addClass(headerToolHiddenClass);
         $(settingsBtnSelector).addClass(headerToolHiddenClass);
 
@@ -1092,6 +1121,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function handleFeedbackState() {
         debugLog("handleFeedbackState() ... state.hideFeedback = ", state.hideFeedback);
+        
         if (state.hideFeedback) {
             _feedbackController?.DisableFeedback();
         } else {

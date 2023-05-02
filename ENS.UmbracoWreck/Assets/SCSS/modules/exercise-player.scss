@@ -1,14 +1,13 @@
 ﻿
-* {  box-sizing: border-box;
-             padding: 0; 
-             margin: 0;
-             font-size: 16px;
-
-             
-
-            }
-
-.exercise-body { color:var(--color-white); background-color: var(--color-black); font-family:Roboto, Arial, Helvetica, sans-serif;}
+.exercise-body {
+    color: var(--color-white);
+    background-color: var(--color-black);
+    font-family: Roboto, Arial, Helvetica, sans-serif;
+        overflow: hidden;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
 
 
 .task {
@@ -67,19 +66,33 @@
         display: flex;
         padding: 0;
         margin: 0;
+
         .click {
             cursor: pointer;
         }
+
         .dblclick {
             cursor: pointer;
         }
+
         .stringinput {
-            cursor: text; font-size: 1.35vh;
+            cursor: text;
+            font-size: 1.35vh;
         }
+
         input {
-            outline: none; border: none; width: 100%; height: 100%; padding: 4px; 
+            outline: none;
+            border: none;
+            width: 100%;
+            height: 100%;
+            padding: 4px;
         }
-        span {display: block; width: 100%; height: 100%;}
+
+        span {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
     }
 }
 
@@ -140,23 +153,7 @@
     }
 }
 
-
-
-
-
-
-
-
-
-
-        
-
-
-
-
-
-        
-      
-        .blink-change {animation-duration: 500ms; animation-name: blink;}
-
-       
+.blink-change {
+    animation-duration: 500ms;
+    animation-name: blink;
+}

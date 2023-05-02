@@ -20,6 +20,10 @@
         transition: bottom 400ms ease-in-out;
         text-align: center;
 
+        p {
+            font-size: inherit;
+        }
+
         &.hidden {
             display: none;
         }
@@ -29,9 +33,7 @@
         }
     }
 
-    p {
-        font-size: inherit;
-    }
+    
 
     &__btn {
         position: absolute;

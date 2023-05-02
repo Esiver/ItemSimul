@@ -1,4 +1,31 @@
-﻿ITEM.AudioController = function (settings) {
+﻿// The audioController is instanciated as its own object.
+// fx: var_audioController = ITEM.AudioController({})
+// the audioController is fed an audiofile path with loadAudioFile(filePath)
+//      in theory, loadAudioFile() can also take a callback and callbackWhen, but make sure the flow is set up for it.
+// audioController is controlled with playAudio(), pauseAudio(), stopAudio(), replayAudio(), muteAudio(), and unmuteAudio().
+
+// the general flow of the audioController is as such:
+
+// 0. init --> var _audioController = ITEM.AudioController({})
+// 1. load audio file --> _audioController.loadAudioFile(path)
+// 2. play audio file --> _audioController.playAudio()
+
+
+// 2.5 (optional) stop audioFile --> _audioController.stopAudio()
+// 3. clear audioFile --> _audioController.clearAudioFile()
+// 4. load new file -->  _audioController.loadAudioFile(path)
+// 5. play file etc...
+
+// at one point, either the audio file is played to an end,
+//      or is set to stop with _audioController.stopAudio().
+
+// Manually calling the stopAudio() is not strictly necesarry,
+//      as it is also called in clearAudioFile()
+//      - in practice you could skip clearAudioFile() and go straight at loadAudioFile()
+//      but this may in some cases throw an error, and as such clearAudioFile() is kosher.
+
+
+ITEM.AudioController = function (settings) {
 
     audioControllerState = {
         audioObject: new Audio(),
@@ -166,6 +193,7 @@
     }
 
     function getAudioFileDuration() {
+        // yet to be used, but could come in handy.
         if (typeof audioControllerState.audioObject != 'undefined' && audioControllerState.audioObject != null) {
             if (audioControllerState.audioObject.src == "") {
                 return audioControllerState.audioObject.duration;

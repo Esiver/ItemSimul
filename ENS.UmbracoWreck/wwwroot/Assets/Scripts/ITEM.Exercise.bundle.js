@@ -87,8 +87,8 @@ ITEM.Exercise = function (jsonData, settings) {
     const enableAudioSelector = "#enableAudio";
     const disableAudioSelector = "#disableAudio";
     const skipTaskSelector = "#skipTask";
-    const enableSubtitlesSelector = "#enableSubtitles";
-    const disableSubtitlesSelector = "#disableSubtitles";
+    const enableSubtitlesHeaderBtnSelector = "#enableSubtitles";
+    const disableSubtitlesHeaderBtnSelector = "#disableSubtitles";
     const replayAudioSelector = "#replayAudio";
     const restartExerciseHeaderBtnSelector = "#restartExercise";
     const headerToolLiClass = "tools-list__item";
@@ -116,7 +116,7 @@ ITEM.Exercise = function (jsonData, settings) {
     // ____ settings overlay
 
     const toggleMuteSelector = "#mute-checkbox";
-    const toggleSubtitlesSelector = "#subtitles-checkbox-settings";
+    const toggleSubtitlesSettingsOverlaySelector = "#subtitles-checkbox-settings";
     const toggleFeedbackSelector = "#feedback-checkbox";
     const feedbackComponentSelector = "feedback-component";
     const feedbackWrapperSelector = ".feedback-wrapper";
@@ -332,8 +332,8 @@ ITEM.Exercise = function (jsonData, settings) {
             $(replayAudioSelector).on('click', replayTaskAudioFile);
             $(enableAudioSelector).on('click', handleEnableAudioBtn);
             $(disableAudioSelector).on('click', handleDisableAudioBtn);
-            $(enableSubtitlesSelector).on('click', handleEnableSubtitlesBtn);
-            $(disableSubtitlesSelector).on('click', handleDisableSubtitlesBtn);
+            $(enableSubtitlesHeaderBtnSelector).on('click', handleEnableSubtitlesHeaderBtn);
+            $(disableSubtitlesHeaderBtnSelector).on('click', handleDisableSubtitlesHeaderBtn);
             $(restartExerciseHeaderBtnSelector).on('click', handleRestartExerciseOverlayBtn);
             $(confirmRestartBtnSelector).on('click', handleRestartExerciseConfirmBtn);
             $(cancelRestartBtnSelector).on('click', hideConfirmResetOverlay);
@@ -341,7 +341,7 @@ ITEM.Exercise = function (jsonData, settings) {
             $(unfocusOverlaySelector).on('click', function () { resumeTask(); $(exerciseSelector).focus(); });
             //settings overlay toggles...
             $(toggleMuteSelector).on('click', toggleMuteAudio);
-            $(toggleSubtitlesSelector).on('click', toggleSubtitles);
+            $(toggleSubtitlesSettingsOverlaySelector).on('click', toggleSubtitles);
             $(toggleFeedbackSelector).on('click', toggleFeedback);
             //subtitles
             $(subtitlesCloseSelector).on('click', handleCloseSubtitlesClick);
@@ -528,7 +528,11 @@ ITEM.Exercise = function (jsonData, settings) {
             pauseTaskTimer();
             hideTaskSubtitles();
 
-            let eObj = { event: "Pause Task", timeStamp: Date.now(), task: $(exerciseSelector).find(activeClassSelector), explainer: "Paused Task." };
+            let eObj = {
+                event: "Pause Task", timeStamp: Date.now(),
+                task: $(exerciseSelector).find(activeClassSelector),
+                explainer: "Paused Task."
+            };
             _logController.HandleOutputLogEntry(state.TaskObjectArray[state.currentTaskIndex], eObj);
         }
         debugLog("pauseTask, current EventLog:", state.EventLog);
@@ -563,8 +567,16 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     function skipTask() {
         if (!state.isFinished && state.didStart) {
-            let eObj = { event: "Skip Task", timeStamp: Date.now(), task: $(exerciseSelector).find(activeClassSelector), explainer: "Brugeren sprang opgavedelen over." };
-            _logController.HandleOutputLogEntry(state.TaskObjectArray[state.currentTaskIndex], eObj);
+            let eObj = {
+                event: "Skip Task",
+                timeStamp: Date.now(),
+                task: $(exerciseSelector).find(activeClassSelector),
+                explainer: "Brugeren sprang opgavedelen over."
+            };
+            _logController.HandleOutputLogEntry(
+                state.TaskObjectArray[state.currentTaskIndex],
+                eObj
+            );
 
             storeTaskEvents();
             goToNextTask();
@@ -903,15 +915,8 @@ ITEM.Exercise = function (jsonData, settings) {
     }
     // ____ HEADER TOOLS, SETTINGS & BTN-HANDLERS ________________________________________________________________
 
-    function updateSettingIcons() {
-        if (!state.isMuted && $(toggleMuteSelector).is(':checked')) {
-            $(toggleMuteSelector).toggle('checked');
-        } else {
-            // hehe
-        }
-    }
-
     function updateHeaderIcons() {
+        // in case a user setting is updated, also update the visual representation of these
 
         if (!state.isFinished) {
             $(exerciseSettings).removeClass(hiddenClass);
@@ -941,12 +946,35 @@ ITEM.Exercise = function (jsonData, settings) {
         }
 
         if (state.isSubtitled) {
-            $(enableSubtitlesSelector).removeClass(hiddenClass);
-            $(disableSubtitlesSelector).addClass(hiddenClass);
+            $(enableSubtitlesHeaderBtnSelector).addClass(hiddenClass);
+            $(disableSubtitlesHeaderBtnSelector).removeClass(hiddenClass);
+
         } else {
-            $(enableSubtitlesSelector).addClass(hiddenClass);
-            $(disableSubtitlesSelector).removeClass(hiddenClass);
+            $(enableSubtitlesHeaderBtnSelector).removeClass(hiddenClass);
+            $(disableSubtitlesHeaderBtnSelector).addClass(hiddenClass);
             
+        }
+    }
+
+    function updateSettingsIcons() {
+        // in case a user setting is updated, also update the visual representation of these
+
+        if (state.hideFeedback) {
+            $(toggleFeedbackSelector).prop('checked', false)
+        } else {
+            $(toggleFeedbackSelector).prop('checked', true)
+        }
+
+        if (state.isMuted) {
+            $(toggleMuteSelector).prop('checked', false)
+        } else {
+            $(toggleMuteSelector).prop('checked', true)
+        }
+
+        if (state.isSubtitled) {
+            $(toggleSubtitlesSettingsOverlaySelector).prop('checked', true)
+        } else {
+            $(toggleSubtitlesSettingsOverlaySelector).prop('checked', false)
         }
     }
 
@@ -958,29 +986,30 @@ ITEM.Exercise = function (jsonData, settings) {
     function handleEnableAudioBtn() {
         toggleMuteAudio();
         updateHeaderIcons();
+        updateSettingsIcons();
         return false;
     }
     function handleDisableAudioBtn() {
         toggleMuteAudio();
         updateHeaderIcons();
+        updateSettingsIcons();
         return false;
     }
-    function handleEnableSubtitlesBtn() {
-        console.log("lol",state.isSubtitled)
-
-        $(toggleSubtitlesSelector).trigger('click'); // to make settingsoverlay toggles mindlessly correspond.
-        console.log("lol", state.isSubtitled)
+    function handleEnableSubtitlesHeaderBtn() {
+        console.log("hest", state.isSubtitled)
         state.isSubtitled = true;
-        console.log("lol", state.isSubtitled)
-
         showTaskSubtitles();
         updateHeaderIcons();
+        updateSettingsIcons();
+        console.log("hest", state.isSubtitled)
+
     }
-    function handleDisableSubtitlesBtn() {
-        $(toggleSubtitlesSelector).trigger('click');
+    function handleDisableSubtitlesHeaderBtn() {
         state.isSubtitled = false;
         hideTaskSubtitles();
         updateHeaderIcons();
+        updateSettingsIcons();
+
     }
     function handleRestartExerciseOverlayBtn() {
         if ($(confirmRestartOverlaySelector).hasClass(activeOverlayClass)) {
@@ -1004,8 +1033,8 @@ ITEM.Exercise = function (jsonData, settings) {
         $(skipTaskSelector).addClass(headerToolHiddenClass);
         $(enableAudioSelector).addClass(headerToolHiddenClass);
         $(disableAudioSelector).addClass(headerToolHiddenClass);
-        $(enableSubtitlesSelector).addClass(headerToolHiddenClass);
-        $(disableSubtitlesSelector).addClass(headerToolHiddenClass);
+        $(enableSubtitlesHeaderBtnSelector).addClass(headerToolHiddenClass);
+        $(disableSubtitlesHeaderBtnSelector).addClass(headerToolHiddenClass);
         $(replayAudioSelector).addClass(headerToolHiddenClass);
         $(settingsBtnSelector).addClass(headerToolHiddenClass);
 
@@ -1092,6 +1121,7 @@ ITEM.Exercise = function (jsonData, settings) {
 
     function handleFeedbackState() {
         debugLog("handleFeedbackState() ... state.hideFeedback = ", state.hideFeedback);
+        
         if (state.hideFeedback) {
             _feedbackController?.DisableFeedback();
         } else {
@@ -1498,6 +1528,33 @@ ITEM.Exercise = function (jsonData, settings) {
 };
 
 
+// The audioController is instanciated as its own object.
+// fx: var_audioController = ITEM.AudioController({})
+// the audioController is fed an audiofile path with loadAudioFile(filePath)
+//      in theory, loadAudioFile() can also take a callback and callbackWhen, but make sure the flow is set up for it.
+// audioController is controlled with playAudio(), pauseAudio(), stopAudio(), replayAudio(), muteAudio(), and unmuteAudio().
+
+// the general flow of the audioController is as such:
+
+// 0. init --> var _audioController = ITEM.AudioController({})
+// 1. load audio file --> _audioController.loadAudioFile(path)
+// 2. play audio file --> _audioController.playAudio()
+
+
+// 2.5 (optional) stop audioFile --> _audioController.stopAudio()
+// 3. clear audioFile --> _audioController.clearAudioFile()
+// 4. load new file -->  _audioController.loadAudioFile(path)
+// 5. play file etc...
+
+// at one point, either the audio file is played to an end,
+//      or is set to stop with _audioController.stopAudio().
+
+// Manually calling the stopAudio() is not strictly necesarry,
+//      as it is also called in clearAudioFile()
+//      - in practice you could skip clearAudioFile() and go straight at loadAudioFile()
+//      but this may in some cases throw an error, and as such clearAudioFile() is kosher.
+
+
 ITEM.AudioController = function (settings) {
 
     audioControllerState = {
@@ -1666,6 +1723,7 @@ ITEM.AudioController = function (settings) {
     }
 
     function getAudioFileDuration() {
+        // yet to be used, but could come in handy.
         if (typeof audioControllerState.audioObject != 'undefined' && audioControllerState.audioObject != null) {
             if (audioControllerState.audioObject.src == "") {
                 return audioControllerState.audioObject.duration;
@@ -1695,6 +1753,11 @@ ITEM.AudioController = function (settings) {
 }
 
 
+
+// the markupController(. . .) administers markup, mainly tailored to the ItemSimu "application"
+// requires settings and state to be given before usage. 
+
+// generateExerciseMarkup(json) - 
 
 ITEM.MarkupController = function (settings, state, config) {
 
@@ -2170,12 +2233,15 @@ ITEM.OverlayController = function (settings, state) {
 
 
 
-    // :^)
+    // <O:^)
 
 
     return this;
 }
-/*jshint esversion: 11 */
+// spørg Lotte hehe
+
+// FeedbackController creates a feedbackController object, managing the display of feedback.
+
 
 ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 
@@ -2479,6 +2545,9 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
 
     return this;
 };
+// buckle up, buckaroo. this is a long one.
+
+
 ITEM.InputController = function (settings) {
 
     _logController = settings.logController;
@@ -2945,7 +3014,6 @@ ITEM.InputController = function (settings) {
                         // Order of keypresses doesnt matter, so we only need to check length.
                         if (inputCheck) {
                             debugLog("checkMatchKeyPress [CORRECT]", InputControllerState.currentTaskObject)
-                            //stdLogEntry("Task Complete.", "status");
                             stdLogEntry("Task Complete.", "status", attemptCount);
 
                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
@@ -3704,6 +3772,52 @@ ITEM.InputController = function (settings) {
 
 
 
+// logController is tasked with logging everything important so that:
+//   a) debuggers can follow along and pinpoint errors
+//   b) data, statistics, and insight of the application can be made
+//  as such, the logController should be prepared first, as to
+//      feed the other controllers with the logController.
+
+// when events are logged, they should be wrapped in an eventObject, and passed with a taskObject
+//      --> as such: _logController.HandleOutputLogEntry(TASKOBJ, EVENTOBJ, COMMENTOBJ)
+// logentries are then stored in log-entry-objects, with following structure:
+// logEntryObject = {
+//      logID: TASK OBJECT ID + Date.now(),
+//      logTimeStamp: Date.now(),
+//      logEvent: EVENT OBJECT,
+//      logType: "input" / "output" / "secret",
+//      logComment: COMMENT OBJECT
+//   }
+
+// the event object structure is shown in the logController init(), and here:
+// eObj = {
+//      event: "Task Completed." / "Task Auto-Completed" / "Exercise Complete."
+//      timeStamp: Date.now(),
+//      task: CURRENT TASK OBJECT,
+//      explainer: HUMAN-FRIENDLY EXPLAINER STRING
+//      
+//  }
+
+// as is, logController has 3 categories of log entries ("user" being the end-user interacting with the UI):
+// 1) input log - for logging when the user does something (fx userinput!)
+// 2) output log - for logging when the user is told something (likely feedback from feedbackController)
+// 3) secret log - logging things not apparent to the user
+// logs are intermittenly stored in the logController, then stored to a task Object with storeTaskObject()
+
+
+// use-flow:
+// 0. init logController --> var _logController = ITEM.LogController({}, state.eventLog)
+// 1. start task (or any process fragment, ie. multiple tasks make up an exercise)
+// 2. something noteworthy happens (input/output/secret) during the task
+//      --> handleInputLogEntry() OR handleOutputLogEntry() OR handleSecretLogEntry()
+//          this is done within each individual controller that has access to the logController
+//          - fx inside inputController when user input is detected (handleInputLogEntry())
+//          - fx inside feedbackController when feedback is shown (handleOutputLogEntry())
+//          - fx inside inputController when task is considered complete (handleSecretLogEntry())
+// 3. end task: all events that happened during current task are clustered, and attached to the taskObejct
+//      --> storeTaskEvents()
+// 4. all the events that happened during the task can now be accessed from the task object. 
+
 
 
 ITEM.LogController = function (settings, eventLog) {
@@ -3731,8 +3845,9 @@ ITEM.LogController = function (settings, eventLog) {
         )
     };
 
-    // Warning if eventobject looks unexpected
+    
     function checkEventObject(eventObject) {
+        // Warning if eventobject looks unexpected
         if (settings.debugMode) {
             if (typeof eventObject.event == 'undefined') {
                 console.warn("Warning (LogController): eventobject not of expected shape (eventObject.event == undefined). Please specify event.", eventObject)
@@ -3746,10 +3861,9 @@ ITEM.LogController = function (settings, eventLog) {
         }
     };
 
-    // handleInputLogEntry, handleOutputLogEntry, and handleSecretLogEntry do mostly the same, but are seperate functions for the sake of possible future changes...
+    // handleInputLogEntry, handleOutputLogEntry, and handleSecretLogEntry do mostly the same, but are seperate functions for the sake of possible futures...
     function handleInputLogEntry(taskObj, eventObject, commentObject) {
-        checkEventObject(eventObject)
-        
+        checkEventObject(eventObject);
 
         let logEntryObject = {
             logID: taskObj?.id + Date.now(), // leave as NaN if no taskObj (no taskObj = big problem!)

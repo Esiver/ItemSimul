@@ -1,4 +1,7 @@
-﻿ITEM.InputController = function (settings) {
+﻿// buckle up, buckaroo. this is a long one.
+
+
+ITEM.InputController = function (settings) {
 
     _logController = settings.logController;
 
@@ -464,7 +467,6 @@
                         // Order of keypresses doesnt matter, so we only need to check length.
                         if (inputCheck) {
                             debugLog("checkMatchKeyPress [CORRECT]", InputControllerState.currentTaskObject)
-                            //stdLogEntry("Task Complete.", "status");
                             stdLogEntry("Task Complete.", "status", attemptCount);
 
                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {

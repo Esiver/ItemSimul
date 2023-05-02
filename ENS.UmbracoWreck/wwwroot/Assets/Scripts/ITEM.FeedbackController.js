@@ -1,4 +1,7 @@
-﻿/*jshint esversion: 11 */
+﻿// spørg Lotte hehe
+
+// FeedbackController creates a feedbackController object, managing the display of feedback.
+
 
 ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 

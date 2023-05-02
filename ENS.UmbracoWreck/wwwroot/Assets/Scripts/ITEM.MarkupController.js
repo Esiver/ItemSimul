@@ -1,4 +1,9 @@
-﻿ITEM.MarkupController = function (settings, state, config) {
+﻿// the markupController(. . .) administers markup, mainly tailored to the ItemSimu "application"
+// requires settings and state to be given before usage. 
+
+// generateExerciseMarkup(json) - 
+
+ITEM.MarkupController = function (settings, state, config) {
 
     settings.showTaskOnlyOnAutocomplete = true;
     settings.showTaskSubtitles = true;
