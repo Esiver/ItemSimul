@@ -1,5 +1,40 @@
 ﻿// buckle up, buckaroo. this is a long one.
 
+// InputController is responsible for checking the user input.
+// Additionally - it also takes care of drawing "interaction-rectangles" in debug mode.
+
+// Standard Use-Flow:
+// 0. start exercise: declare inputController, with settings parameters deciding what inputs to handle
+//      --> var _inputController = ITEM.InputController({ exerciseContainerSelector: exerciseSelector, dblClickDetect: true, mouseDownDetect: true, keyDownDetect: true, logController: _logController, debugMode: settings.debugMode, });
+// 1: initialize inputController, with first task as parameter
+//      --> _inputController.initInputController(firstTask)
+// 2: init task from exercise (or otherwise fragmented process that bears seperated)
+//      --> _inputController.InitTask(currentTaskObject)
+// 3: continue initiating new tasks.
+//      --> _inputController.InitTask(currentTaskObject)
+
+// NOTICE ON INPUTTYPES & EVENTLISTENERS
+// (click, dbl-click, right-click, mouseover, keydown, stringinput)
+//      MOUSEOVER
+//          mouseovers are initialised at every task start
+//      STRINGINPUT
+//          inputfields are initialised at every task start
+
+
+// NOTICE ON ATTEMPTS
+//  from an early stage onwards, the inputController was intended to account for "attempts".
+//  While a single click is easily quantified as a single attempt, the quest to quantify an attempt for a stringinput proves more difficult.
+//  The controller still slightly suffers from early "attempt-oriented" thinking,
+//  and still has functions and considerations for such attempts as well as resetting the attempt count,
+//  - however, these consideration does not break anything and I have left them in for now, partly because they also give nice debugging insights.
+
+// NOTICE ON KEY-COMBINATIONS
+//  (fx. [CTRL]+L , or [SHIFT]+[ENTER], etc.)
+// I have categorised following as "flavor-keys": ["Control", "Shift", "Alt"].
+// Their state (if they are pressed or not) is tracked and in 
+
+
+
 
 ITEM.InputController = function (settings) {
 
@@ -68,7 +103,6 @@ ITEM.InputController = function (settings) {
         InputControllerState.currentTaskObject = firstTaskObject;
         debugLog("inputcontroller init", InputControllerState.currentTask);
 
-        // initTask();
         clearGlobalEventListeners();
         initGlobalEventListeners(InputControllerState.currentTask);
     };
@@ -85,12 +119,12 @@ ITEM.InputController = function (settings) {
         clearTaskEventLog();
         clearState();
         clearAttempts();
-
         debugLog("initNewTaskInteraction (inputController)", InputControllerState);
-
         initInteractionArray();
-        initTaskInputFields(InputControllerState.currentTask);
-        initMouseOver();
+        //inputfields are initialised & prepared at each new task
+        initTaskInputFields(InputControllerState.currentTask); 
+        // mouseover's are initialised at each new task
+        initMouseOver(); 
 
         stdLogEntry("Task Start.", "status");
     }
@@ -105,7 +139,6 @@ ITEM.InputController = function (settings) {
         })
         setTimeout(function () {
             task.find('input:first').trigger('focus');
-
         }, 100);
     }
 
@@ -151,12 +184,12 @@ ITEM.InputController = function (settings) {
     }
 
     function keyUpHandler(event) {
+        // handles flow on user keyup -  whether it is for a key-combination or stringinput. 
         event.preventDefault();
         event.stopPropagation();
 
         debugLog("keyUpHandler (START):", { exerciseHasFocus: $("#assetContentWrapper").is(":focus").toString(), event: event });
         inputHandler(event);
-        //inputfieldHandler(event);
 
         storeKeyDown(event);
         checkKeyboardInteraction(event);
@@ -180,27 +213,29 @@ ITEM.InputController = function (settings) {
     }
 
     function inputHandler(inputEvent) {
+        // keeps track of current key downs
         InputControllerState.shiftKey = inputEvent.shiftKey;
         InputControllerState.ctrlKey = inputEvent.ctrlKey;
         InputControllerState.altKey = inputEvent.altKey;
         InputControllerState.currentKey = inputEvent.key;
 
-        if (inputEvent.key.length < 2) {
+        if (inputEvent.key.length < 2) { // if normal key down
             let newStringInstance = InputControllerState.currentStringInstance + inputEvent.key;
             InputControllerState.currentStringInstance = newStringInstance;
-        } else if (inputEvent.key.length > 1) {
+        } else if (inputEvent.key.length > 1) { // if flavor-key down (ctrl, alt, etc..)
             let newStringInstance = InputControllerState.currentStringInstance + "*";
             InputControllerState.currentStringInstance = newStringInstance;
         }
     }
     function initMouseOver(task) {
-        
         let mouseoverInteractionObjectsArray = null;
         if (typeof InputControllerState?.currentTaskObject != 'undefined' && InputControllerState?.currentTaskObject) {
             mouseoverInteractionObjectsArray = InputControllerState.currentTaskObject[taskInteractionListObjectSelector]?.filter(iObj => iObj[taskInteractionTypeObjectSelector] == interactionTypeMouseOverString);
-        }
+        } // we get all the interaction objects (iObj) that are mouseover interaction types
+
         debugLog("initMouseOver", { task: task, currentTask: InputControllerState.currentTaskObject, state: InputControllerState, mouseoverObjects: mouseoverInteractionObjectsArray });
 
+        // run through the mouseover interaction objects found above. 
         mouseoverInteractionObjectsArray?.forEach(iObj => {
             debugLog("initMouseOver iObj", iObj);
 
@@ -265,7 +300,7 @@ ITEM.InputController = function (settings) {
                 let interactionType = iObj[taskInteractionTypeObjectSelector];
                 let interactionId = iObj.id;
                 
-                debugLog("! discreteFeedback", { event: event, iObj: iObj, interactionCount: InputControllerState.interactionCount });
+                debugLog("discreteFeedback", { event: event, iObj: iObj, interactionCount: InputControllerState.interactionCount });
 
                 switch (interactionType) {
                     case "click":
@@ -445,7 +480,7 @@ ITEM.InputController = function (settings) {
             let interactionAssessmentList = iObj[taskInteractionAssessmentListObjectSelector];
             let interactionFeedbackList = InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector];
 
-            let interactionId = iObj.id
+            let interactionId = iObj.id;
 
             if (typeof interactionAssessmentList != 'undefined' && interactionAssessmentList.length > 0) {
                 for (let a = 0; a < interactionAssessmentList.length; a++) {
@@ -459,19 +494,19 @@ ITEM.InputController = function (settings) {
                         let eventKeyArray = [];
                         let correctKeyArray = [];
                         eventKeyArray = getEventKeyCombination(event);
-                        assessmentCorrectInputList.forEach(correctInput => correctKeyArray.push(correctInput.split('+')))
+                        assessmentCorrectInputList.forEach(correctInput => correctKeyArray.push(correctInput.split('+')));
 
                         // check if event intersects with the list of correct keys
                         let inputCheck = checkStringCombinationArray(eventKeyArray, correctKeyArray);
 
                         // Order of keypresses doesnt matter, so we only need to check length.
                         if (inputCheck) {
-                            debugLog("checkMatchKeyPress [CORRECT]", InputControllerState.currentTaskObject)
+                            debugLog("checkMatchKeyPress [CORRECT]", InputControllerState.currentTaskObject);
                             stdLogEntry("Task Complete.", "status", attemptCount);
 
                             if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
+                                // if we have feedback to show, loop through feedback and show it.
                                 debugLog("checkMatchKeyPress [CORRECT, HAS FEEDBACK]:", interactionFeedbackList)
-
                                 interactionFeedbackList.forEach(feedback => {
                                     debugLog("checkMatchKeyPress [CORRECT, LOOPING FEEDBACK]:", feedback);
                                     if (typeof feedback != 'undefined') {
@@ -480,24 +515,24 @@ ITEM.InputController = function (settings) {
                                     }
                                 });
                             } else {
+                                // if we have NO feedback to show, proceed. 
                                 debugLog("checkMatchKeyPress [CORRECT, NO FEEDBACK]", iObj)
-
                                 InputControllerState.currentTaskObject?.callback();
                             }
                         } else {
+                            // if userinput does not pass the check, the answer is wrong. 
                             if (settings.discreteFeedback) {
                                 debugLog("checkMatchKeyPress [WRONG]", InputControllerState.currentTaskObject[taskFeedbackObjectListSelector])
                                 InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                                     debugLog("checkMatchKeyPress [WRONG], feedback", feedback)
                                     if (typeof feedback != 'undefined') {
-
                                         feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
                                     }
                                 })
                             }
                         }
-
                     } else {
+                        // if no correct is specified, all keys must be correct! -> proceed to callback.
                         debugLog("CheckMatchKeyPress ERROR: (assessment correctKey not specified!)", asm)
                         InputControllerState.currentTaskObject.callback()
                     }
@@ -1036,7 +1071,6 @@ ITEM.InputController = function (settings) {
     
 
     function clearAttempts() {
-        
         InputControllerState.interactionCount = 0;
         InputControllerState.taskAttemptInputfieldInputCount = 0;
         InputControllerState.taskAttemptKeyCount = 0;
@@ -1189,7 +1223,6 @@ ITEM.InputController = function (settings) {
     }
 
     function drawRectangle(rectangleObject) {
-        /*let rectString = getRectString(rectangleObject);*/
         let cssObj = getInteractionCssObject(rectangleObject)
         let $taskInteractionDom = $(taskActiveSelector).find(taskInteractionSelector)
         let mockInteractionRectangleDOM = document.createElement('div');

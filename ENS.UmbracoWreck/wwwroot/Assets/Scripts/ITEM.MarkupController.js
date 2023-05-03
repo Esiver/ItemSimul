@@ -1,7 +1,21 @@
 ﻿// the markupController(. . .) administers markup, mainly tailored to the ItemSimu "application"
-// requires settings and state to be given before usage. 
+// requires settings and state to be given before usage.
 
-// generateExerciseMarkup(json) - 
+
+// Here are (some, not all) of the important fn's
+
+// generateExerciseMarkup(json) :
+//      - generates all markup needed to complete an exercsise.
+
+// generateExerciseResultMarkup()
+//      - takes result objects, generates markup that shows a summation of the exercise
+
+// getHeaderBtn()
+//      - generates the button-tools that sits in the header bar for user-control
+
+// generateExerciseIntroOverlay()
+//      - generates markup necesarry to start the exercise (make sure this is generated before eventhandlers are initialized);
+
 
 ITEM.MarkupController = function (settings, state, config) {
 

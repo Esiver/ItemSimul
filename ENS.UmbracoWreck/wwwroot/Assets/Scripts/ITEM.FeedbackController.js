@@ -2,6 +2,11 @@
 
 // FeedbackController creates a feedbackController object, managing the display of feedback.
 
+// there are 2 types of feedback:
+// 1) interaction feedback
+// 2) task feedback
+
+
 
 ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 

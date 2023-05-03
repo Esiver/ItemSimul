@@ -1,132 +1,22 @@
+// Results Controller handles all synthesizing and interpretation of data.
+// The goal is to uniform the shape of user/result data.
+// For example for immediate and simple "insights"/"statistics" after completed exerise.
+// Meant for very simple calculations, the heavy load (if any) should be serverside/elsewhere
+
+// usage flow:
+// 0. init resultController
+// 1. finish exercise
+// 2. PREPARE results
+//      --> let exerciseResultObjectArray = _resultsController?.GetExerciseResultObjectArray(state);
+// 3. show results (with markup controller)
+//      --> _markupController?.GenerateExerciseResultMarkup(exerciseResultObjectArray);
+
 ITEM.ResultsController = function (settings, state) {
 
-
-    //_____ Html selectors
-    const exerciseTitleSelector = "#exercise-title";
-    const exerciseDescriptionSelector = "#exercise-description"
-    const introBeginSelector = "#intro-begin";
-
-    // _____ Header
-    const headerToolListSelector = ".exercise-header__tools-list"
-    const headerToolItemSelector = ".task-tool";
-    const settingsBtnSelector = "#exerciseSettings";
-    const prevTaskSelector = "#prevTask";
-    const pauseTaskSelector = "#pauseTask";
-    const playTaskSelector = "#playTask";
-    const enableAudioSelector = "#enableAudio";
-    const disableAudioSelector = "#disableAudio";
-    const skipTaskSelector = "#skipTask";
-    const enableSubtitlesSelector = "#enableSubtitles";
-    const disableSubtitlesSelector = "#disableSubtitles";
-    const replayAudioSelector = "#replayAudio";
-    const restartExerciseHeaderBtnSelector = "#restartExercise";
-    const headerToolHiddenClass = 'hidden';
-
-    // ___ Overlay
-    const overlayListSelector = ".overlay__list";
-    const overlayItemSelector = ".overlay__item";
-    const debugOverlaySelector = "#debug-overlay";
-    const settingsOverlaySelector = "#settings-overlay";
-    const resultsOverlaySelector = "#results-overlay";
-    const unfocusOverlaySelector = "#unfocus-overlay";
-    const audioOverlaySelector = "#audio-error-overlay";
-    const introOverlaySelector = "#intro-overlay";
-    const resultsOverlayTaskListSelector = "#result-task-list";
-    const resultsOverlayTaskStatsSelector = "#result-stats-list";
-    const confirmRestartOverlaySelector = "#confirm-restart-overlay";
-    const confirmRestartBtnSelector = "#confirm-restart-btn";
-    const cancelRestartBtnSelector = "#cancel-restart-btn";
-
-    // ____ settings overlay
-
-    const toggleMuteSelector = "#mute-checkbox";
-    const toggleSubtitlesSelector = "#subtitles-checkbox";
-    const toggleFeedbackSelector = "#feedback-checkbox"
-    const feedbackComponentSelector = "feedback-component"
-    const feedbackWrapperSelector = ".feedback-wrapper";
-
-    const subtitlesSelector = "#subtitles";
-    const subtitlesCloseSelector = "#subtitles-hide";
-    const subtitlesMoveSelector = '#subtitles-move';
-
-    const taskSelector = ".task"
-    const firstTaskSelector = ".task:first";
-    const activeTaskSelector = ".task.active:first";
-    const taskInteractionSelector = ".interactions";
-    const activeClassSelector = ".active";
     const exerciseSelector = settings.exerciseSelector;
-    
-
-    //_____ Html classes
-    const taskClass = "task";
-    const taskInteractionsClass = "interactions"
-    const activeOverlayClass = "active-overlay";
-    const activeSubtitlesClass = "active-subtitles";
-    const activeTaskClass = "active";
-    const pauseExerciseClass = "paused";
-
-
-    // ____ JSON (object) selectors
-    // exercise
-    const exerciseTitleObjectSelector = "name";
-    const exerciseDescriptionObjectSelector = "description";
-    const exerciseAudiofileObjectSelector = "audioFile";
-    const exerciseTaskModelsObjectSelector = "exerciseTaskModels";
-    // task ...
-    const taskIdObjectSelector = "id";
-    const taskAudioObjectSelector = "audioFile";
-    const taskDelayObjectSelector = "delay";
-    const taskScreenshotObjectSelector = "screenshot";
-    const taskSubtitlesObjectSelector = "subtitles";
-    const taskInteractionListObjectSelector = "interactionList";
-    const taskFeedbackListObjectSelector = "feedbackList";
-    // interactions
-    const taskInteractionIdObjectSelector = "id";
-    const taskInteractionNameObjectSelector = "name";
-    const taskInteractionTypeObjectSelector = "type";
-    const taskInteractionFeedbackListObjectSelector = "feedbackList";
-    const taskInteractionDimensionsObjectSelector = "dimensions";
-    const taskInteractionAssessmentListObjectSelector = "assessmentList";
-    //interaction feedback
-    const taskInteractionFeedbackIdObjectSelector = "id"
-    const taskInteractionFeedbackTextObjectSelector = "text";
-    const taskInteractionFeedbackDisplayObjectSelector = "display";
-    const taskInteractionFeedbackDisplayTypeObjectSelector = "type";
-    const taskInteractionFeedbackDisplayThresholdObjectSelector = "threshold";
-    const taskInteractionFeedbackHighlightObjectSelector = "highlight";
-    const taskInteractionFeedbackHighlightInteractionObjectSelector = "highlightInteraction";
-    const taskInteractionFeedbackTypeObjectSelector = "feedbackType";
-    const taskInteractionFeedbackTypeMoodObjectSelector = "mood";
-    const taskInteractionFeedbackTypeSizeObjectSelector = "size";
-    const taskInteractionFeedbackDismissObjectSelector = "dismiss";
-    const taskInteractionFeedbackDismissBtnText = "text";
-    const taskInteractionFeedbackDismissDoItForMeObjectSelector = "doItForMe";
-    const taskInteractionFeedbackDismissTypeObjectSelector = "type";
-    const taskInteractionFeedbackDismissTimeoutObjectSelector = "timeout";
-    // feedback
-    const taskFeedbackTextObjectSelector = "text";
-    const taskFeedbackDisplayObjectSelector = "display";
-    const taskFeedbackDisplayTypeObjectSelector = "type";
-    const taskFeedbackDisplayThresholdObjectSelector = "threshold";
-    const taskFeedbackhighlightObjectSelector = "highlight";
-    const taskFeedbackhighlightInteractionObjectSelector = "highlightInteraction";
-    const taskFeedbackTypeObjectSelector = "feedbackType";
-    const taskFeedbackTypeMoodObjectSelector = "mood";
-    const taskFeedbackTypeSizeObjectSelector = "size";
-    const taskFeedbackDismissObjectSelector = "dismiss";
-    const taskFeedbackDismissBtnText = "text";
-    const taskFeedbackDismissDoItForMeObjectSelector = "doItForMe";
-    const taskFeedbackDismissTypeObjectSelector = "type";
-    const taskFeedbackDismissTimeoutObjectSelector = "timeout";
-
-
     function init() {   
 
     };
-
-
-    
-
 
     function generateTaskResults() {
 
@@ -158,7 +48,9 @@ ITEM.ResultsController = function (settings, state) {
     }
 
     function getExerciseResultObjectArray(state) {
-        // should return array of objects (exerciseResultObjectArray) ready to be handled by the markup-controller. 
+        // should return array of objects (exerciseResultObjectArray) ready to be handled by the markup-controller.
+        // The exercise objects are returned in an array, as there can be more than one attempt at an exercise.
+
         let exerciseResultObjectArray = new Array();
         let stateEventLogArray = state.EventLog;
         let exerciseAttemptInstanceLogArray = getExerciseAttemptInstanceLogArray(stateEventLogArray); // gets array of exercise attempts - each attempt being an array of events
@@ -236,6 +128,7 @@ ITEM.ResultsController = function (settings, state) {
 
 
     function prepareTaskResultArray(taskObjArr) {
+        // returns an array of task result objects.
         let taskResultArray = new Array();
 
         state.TaskObjectArray.forEach(taskObj => {
@@ -280,13 +173,7 @@ ITEM.ResultsController = function (settings, state) {
 
     }
 
-    function disableOverlay(oObj) {
 
-    }
-
-    function enableOverlay(oObj) {
-
-    }
     function generateOverlayObject() {
         let oObj = {};
 
