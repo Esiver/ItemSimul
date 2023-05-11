@@ -13,6 +13,21 @@
 // 3: continue initiating new tasks.
 //      --> _inputController.InitTask(currentTaskObject)
 
+// NOTICE ON "DISCRETE FEEDBACK"
+// We can check for feedback to an action in two ways:
+// 1) check for all feedback linked to an task and show it on action
+// 2) check for feedback only linked to a certain kind of event ('click', 'keydown', etc.)
+// - Basically: "is this feedback specific to this event-type?"
+// - Why call it "discrete"? - seen as the opposite; "continious feedback" will cycle through (continue through!) all the interaction-objects contained in the task.
+// - Continious feedback is enabled by default, and seen as the most obvious choice.
+// - Discrete feedback might need more testing.
+// - Example case where discrete feedback might make sense:
+//      One user-command if often unfortunately pressed instead of a desired user-command.
+//      (perhaps the user-command eventually does the same, but is bad practice?)
+//      The course-planner could, with discrete feedback, take account for this,
+//      and target feedback specifically for the undesired user-command.
+
+
 // NOTICE ON INPUTTYPES & EVENTLISTENERS
 // (click, dbl-click, right-click, mouseover, keydown, stringinput)
 //      MOUSEOVER
@@ -20,6 +35,7 @@
 //      STRINGINPUT
 //          inputfields are initialised at every task start
 
+// ~
 
 // NOTICE ON ATTEMPTS
 //  from an early stage onwards, the inputController was intended to account for "attempts".
@@ -27,11 +43,20 @@
 //  The controller still slightly suffers from early "attempt-oriented" thinking,
 //  and still has functions and considerations for such attempts as well as resetting the attempt count,
 //  - however, these consideration does not break anything and I have left them in for now, partly because they also give nice debugging insights.
+//      ATTEMPTS IN REGARDS TO checkMatchString()
+//      an attempt could be counted by two methods:
+//           a) when any key is pressed (fx. user inputs "h" then "e", "s", "t. - each of these user-inputs are counted as an attempt)
+//           b) when a certain key is pressed (fx. user inputs "h" then "e", "s", "t", "e", then [DELETE], and finally [ENTER] - then, and only then, is an "attempt" counted.)
+//      if a certain key is set as an assessmentKey we go by method (b), if not, any key is an attempt and we go by method (a)
+//      
 
 // NOTICE ON KEY-COMBINATIONS
 //  (fx. [CTRL]+L , or [SHIFT]+[ENTER], etc.)
 // I have categorised following as "flavor-keys": ["Control", "Shift", "Alt"].
-// Their state (if they are pressed or not) is tracked and in 
+// Their state (if they are pressed or not) is tracked and in
+
+// NOTICE ON ASSESSMENTS
+// ...
 
 
 
@@ -121,10 +146,9 @@ ITEM.InputController = function (settings) {
         clearAttempts();
         debugLog("initNewTaskInteraction (inputController)", InputControllerState);
         initInteractionArray();
-        //inputfields are initialised & prepared at each new task
-        initTaskInputFields(InputControllerState.currentTask); 
-        // mouseover's are initialised at each new task
-        initMouseOver(); 
+
+        initTaskInputFields(InputControllerState.currentTask);//inputfields are initialised & prepared at each new task
+        initMouseOver();// mouseover's are initialised at each new task
 
         stdLogEntry("Task Start.", "status");
     }
@@ -244,9 +268,9 @@ ITEM.InputController = function (settings) {
             let interactionFeedbackList = iObj[taskInteractionFeedbackListSelector];
 
             let interactionTarget = $currentTask.find(`[data-interaction='${interactionId}']`);
-            let attemptCount = 1;
+            let attemptCount = 1; // how to count attempts when hover? hardcoded as 1.
 
-            interactionTarget.on("mouseover", function (e) {
+            interactionTarget.on("mouseover", function mouseoverHandler (e) {
                 if (interactionTarget.hasClass("mouseover")) {
                     let eObj = {
                         event: e,
@@ -289,19 +313,16 @@ ITEM.InputController = function (settings) {
     function checkInteractionFeedback(event) {
         InputControllerState.interactionCount++;
 
-        // pre-sort interactions with feedback
-        // pre-sort for those with relevant feedback threshold (ie. current attempts == threshold)
-        // for each of these, call feedback()
-        // discreteFeedback ...
+        // See notice on discrete feedback.
         if (!settings.discreteFeedback) {
             // cycle through all interactions on task since we want to check all task feedbacks
             for (let i = 0; i < InputControllerState.currentTaskObject[taskInteractionListObjectSelector].length; i++) {
                 let iObj = InputControllerState.currentTaskObject[taskInteractionListObjectSelector][i];
                 let interactionType = iObj[taskInteractionTypeObjectSelector];
                 let interactionId = iObj.id;
-                
-                debugLog("discreteFeedback", { event: event, iObj: iObj, interactionCount: InputControllerState.interactionCount });
 
+                debugLog("discreteFeedback", { event: event, iObj: iObj, interactionCount: InputControllerState.interactionCount });
+                // theoretically, this did not need to be handled in an switch-case, but I like that i opens up customization of feedback and handling stuff differently.
                 switch (interactionType) {
                     case "click":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
@@ -366,28 +387,28 @@ ITEM.InputController = function (settings) {
         if (typeof InputControllerState.currentTaskObject != 'undefined' && InputControllerState.currentTaskObject
             && InputControllerState.currentTask != null
             && InputControllerState.currentTask.hasClass("active")
-            && $(event.target).parents('.feedback-wrapper').length == 0 ) { 
+            && $(event.target).parents('.feedback-wrapper').length == 0) {
             for (let i = 0; i < InputControllerState.currentTaskObject[taskInteractionListObjectSelector].length; i++) {
                 let iObj = InputControllerState.currentTaskObject[taskInteractionListObjectSelector][i];
                 let interactionType = iObj[taskInteractionTypeObjectSelector];
 
                 switch (interactionType) {
-                    case "click":
+                    case 'click':
                         event.which == 1 ? checkMatchClick(event, iObj) : false;
                         break;
 
-                    case "dblclick":
+                    case 'dblclick':
                         event.type == "dblclick" ? checkMatchDblClick(event, iObj) : false;
                         break;
 
-                    case "rightclick":
+                    case 'rightclick':
                         event.which == 3 ? checkMatchRightClick(event, iObj) : false;
                         break;
                     default:
                         break;
                 }
             }
-            
+
             checkInteractionFeedback(event);
         }
     }
@@ -403,13 +424,13 @@ ITEM.InputController = function (settings) {
                 debugLog("checkKeyboardInteraction (foreach iObj)", { iObj: iObj, interactionType: iObj.type, InputControllerStatecurrentTaskObject: InputControllerState.currentTaskObject })
                 switch (interactionType) {
 
-                    case "keydown":
+                    case 'keydown':
                         if (event.type != "mousedown" && $(event.target).is(":not(input)")) {
                             debugLog("checkKeyboardInteraction (interactionType:)", interactionType)
                             checkMatchKeyPress(event, iObj)
                         }
                         break;
-                    case "stringinput":
+                    case 'stringinput':
                         if (event.type != "mousedown" && $(event.target).is("input")) {
                             checkMatchString(event, iObj)
                         }
@@ -545,7 +566,7 @@ ITEM.InputController = function (settings) {
     }
     function checkMatchString(event, iObj) {
         // run on ALL input events
-        // we assume all strings are in <inputfield>'s
+        // we assume all strings are found in <inputfield> tags (and not <textarea> etc.)
         let inputField = $(event.target);
         let targetMatchId = inputField.attr('data-interaction');
         let interactionId = iObj[taskInteractionIdObjectSelector];
@@ -554,7 +575,7 @@ ITEM.InputController = function (settings) {
 
         debugLog("checkMatchString() ", { iObj: iObj })
 
-
+        // check if we have the right inputfield, the one specified in the iObj.
         if (targetMatchId == interactionId) {
             if (typeof interactionAssessmentList != 'undefined' && interactionAssessmentList && interactionAssessmentList.length > 0) {
 
@@ -565,6 +586,7 @@ ITEM.InputController = function (settings) {
                     let assessmentCaseSensitive = asm[taskInteractionAssessmentCaseSensitiveObjectSelector];
 
                     // if no 'attemptTrigger', every keydown is an "attempt"
+                    // read NOTICE ON ATTEMTPTS
                     if (assessmentCorrectInputList.length > 0 && (typeof assessmentAttemptTriggerList == 'undefined' || assessmentAttemptTriggerList.length == 0)) {
                         debugLog("checkMatchString (no attemptTrigger)")
                         let attemptCount = InputControllerState.currentStringInstance.length;
@@ -587,7 +609,7 @@ ITEM.InputController = function (settings) {
                                             callback: InputControllerState.currentTaskObject.callback
                                         })
                                     }
-                                    
+
                                 })
                             } else {
                                 InputControllerState.currentTaskObject.callback();
@@ -639,7 +661,7 @@ ITEM.InputController = function (settings) {
                                                             callback: InputControllerState.currentTaskObject.callback
                                                         })
                                                     }
-                                                    
+
                                                 })
                                             }
                                             else {
@@ -675,7 +697,7 @@ ITEM.InputController = function (settings) {
                                 let correctInput = asm.correctInput.find(correctString => { return correctString == inputField.val() });
 
                                 if (correctInput) {
-                                    stdLogEntry("Task Complete.", "status", attemptCount);
+                                    stdLogEntry( "Task Complete.", "status", attemptCount);
                                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                                             if (typeof feedback != 'undefined') {
@@ -724,12 +746,13 @@ ITEM.InputController = function (settings) {
             let attemptCount = InputControllerState.taskAttemptClickCount;
             debugLog("checkMatchClick (start)", { event: event, attempts: attemptCount, target: target })
 
+            // User click correct
             if (event.type == 'mousedown' && typeof targetId != 'undefined' && targetId && interactionId == targetId && $(target).hasClass("click")) {
                 stdLogEntry("Task Complete.", "status", attemptCount);
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
+                    // If, for some reason, correct click should give a feedback (cant do this yet) - same for other interaction types.
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         if (typeof feedback != 'undefined') {
-
                             feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
                         }
                     })
@@ -737,20 +760,23 @@ ITEM.InputController = function (settings) {
                     InputControllerState.currentTaskObject.callback();
                 }
 
+
+                // user click wrong
             } else {
-                if (settings.discreteFeedback) {
+                if (settings.discreteFeedback) { // see notice on discr ete feedback
                     debugLog("checkMatchClick (WRONG)", { event: event, attempts: attemptCount, interactionFeedback: InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector] })
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         if (typeof feedback != 'undefined') {
-
                             feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
                         }
                     });
                 }
+                // else: feedback was handled prior to this point in the flow. Do nothing.
             }
         } else {
             debugLog("Error (Input Controller): No task object found.", { event: event, iObj: iObj })
         }
+
     }
 
     function checkMatchRightClick(event, iObj) {
@@ -785,7 +811,6 @@ ITEM.InputController = function (settings) {
                     debugLog("checkMatchRightClick (WRONG) feedback", InputControllerState.currentTaskObject);
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         if (typeof feedback != 'undefined') {
-
                             feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
                         }
                     })
@@ -959,7 +984,7 @@ ITEM.InputController = function (settings) {
 
     function getMouseClickCoordinatesObject(event, $targetContainer) {
         let target;
-        
+
         if ($targetContainer === void 0 || !$targetContainer) {
             target = event.target
         } else {
@@ -974,7 +999,7 @@ ITEM.InputController = function (settings) {
             const yPercent = (y / bcRect.height) * 100;
 
             const clickCoordinatesObj = { relX: x, relY: y, relXpercent: xPercent, relYpercent: yPercent };
-            
+
 
             return clickCoordinatesObj;
         }
@@ -1049,7 +1074,7 @@ ITEM.InputController = function (settings) {
         InputControllerState.taskDblClickLogArray = [];
 
     };
-    
+
 
     function clearState() {
         InputControllerState.currentClickEvent = null;
@@ -1068,7 +1093,7 @@ ITEM.InputController = function (settings) {
         debugLog("clearInputFields (inputController.js)");
         $(settings.exerciseContainerSelector).find('input').val('');
     };
-    
+
 
     function clearAttempts() {
         InputControllerState.interactionCount = 0;
@@ -1084,7 +1109,7 @@ ITEM.InputController = function (settings) {
         clearInputFields();
         clearAttempts();
     };
-    
+
     function clearGlobalEventListeners() {
         $(settings.exerciseContainerSelector).off()
         let $task = $("#assetContentWrapper .task:first");
@@ -1093,20 +1118,20 @@ ITEM.InputController = function (settings) {
 
     function initGlobalEventListeners() {
         // for some reason i have to reach down to the .task, then target its' parent() - Can't directly target .task__list....
-        let task = $("#assetContentWrapper .task:first"); 
+        let task = $("#assetContentWrapper .task:first");
         debugLog("initGlobalEventListeners", { task: task, taskObject: InputControllerState.currentTaskObject })
 
         if (settings.keyDownDetect) {
-            $(task).parent().on("keyup", keyUpHandler);
+            $(task).parent().on('keyup', keyUpHandler);
         };
 
         if (settings.mouseDownDetect) {
-            $(task).parent().on("mousedown", mouseClickHandler);
-            $(task).parent().on("contextmenu", rightClickHandler);
+            $(task).parent().on('mousedown', mouseClickHandler);
+            $(task).parent().on('contextmenu', rightClickHandler);
         };
 
         if (settings.dblClickDetect) {
-            $(task).parent().on("dblclick", dblClickHandler);
+            $(task).parent().on('dblclick', dblClickHandler);
         };
     };
 
@@ -1122,7 +1147,7 @@ ITEM.InputController = function (settings) {
     }
     function recordRectanglePoint(event) {
         debugLog("reportRectangle(event) : ", event)
-        let rectangleObjectArray = InputControllerState.rectangleObjectArray; 
+        let rectangleObjectArray = InputControllerState.rectangleObjectArray;
         let rectanglePointArray = InputControllerState.rectanglePointArray;
         let rectPointObj = getMouseClickCoordinatesObject(event)
         //
@@ -1142,7 +1167,7 @@ ITEM.InputController = function (settings) {
 
         return false;
     }
-    function getRectObject (pointObj) {
+    function getRectObject(pointObj) {
         // formats an point-object {[x0, y0], [x1,y1]} into an rectangle-shaped object {x, y, h, w}
         // all numbers are percentages % of container
 
@@ -1242,7 +1267,7 @@ ITEM.InputController = function (settings) {
     }
 
     // =======================================================================================
-    
+
     this.InitInputController = initInputController;
     this.InitNewTaskInteraction = initNewTaskInteraction
     this.InitInteractionArray = initInteractionArray;

@@ -9,8 +9,6 @@ namespace ENS.UmbracoWreck.Helpers
         public static ExerciseTaskClickInteractionModel GetClickInteractionModel(IPublishedElement interactionElement, IPublishedElement taskParent)
         {
             var interactionId = interactionElement.Key.ToString();
-            //var interactionId = taskParent.Key.ToString();
-
             List<String> taskInteractionSettingsList = new List<String>();
             
             var interactionFeedbackList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionFeedbackList");
@@ -36,8 +34,6 @@ namespace ENS.UmbracoWreck.Helpers
         public static ExerciseTaskDoubleClickInteractionModel GetDoubleClickInteractionModel(IPublishedElement interactionElement, IPublishedElement taskParent)
         {
             var interactionId = interactionElement.Key.ToString();
-            //var interactionId = taskParent.Key.ToString();
-
             List<String> taskInteractionSettingsList = new List<String>();
             
             string interactionDimensionRectJsonString = interactionElement.Value<string>("interactionDimensionJSONString") ?? "{}";
@@ -64,7 +60,6 @@ namespace ENS.UmbracoWreck.Helpers
         public static ExerciseTaskRightClickInteractionModel GetRightClickInteractionModel(IPublishedElement interactionElement, IPublishedElement taskParent)
         {
             var interactionId = interactionElement.Key.ToString();
-            //var interactionId = taskParent.Key.ToString();
 
             List<String> taskInteractionSettingsList = new List<String>();
             var interactionFeedbackList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionFeedbackList");

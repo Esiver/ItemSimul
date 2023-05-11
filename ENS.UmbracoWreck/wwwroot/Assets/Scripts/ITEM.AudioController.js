@@ -137,7 +137,8 @@ ITEM.AudioController = function (settings) {
         debugLog("handleError (audio). Error:", { error: error, state: audioControllerState })
 
         switch (error.constructor) {
-
+            // all error handling is currently done with the onDOMError fn. 
+            // needs replacing with correct error handling, if desired...
             case DOMException:
 
                 if (settings.onDOMError !== undefined) {

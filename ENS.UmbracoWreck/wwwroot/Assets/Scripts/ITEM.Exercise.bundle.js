@@ -1,4 +1,70 @@
-const ITEM = {};//new Object();
+// Exercise.js
+// ITEM.Exercise is seen as the main vessel for running screenshot-simulation-courses.
+// attaching additional controllers for functionality.
+
+// We initialise ITEM.EXercise() with exerciseJSON (json generated from umbraco) into init()
+// then starts: exercise.Start()
+
+// The init() initialization of ITEM.Exercise runs multiple functions in a promise chain that sets up
+//      all necesarry pre-conditions (settings, controllers, state, objects, etc.)
+//      for the program to run.
+// They're run in a promise chain to imply and emphasize a certain order in which they should be run
+// (initialising the controllers in initControllers() is actually a precondition for initObjects).
+//
+
+// exercise.Start() begins the exercise UX-interaction-flow, along with preparing the intro-overlay.
+// This eventually starts the exercise function composition flow, beginning
+//      initTask() ==> startTask() ==> onTaskEnd() ==> isFinished ? initTask() : handleEndExercise()
+//      (the above is not actual code, just logic flow)
+
+// meanwhile, the controllers (initialised in init() ) are running their own life,
+// but often referring to functions from Exercise.JS -
+//      fx. the inputController, on determining that an input was the correct input, calls
+//      a callback function, defined in Exercise.Js, given to an "interaction object"/"iObj".
+
+
+
+// ___ NOTICE ON OBJECTS ___
+// much communication between the controllers have been standardised in objects, and functions expects
+// certain object shapes to be passed, or else wont run properly. (it would have been nice to rewrite the program in TypeScript, but I digress...)
+// When Exercise.js is initialised, initObjects() is run.
+// This fills the Exercise.js state-object with
+//      - taskObjects from generateExerciseTaskObjects(json), into state.TaskObjectArray
+//      - interactionObjects from generateExerciseInteractionObjects(json), into state.InteractionArray
+//      - feedbackObjects from generateExerciseFeedbackObjects(json) into _feedbackController.AddFeedbackToArray(feedbackItem)
+//          ... the feedbackObjects are stores within the _feedbackController.
+//          eventually the taskObjects and the interactionObjects will call their _feedbackController.showTaskFeedback and _feedbackController.showInteractionFeedback (respectfully)
+//          As such, a _feedbackController callback is made within the _inputController, by enriching a task/interaction object within Exercise.JS
+
+
+
+// ___ NOTICE ON FOCUS ___
+// One thing to be opmærksom about is that the exercise simulation program should be functional within <iframe>'s
+// - and in general focus/focusout events are tricky in larger context markup.
+// on Exercise.js init(), initEventListeners() is called, chain-binding:
+//      $(exerciseSelector)
+//          .attr("tabindex", "0")
+//          .trigger('focus')
+//          .on('focusout', handleUnfocus)
+//          .on('focus', handleFocus);
+//
+// handleUnfocus thus (problematically) triggers on some interactions within the "simulation",
+// namely feedback - objects and subtitles(that should be able to be interacted with without pausing the task at hand).
+// - these problematic triggers we want to ignore, and gives a 'ignore-unfocus' on exerciseSelector,
+// that we use to ignore the call to pauseTask().
+
+
+// _____ NOTICE ON HEADER BAR & CONTROLS ____
+// on Exercise.js init(), initEventListeners() is called, among others, attaching eventListeners to all the header btns.
+//      fx. $(enableSubtitlesHeaderBtnSelector).on('click', handleEnableSubtitlesHeaderBtn);
+// these event-handlers may change state and/or call further functionality - for the example above we might call showTaskSubtitles().
+// As mentioned above, many of these header buttons change the state of the program (fx. ´the bool state.isSubtitled)
+// on top of this, there may be other places where these states are altered (perhaps from the settings overlay, or on pauseTask()),
+// complicating the the visual feedback of the header icons.
+// To solve this, the friendly function updateHeaderIcons() updates the visual header icon buttons to correctly match state, and can be called from anywhere.
+
+
+const ITEM = {};
 
 function startExercise(json) {
     if (typeof json == 'undefined') {
@@ -317,6 +383,8 @@ ITEM.Exercise = function (jsonData, settings) {
         generateExerciseFeedbackObjects(json);
     }
     function initEventListeners() {
+        // mainly for user controls and settings.
+        // for task-events (simulating clicking, typings, etc ), see inputController's initGlobalEventListeners()
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
 
         if (!currentTaskObject || currentTaskObject === void 0) {
@@ -796,6 +864,8 @@ ITEM.Exercise = function (jsonData, settings) {
         if ($(e.relatedTarget).parents(subtitlesSelector).length > 0 || $(e.relatedTarget).is(subtitlesSelector)) { // is subtitles
             ignoreUnfocus();
         }
+
+        // finally, pauseTask()
         if (!state.isShowingResults && !$(exerciseSelector).is('.ignore-unfocus') && !$(e.relatedTarget).is('input')) {
             //input.stringinput to also catch header-bar <input> interactions.
             pauseTask();
@@ -996,13 +1066,10 @@ ITEM.Exercise = function (jsonData, settings) {
         return false;
     }
     function handleEnableSubtitlesHeaderBtn() {
-        console.log("hest", state.isSubtitled)
         state.isSubtitled = true;
         showTaskSubtitles();
         updateHeaderIcons();
         updateSettingsIcons();
-        console.log("hest", state.isSubtitled)
-
     }
     function handleDisableSubtitlesHeaderBtn() {
         state.isSubtitled = false;
@@ -1137,6 +1204,7 @@ ITEM.Exercise = function (jsonData, settings) {
         clearInterval(_taskTimerId);
         _taskTimerId = setInterval(() => {
             _msecsSinceTaskStart += 1000;
+            
             showTaskFeedback();
             if (settings.debugMode) {
                 const time = new Date(_msecsSinceTaskStart);
@@ -1154,7 +1222,7 @@ ITEM.Exercise = function (jsonData, settings) {
     function showTaskFeedback() {
         let currentTask = state.TaskObjectArray[state.currentTaskIndex];
         let taskFeedbackList = currentTask[taskFeedbackListObjectSelector];
-
+        
         if (currentTask && typeof currentTask.taskFeedback != 'undefined' && taskFeedbackList.length > 0) {
             currentTask.taskFeedback(currentTask.id, "time", { msecsSinceTaskStart: _msecsSinceTaskStart });
         }
@@ -1163,9 +1231,9 @@ ITEM.Exercise = function (jsonData, settings) {
     // ___ OBJECTS (from json) _____________________________________________________________________
 
     function generateExerciseTaskObjects(json) {
+        // READ NOTICE ON OBJECTS
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
         debugLog("generateExerciseTaskObject", json);
-
         exerciseTaskModels.forEach((task, index) => {
             let tObj = {};
 
@@ -1203,8 +1271,9 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function generateExerciseInteractionObjects(json) {
+        // READ NOTICE ON OBJECTS
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
-
+        
         exerciseTaskModels.forEach(taskObj => {
             let taskInteractionList = taskObj[taskInteractionListObjectSelector];
             let iObj = {};
@@ -1222,6 +1291,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function generateExerciseFeedbackObjects(json) {
+        // READ NOTICE ON OBJECTS
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
 
         exerciseTaskModels.forEach(taskObj => {
@@ -1667,7 +1737,8 @@ ITEM.AudioController = function (settings) {
         debugLog("handleError (audio). Error:", { error: error, state: audioControllerState })
 
         switch (error.constructor) {
-
+            // all error handling is currently done with the onDOMError fn. 
+            // needs replacing with correct error handling, if desired...
             case DOMException:
 
                 if (settings.onDOMError !== undefined) {
@@ -1755,9 +1826,23 @@ ITEM.AudioController = function (settings) {
 
 
 // the markupController(. . .) administers markup, mainly tailored to the ItemSimu "application"
-// requires settings and state to be given before usage. 
+// requires settings and state to be given before usage.
+// markup is generally created as nodes, not strings, for ze modern web performanze
 
-// generateExerciseMarkup(json) - 
+// Here are (some, not all) of the important fn's
+
+// generateExerciseMarkup(json) :
+//      - generates all markup needed to complete an exercsise.
+
+// generateExerciseResultMarkup()
+//      - takes result objects, generates markup that shows a summation of the exercise
+
+// getHeaderBtn()
+//      - generates the button-tools that sits in the header bar for user-control
+
+// generateExerciseIntroOverlay()
+//      - generates markup necesarry to start the exercise (make sure this is generated before eventhandlers are initialized);
+
 
 ITEM.MarkupController = function (settings, state, config) {
 
@@ -1823,10 +1908,10 @@ ITEM.MarkupController = function (settings, state, config) {
     const taskInteractionDimensionsObjectSelector = "dimensions"
 
     function init() { };
-
     init();
 
-    // major components
+    // major components //
+
     function generateExerciseMarkup(json) {
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
         const container = $(settings.exerciseSelector);
@@ -1835,7 +1920,7 @@ ITEM.MarkupController = function (settings, state, config) {
             let taskMarkup = []
             let taskEleId = taskObj[taskIdObjectSelector];
             let assetsPath = settings.assetsPath + taskObj[taskScreenshotObjectSelector];
-            let taskInteractionList = taskObj[taskInteractionListObjectSelector];
+            let taskInteractionObjectList = taskObj[taskInteractionListObjectSelector];
             
             taskMarkup.push(`
                 <div class="${taskClass}" id="${taskEleId}">
@@ -1845,7 +1930,8 @@ ITEM.MarkupController = function (settings, state, config) {
                 </div>
             `);
             container.append(taskMarkup)
-            for (let interaction of taskInteractionList) {
+
+            for (let interaction of taskInteractionObjectList) {
                 let taskInteractionId = interaction[taskInteractionIdObjectSelector];
                 let taskInteractionType = interaction[taskInteractionTypeObjectSelector];
                 let taskInteractionDimensions = interaction[taskInteractionDimensionsObjectSelector]; // decimal, not yet string.
@@ -2238,13 +2324,22 @@ ITEM.OverlayController = function (settings, state) {
 
     return this;
 }
-// spørg Lotte hehe
+// Lotte ved noget om denne
 
-// FeedbackController creates a feedbackController object, managing the display of feedback.
+// FeedbackController creates a feedbackController object and manages the display of feedback.
 
-// there are 2 types of feedback:
-// 1) interaction feedback
-// 2) task feedback
+// In Umbraco there are 2 types of feedback:
+//      1) interaction feedback
+//      2) task feedback
+// these are handled seperately (showInteractionFeedback(...), showTaskFeedback(...)), but in practice they're the same type of (feedback)object.
+// These feedbackObjects are created in Exercise.Js, then passed to the feedbackController for storage.
+// FeedbackObjects are then set to render themselves as <feedback-component>'s with setupFeedbackComp().
+// It is mainly the InputController's job to trigger showTaskFeedback and showInteractionFeedback (both, in turn, calling setupFeedbackComp())
+//      - this way, it is a user-input that triggers feedback.
+
+// Feedback can, however, also be triggered by the passage of time.
+// In Exercise.js, startTask() & resumeTask() calls startTaskTimer() that calls showTaskFeedback() at every
+//      time tick (1000ms). showTaskFeedback checks if the taskObject matches with any of the stored feedbackObjects in the _feedbackArray[].
 
 
 
@@ -2261,12 +2356,17 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 
     function showTaskFeedback(taskId, displayType, args) {
         log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray });
+        
+
         if (settings?.showFeedback) {
             const matchingFeedback = _feedbackArray.filter(item => {
                 return item.ScopeId === taskId && item.Type === "task" && item.DisplayType === displayType && item.DisplayThreshold === args.msecsSinceTaskStart;
             });
+
             log("showTaskFeedback (feedbackController.js), matchingFeedback:", matchingFeedback);
+
             if (matchingFeedback.length == 1) {
+                
                 setupFeedbackComp(matchingFeedback[0], wrapper);
             } else if (matchingFeedback.length > 1) {
                 log("Error: More than one instance of \"matchingFeedback\" was found when running showTaskfeedback()", matchingFeedback);
@@ -2331,7 +2431,9 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
         $(feedbackComp).addClass([feedbackItem.Mood, feedbackItem.Size]);
         $(wrapper).addClass([feedbackItem.Mood, feedbackItem.Size]);
 
+        // task object
         let tObj = { id: $(selectorDictionary.activeTaskSelector).attr('id') };
+        // event object
         let eObj = {
             event: feedbackItem,
             timeStamp: Date.now(),
@@ -2565,6 +2667,21 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
 // 3: continue initiating new tasks.
 //      --> _inputController.InitTask(currentTaskObject)
 
+// NOTICE ON "DISCRETE FEEDBACK"
+// We can check for feedback to an action in two ways:
+// 1) check for all feedback linked to an task and show it on action
+// 2) check for feedback only linked to a certain kind of event ('click', 'keydown', etc.)
+// - Basically: "is this feedback specific to this event-type?"
+// - Why call it "discrete"? - seen as the opposite; "continious feedback" will cycle through (continue through!) all the interaction-objects contained in the task.
+// - Continious feedback is enabled by default, and seen as the most obvious choice.
+// - Discrete feedback might need more testing.
+// - Example case where discrete feedback might make sense:
+//      One user-command if often unfortunately pressed instead of a desired user-command.
+//      (perhaps the user-command eventually does the same, but is bad practice?)
+//      The course-planner could, with discrete feedback, take account for this,
+//      and target feedback specifically for the undesired user-command.
+
+
 // NOTICE ON INPUTTYPES & EVENTLISTENERS
 // (click, dbl-click, right-click, mouseover, keydown, stringinput)
 //      MOUSEOVER
@@ -2572,6 +2689,7 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
 //      STRINGINPUT
 //          inputfields are initialised at every task start
 
+// ~
 
 // NOTICE ON ATTEMPTS
 //  from an early stage onwards, the inputController was intended to account for "attempts".
@@ -2579,11 +2697,20 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
 //  The controller still slightly suffers from early "attempt-oriented" thinking,
 //  and still has functions and considerations for such attempts as well as resetting the attempt count,
 //  - however, these consideration does not break anything and I have left them in for now, partly because they also give nice debugging insights.
+//      ATTEMPTS IN REGARDS TO checkMatchString()
+//      an attempt could be counted by two methods:
+//           a) when any key is pressed (fx. user inputs "h" then "e", "s", "t. - each of these user-inputs are counted as an attempt)
+//           b) when a certain key is pressed (fx. user inputs "h" then "e", "s", "t", "e", then [DELETE], and finally [ENTER] - then, and only then, is an "attempt" counted.)
+//      if a certain key is set as an assessmentKey we go by method (b), if not, any key is an attempt and we go by method (a)
+//      
 
 // NOTICE ON KEY-COMBINATIONS
 //  (fx. [CTRL]+L , or [SHIFT]+[ENTER], etc.)
 // I have categorised following as "flavor-keys": ["Control", "Shift", "Alt"].
-// Their state (if they are pressed or not) is tracked and in 
+// Their state (if they are pressed or not) is tracked and in
+
+// NOTICE ON ASSESSMENTS
+// ...
 
 
 
@@ -2673,10 +2800,9 @@ ITEM.InputController = function (settings) {
         clearAttempts();
         debugLog("initNewTaskInteraction (inputController)", InputControllerState);
         initInteractionArray();
-        //inputfields are initialised & prepared at each new task
-        initTaskInputFields(InputControllerState.currentTask); 
-        // mouseover's are initialised at each new task
-        initMouseOver(); 
+
+        initTaskInputFields(InputControllerState.currentTask);//inputfields are initialised & prepared at each new task
+        initMouseOver();// mouseover's are initialised at each new task
 
         stdLogEntry("Task Start.", "status");
     }
@@ -2796,9 +2922,9 @@ ITEM.InputController = function (settings) {
             let interactionFeedbackList = iObj[taskInteractionFeedbackListSelector];
 
             let interactionTarget = $currentTask.find(`[data-interaction='${interactionId}']`);
-            let attemptCount = 1;
+            let attemptCount = 1; // how to count attempts when hover? hardcoded as 1.
 
-            interactionTarget.on("mouseover", function (e) {
+            interactionTarget.on("mouseover", function mouseoverHandler (e) {
                 if (interactionTarget.hasClass("mouseover")) {
                     let eObj = {
                         event: e,
@@ -2841,19 +2967,16 @@ ITEM.InputController = function (settings) {
     function checkInteractionFeedback(event) {
         InputControllerState.interactionCount++;
 
-        // pre-sort interactions with feedback
-        // pre-sort for those with relevant feedback threshold (ie. current attempts == threshold)
-        // for each of these, call feedback()
-        // discreteFeedback ...
+        // See notice on discrete feedback.
         if (!settings.discreteFeedback) {
             // cycle through all interactions on task since we want to check all task feedbacks
             for (let i = 0; i < InputControllerState.currentTaskObject[taskInteractionListObjectSelector].length; i++) {
                 let iObj = InputControllerState.currentTaskObject[taskInteractionListObjectSelector][i];
                 let interactionType = iObj[taskInteractionTypeObjectSelector];
                 let interactionId = iObj.id;
-                
-                debugLog("discreteFeedback", { event: event, iObj: iObj, interactionCount: InputControllerState.interactionCount });
 
+                debugLog("discreteFeedback", { event: event, iObj: iObj, interactionCount: InputControllerState.interactionCount });
+                // theoretically, this did not need to be handled in an switch-case, but I like that i opens up customization of feedback and handling stuff differently.
                 switch (interactionType) {
                     case "click":
                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
@@ -2918,28 +3041,28 @@ ITEM.InputController = function (settings) {
         if (typeof InputControllerState.currentTaskObject != 'undefined' && InputControllerState.currentTaskObject
             && InputControllerState.currentTask != null
             && InputControllerState.currentTask.hasClass("active")
-            && $(event.target).parents('.feedback-wrapper').length == 0 ) { 
+            && $(event.target).parents('.feedback-wrapper').length == 0) {
             for (let i = 0; i < InputControllerState.currentTaskObject[taskInteractionListObjectSelector].length; i++) {
                 let iObj = InputControllerState.currentTaskObject[taskInteractionListObjectSelector][i];
                 let interactionType = iObj[taskInteractionTypeObjectSelector];
 
                 switch (interactionType) {
-                    case "click":
+                    case 'click':
                         event.which == 1 ? checkMatchClick(event, iObj) : false;
                         break;
 
-                    case "dblclick":
+                    case 'dblclick':
                         event.type == "dblclick" ? checkMatchDblClick(event, iObj) : false;
                         break;
 
-                    case "rightclick":
+                    case 'rightclick':
                         event.which == 3 ? checkMatchRightClick(event, iObj) : false;
                         break;
                     default:
                         break;
                 }
             }
-            
+
             checkInteractionFeedback(event);
         }
     }
@@ -2955,13 +3078,13 @@ ITEM.InputController = function (settings) {
                 debugLog("checkKeyboardInteraction (foreach iObj)", { iObj: iObj, interactionType: iObj.type, InputControllerStatecurrentTaskObject: InputControllerState.currentTaskObject })
                 switch (interactionType) {
 
-                    case "keydown":
+                    case 'keydown':
                         if (event.type != "mousedown" && $(event.target).is(":not(input)")) {
                             debugLog("checkKeyboardInteraction (interactionType:)", interactionType)
                             checkMatchKeyPress(event, iObj)
                         }
                         break;
-                    case "stringinput":
+                    case 'stringinput':
                         if (event.type != "mousedown" && $(event.target).is("input")) {
                             checkMatchString(event, iObj)
                         }
@@ -3097,7 +3220,7 @@ ITEM.InputController = function (settings) {
     }
     function checkMatchString(event, iObj) {
         // run on ALL input events
-        // we assume all strings are in <inputfield>'s
+        // we assume all strings are found in <inputfield> tags (and not <textarea> etc.)
         let inputField = $(event.target);
         let targetMatchId = inputField.attr('data-interaction');
         let interactionId = iObj[taskInteractionIdObjectSelector];
@@ -3106,7 +3229,7 @@ ITEM.InputController = function (settings) {
 
         debugLog("checkMatchString() ", { iObj: iObj })
 
-
+        // check if we have the right inputfield, the one specified in the iObj.
         if (targetMatchId == interactionId) {
             if (typeof interactionAssessmentList != 'undefined' && interactionAssessmentList && interactionAssessmentList.length > 0) {
 
@@ -3117,6 +3240,7 @@ ITEM.InputController = function (settings) {
                     let assessmentCaseSensitive = asm[taskInteractionAssessmentCaseSensitiveObjectSelector];
 
                     // if no 'attemptTrigger', every keydown is an "attempt"
+                    // read NOTICE ON ATTEMTPTS
                     if (assessmentCorrectInputList.length > 0 && (typeof assessmentAttemptTriggerList == 'undefined' || assessmentAttemptTriggerList.length == 0)) {
                         debugLog("checkMatchString (no attemptTrigger)")
                         let attemptCount = InputControllerState.currentStringInstance.length;
@@ -3139,7 +3263,7 @@ ITEM.InputController = function (settings) {
                                             callback: InputControllerState.currentTaskObject.callback
                                         })
                                     }
-                                    
+
                                 })
                             } else {
                                 InputControllerState.currentTaskObject.callback();
@@ -3191,7 +3315,7 @@ ITEM.InputController = function (settings) {
                                                             callback: InputControllerState.currentTaskObject.callback
                                                         })
                                                     }
-                                                    
+
                                                 })
                                             }
                                             else {
@@ -3227,7 +3351,7 @@ ITEM.InputController = function (settings) {
                                 let correctInput = asm.correctInput.find(correctString => { return correctString == inputField.val() });
 
                                 if (correctInput) {
-                                    stdLogEntry("Task Complete.", "status", attemptCount);
+                                    stdLogEntry( "Task Complete.", "status", attemptCount);
                                     if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
                                         InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                                             if (typeof feedback != 'undefined') {
@@ -3276,12 +3400,13 @@ ITEM.InputController = function (settings) {
             let attemptCount = InputControllerState.taskAttemptClickCount;
             debugLog("checkMatchClick (start)", { event: event, attempts: attemptCount, target: target })
 
+            // User click correct
             if (event.type == 'mousedown' && typeof targetId != 'undefined' && targetId && interactionId == targetId && $(target).hasClass("click")) {
                 stdLogEntry("Task Complete.", "status", attemptCount);
                 if (typeof interactionFeedbackList != 'undefined' && interactionFeedbackList.length > 0) {
+                    // If, for some reason, correct click should give a feedback (cant do this yet) - same for other interaction types.
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         if (typeof feedback != 'undefined') {
-
                             feedback(interactionId, "correct", { interactionAttempts: attemptCount, callback: InputControllerState.currentTaskObject.callback })
                         }
                     })
@@ -3289,20 +3414,23 @@ ITEM.InputController = function (settings) {
                     InputControllerState.currentTaskObject.callback();
                 }
 
+
+                // user click wrong
             } else {
-                if (settings.discreteFeedback) {
+                if (settings.discreteFeedback) { // see notice on discr ete feedback
                     debugLog("checkMatchClick (WRONG)", { event: event, attempts: attemptCount, interactionFeedback: InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector] })
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         if (typeof feedback != 'undefined') {
-
                             feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
                         }
                     });
                 }
+                // else: feedback was handled prior to this point in the flow. Do nothing.
             }
         } else {
             debugLog("Error (Input Controller): No task object found.", { event: event, iObj: iObj })
         }
+
     }
 
     function checkMatchRightClick(event, iObj) {
@@ -3337,7 +3465,6 @@ ITEM.InputController = function (settings) {
                     debugLog("checkMatchRightClick (WRONG) feedback", InputControllerState.currentTaskObject);
                     InputControllerState.currentTaskObject[taskInteractionFeedbackListSelector].forEach(feedback => {
                         if (typeof feedback != 'undefined') {
-
                             feedback(interactionId, "attempts", { interactionAttempts: attemptCount })
                         }
                     })
@@ -3511,7 +3638,7 @@ ITEM.InputController = function (settings) {
 
     function getMouseClickCoordinatesObject(event, $targetContainer) {
         let target;
-        
+
         if ($targetContainer === void 0 || !$targetContainer) {
             target = event.target
         } else {
@@ -3526,7 +3653,7 @@ ITEM.InputController = function (settings) {
             const yPercent = (y / bcRect.height) * 100;
 
             const clickCoordinatesObj = { relX: x, relY: y, relXpercent: xPercent, relYpercent: yPercent };
-            
+
 
             return clickCoordinatesObj;
         }
@@ -3601,7 +3728,7 @@ ITEM.InputController = function (settings) {
         InputControllerState.taskDblClickLogArray = [];
 
     };
-    
+
 
     function clearState() {
         InputControllerState.currentClickEvent = null;
@@ -3620,7 +3747,7 @@ ITEM.InputController = function (settings) {
         debugLog("clearInputFields (inputController.js)");
         $(settings.exerciseContainerSelector).find('input').val('');
     };
-    
+
 
     function clearAttempts() {
         InputControllerState.interactionCount = 0;
@@ -3636,7 +3763,7 @@ ITEM.InputController = function (settings) {
         clearInputFields();
         clearAttempts();
     };
-    
+
     function clearGlobalEventListeners() {
         $(settings.exerciseContainerSelector).off()
         let $task = $("#assetContentWrapper .task:first");
@@ -3645,20 +3772,20 @@ ITEM.InputController = function (settings) {
 
     function initGlobalEventListeners() {
         // for some reason i have to reach down to the .task, then target its' parent() - Can't directly target .task__list....
-        let task = $("#assetContentWrapper .task:first"); 
+        let task = $("#assetContentWrapper .task:first");
         debugLog("initGlobalEventListeners", { task: task, taskObject: InputControllerState.currentTaskObject })
 
         if (settings.keyDownDetect) {
-            $(task).parent().on("keyup", keyUpHandler);
+            $(task).parent().on('keyup', keyUpHandler);
         };
 
         if (settings.mouseDownDetect) {
-            $(task).parent().on("mousedown", mouseClickHandler);
-            $(task).parent().on("contextmenu", rightClickHandler);
+            $(task).parent().on('mousedown', mouseClickHandler);
+            $(task).parent().on('contextmenu', rightClickHandler);
         };
 
         if (settings.dblClickDetect) {
-            $(task).parent().on("dblclick", dblClickHandler);
+            $(task).parent().on('dblclick', dblClickHandler);
         };
     };
 
@@ -3674,7 +3801,7 @@ ITEM.InputController = function (settings) {
     }
     function recordRectanglePoint(event) {
         debugLog("reportRectangle(event) : ", event)
-        let rectangleObjectArray = InputControllerState.rectangleObjectArray; 
+        let rectangleObjectArray = InputControllerState.rectangleObjectArray;
         let rectanglePointArray = InputControllerState.rectanglePointArray;
         let rectPointObj = getMouseClickCoordinatesObject(event)
         //
@@ -3694,7 +3821,7 @@ ITEM.InputController = function (settings) {
 
         return false;
     }
-    function getRectObject (pointObj) {
+    function getRectObject(pointObj) {
         // formats an point-object {[x0, y0], [x1,y1]} into an rectangle-shaped object {x, y, h, w}
         // all numbers are percentages % of container
 
@@ -3794,7 +3921,7 @@ ITEM.InputController = function (settings) {
     }
 
     // =======================================================================================
-    
+
     this.InitInputController = initInputController;
     this.InitNewTaskInteraction = initNewTaskInteraction
     this.InitInteractionArray = initInteractionArray;
@@ -3858,7 +3985,7 @@ ITEM.InputController = function (settings) {
 
 
 
-ITEM.LogController = function (settings, eventLog) {
+ITEM.LogController = function (settings, _eventLog) {
     this.settings = settings || {};
 
     let logEntries = []
@@ -3945,7 +4072,7 @@ ITEM.LogController = function (settings, eventLog) {
     function storeLogEntry(logEntry, destination) {
         let arr = destination || logEntries;
         arr.push(logEntry);
-        eventLog.push(logEntry);
+        _eventLog.push(logEntry);
     };
 
     function storeLogEntriesToTaskObject(taskObject) {
@@ -4000,16 +4127,17 @@ ITEM.LogController = function (settings, eventLog) {
     return this;
 }
 // Results Controller handles all synthesizing and interpretation of data.
-// The goal is to uniform the shape of user/result data.
-// For example for immediate and simple "insights"/"statistics" after completed exerise.
-// Meant for very simple calculations, the heavy load (if any) should be serverside/elsewhere
+// The goal is to homogenize the shape of user/result data.
+// fx. for immediate and simple "insights"/"statistics" after completed exercise.
+// Meant for very simple calculations and reminders ("you did bad at this exercise!", etc.) 
+//  - the heavy load (if any) should be serverside / elsewhere.
 
 // usage flow:
-// 0. init resultController
-// 1. finish exercise
-// 2. PREPARE results
+// 0. init resultController, do exercise flow
+// 1. finish exercise.
+// 2. PREPARE results object array
 //      --> let exerciseResultObjectArray = _resultsController?.GetExerciseResultObjectArray(state);
-// 3. show results (with markup controller)
+// 3. show results markup (with markup controller)
 //      --> _markupController?.GenerateExerciseResultMarkup(exerciseResultObjectArray);
 
 ITEM.ResultsController = function (settings, state) {

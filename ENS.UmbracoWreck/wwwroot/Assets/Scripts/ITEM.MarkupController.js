@@ -1,6 +1,6 @@
 ﻿// the markupController(. . .) administers markup, mainly tailored to the ItemSimu "application"
 // requires settings and state to be given before usage.
-
+// markup is generally created as nodes, not strings, for ze modern web performanze
 
 // Here are (some, not all) of the important fn's
 
@@ -81,10 +81,10 @@ ITEM.MarkupController = function (settings, state, config) {
     const taskInteractionDimensionsObjectSelector = "dimensions"
 
     function init() { };
-
     init();
 
-    // major components
+    // major components //
+
     function generateExerciseMarkup(json) {
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
         const container = $(settings.exerciseSelector);
@@ -93,7 +93,7 @@ ITEM.MarkupController = function (settings, state, config) {
             let taskMarkup = []
             let taskEleId = taskObj[taskIdObjectSelector];
             let assetsPath = settings.assetsPath + taskObj[taskScreenshotObjectSelector];
-            let taskInteractionList = taskObj[taskInteractionListObjectSelector];
+            let taskInteractionObjectList = taskObj[taskInteractionListObjectSelector];
             
             taskMarkup.push(`
                 <div class="${taskClass}" id="${taskEleId}">
@@ -103,7 +103,8 @@ ITEM.MarkupController = function (settings, state, config) {
                 </div>
             `);
             container.append(taskMarkup)
-            for (let interaction of taskInteractionList) {
+
+            for (let interaction of taskInteractionObjectList) {
                 let taskInteractionId = interaction[taskInteractionIdObjectSelector];
                 let taskInteractionType = interaction[taskInteractionTypeObjectSelector];
                 let taskInteractionDimensions = interaction[taskInteractionDimensionsObjectSelector]; // decimal, not yet string.

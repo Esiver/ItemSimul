@@ -1,14 +1,15 @@
 // Results Controller handles all synthesizing and interpretation of data.
-// The goal is to uniform the shape of user/result data.
-// For example for immediate and simple "insights"/"statistics" after completed exerise.
-// Meant for very simple calculations, the heavy load (if any) should be serverside/elsewhere
+// The goal is to homogenize the shape of user/result data.
+// fx. for immediate and simple "insights"/"statistics" after completed exercise.
+// Meant for very simple calculations and reminders ("you did bad at this exercise!", etc.) 
+//  - the heavy load (if any) should be serverside / elsewhere.
 
 // usage flow:
-// 0. init resultController
-// 1. finish exercise
-// 2. PREPARE results
+// 0. init resultController, do exercise flow
+// 1. finish exercise.
+// 2. PREPARE results object array
 //      --> let exerciseResultObjectArray = _resultsController?.GetExerciseResultObjectArray(state);
-// 3. show results (with markup controller)
+// 3. show results markup (with markup controller)
 //      --> _markupController?.GenerateExerciseResultMarkup(exerciseResultObjectArray);
 
 ITEM.ResultsController = function (settings, state) {

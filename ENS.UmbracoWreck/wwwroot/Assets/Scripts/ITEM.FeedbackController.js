@@ -1,10 +1,19 @@
-﻿// spørg Lotte hehe
+﻿// Lotte ved noget om denne
 
-// FeedbackController creates a feedbackController object, managing the display of feedback.
+// FeedbackController creates a feedbackController object and manages the display of feedback.
 
-// there are 2 types of feedback:
-// 1) interaction feedback
-// 2) task feedback
+// In Umbraco there are 2 types of feedback:
+//      1) interaction feedback
+//      2) task feedback
+// these are handled seperately (showInteractionFeedback(...), showTaskFeedback(...)), but in practice they're the same type of (feedback)object.
+// These feedbackObjects are created in Exercise.Js, then passed to the feedbackController for storage.
+// FeedbackObjects are then set to render themselves as <feedback-component>'s with setupFeedbackComp().
+// It is mainly the InputController's job to trigger showTaskFeedback and showInteractionFeedback (both, in turn, calling setupFeedbackComp())
+//      - this way, it is a user-input that triggers feedback.
+
+// Feedback can, however, also be triggered by the passage of time.
+// In Exercise.js, startTask() & resumeTask() calls startTaskTimer() that calls showTaskFeedback() at every
+//      time tick (1000ms). showTaskFeedback checks if the taskObject matches with any of the stored feedbackObjects in the _feedbackArray[].
 
 
 
@@ -21,12 +30,17 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 
     function showTaskFeedback(taskId, displayType, args) {
         log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray });
+        
+
         if (settings?.showFeedback) {
             const matchingFeedback = _feedbackArray.filter(item => {
                 return item.ScopeId === taskId && item.Type === "task" && item.DisplayType === displayType && item.DisplayThreshold === args.msecsSinceTaskStart;
             });
+
             log("showTaskFeedback (feedbackController.js), matchingFeedback:", matchingFeedback);
+
             if (matchingFeedback.length == 1) {
+                
                 setupFeedbackComp(matchingFeedback[0], wrapper);
             } else if (matchingFeedback.length > 1) {
                 log("Error: More than one instance of \"matchingFeedback\" was found when running showTaskfeedback()", matchingFeedback);
@@ -91,7 +105,9 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
         $(feedbackComp).addClass([feedbackItem.Mood, feedbackItem.Size]);
         $(wrapper).addClass([feedbackItem.Mood, feedbackItem.Size]);
 
+        // task object
         let tObj = { id: $(selectorDictionary.activeTaskSelector).attr('id') };
+        // event object
         let eObj = {
             event: feedbackItem,
             timeStamp: Date.now(),

@@ -46,7 +46,7 @@
 
 
 
-ITEM.LogController = function (settings, eventLog) {
+ITEM.LogController = function (settings, _eventLog) {
     this.settings = settings || {};
 
     let logEntries = []
@@ -133,7 +133,7 @@ ITEM.LogController = function (settings, eventLog) {
     function storeLogEntry(logEntry, destination) {
         let arr = destination || logEntries;
         arr.push(logEntry);
-        eventLog.push(logEntry);
+        _eventLog.push(logEntry);
     };
 
     function storeLogEntriesToTaskObject(taskObject) {

@@ -1,4 +1,70 @@
-﻿const ITEM = {};//new Object();
+﻿// Exercise.js
+// ITEM.Exercise is seen as the main vessel for running screenshot-simulation-courses.
+// attaching additional controllers for functionality.
+
+// We initialise ITEM.EXercise() with exerciseJSON (json generated from umbraco) into init()
+// then starts: exercise.Start()
+
+// The init() initialization of ITEM.Exercise runs multiple functions in a promise chain that sets up
+//      all necesarry pre-conditions (settings, controllers, state, objects, etc.)
+//      for the program to run.
+// They're run in a promise chain to imply and emphasize a certain order in which they should be run
+// (initialising the controllers in initControllers() is actually a precondition for initObjects).
+//
+
+// exercise.Start() begins the exercise UX-interaction-flow, along with preparing the intro-overlay.
+// This eventually starts the exercise function composition flow, beginning
+//      initTask() ==> startTask() ==> onTaskEnd() ==> isFinished ? initTask() : handleEndExercise()
+//      (the above is not actual code, just logic flow)
+
+// meanwhile, the controllers (initialised in init() ) are running their own life,
+// but often referring to functions from Exercise.JS -
+//      fx. the inputController, on determining that an input was the correct input, calls
+//      a callback function, defined in Exercise.Js, given to an "interaction object"/"iObj".
+
+
+
+// ___ NOTICE ON OBJECTS ___
+// much communication between the controllers have been standardised in objects, and functions expects
+// certain object shapes to be passed, or else wont run properly. (it would have been nice to rewrite the program in TypeScript, but I digress...)
+// When Exercise.js is initialised, initObjects() is run.
+// This fills the Exercise.js state-object with
+//      - taskObjects from generateExerciseTaskObjects(json), into state.TaskObjectArray
+//      - interactionObjects from generateExerciseInteractionObjects(json), into state.InteractionArray
+//      - feedbackObjects from generateExerciseFeedbackObjects(json) into _feedbackController.AddFeedbackToArray(feedbackItem)
+//          ... the feedbackObjects are stores within the _feedbackController.
+//          eventually the taskObjects and the interactionObjects will call their _feedbackController.showTaskFeedback and _feedbackController.showInteractionFeedback (respectfully)
+//          As such, a _feedbackController callback is made within the _inputController, by enriching a task/interaction object within Exercise.JS
+
+
+
+// ___ NOTICE ON FOCUS ___
+// One thing to be opmærksom about is that the exercise simulation program should be functional within <iframe>'s
+// - and in general focus/focusout events are tricky in larger context markup.
+// on Exercise.js init(), initEventListeners() is called, chain-binding:
+//      $(exerciseSelector)
+//          .attr("tabindex", "0")
+//          .trigger('focus')
+//          .on('focusout', handleUnfocus)
+//          .on('focus', handleFocus);
+//
+// handleUnfocus thus (problematically) triggers on some interactions within the "simulation",
+// namely feedback - objects and subtitles(that should be able to be interacted with without pausing the task at hand).
+// - these problematic triggers we want to ignore, and gives a 'ignore-unfocus' on exerciseSelector,
+// that we use to ignore the call to pauseTask().
+
+
+// _____ NOTICE ON HEADER BAR & CONTROLS ____
+// on Exercise.js init(), initEventListeners() is called, among others, attaching eventListeners to all the header btns.
+//      fx. $(enableSubtitlesHeaderBtnSelector).on('click', handleEnableSubtitlesHeaderBtn);
+// these event-handlers may change state and/or call further functionality - for the example above we might call showTaskSubtitles().
+// As mentioned above, many of these header buttons change the state of the program (fx. ´the bool state.isSubtitled)
+// on top of this, there may be other places where these states are altered (perhaps from the settings overlay, or on pauseTask()),
+// complicating the the visual feedback of the header icons.
+// To solve this, the friendly function updateHeaderIcons() updates the visual header icon buttons to correctly match state, and can be called from anywhere.
+
+
+const ITEM = {};
 
 function startExercise(json) {
     if (typeof json == 'undefined') {
@@ -317,6 +383,8 @@ ITEM.Exercise = function (jsonData, settings) {
         generateExerciseFeedbackObjects(json);
     }
     function initEventListeners() {
+        // mainly for user controls and settings.
+        // for task-events (simulating clicking, typings, etc ), see inputController's initGlobalEventListeners()
         let currentTaskObject = state.TaskObjectArray[state.currentTaskIndex];
 
         if (!currentTaskObject || currentTaskObject === void 0) {
@@ -796,6 +864,8 @@ ITEM.Exercise = function (jsonData, settings) {
         if ($(e.relatedTarget).parents(subtitlesSelector).length > 0 || $(e.relatedTarget).is(subtitlesSelector)) { // is subtitles
             ignoreUnfocus();
         }
+
+        // finally, pauseTask()
         if (!state.isShowingResults && !$(exerciseSelector).is('.ignore-unfocus') && !$(e.relatedTarget).is('input')) {
             //input.stringinput to also catch header-bar <input> interactions.
             pauseTask();
@@ -996,13 +1066,10 @@ ITEM.Exercise = function (jsonData, settings) {
         return false;
     }
     function handleEnableSubtitlesHeaderBtn() {
-        console.log("hest", state.isSubtitled)
         state.isSubtitled = true;
         showTaskSubtitles();
         updateHeaderIcons();
         updateSettingsIcons();
-        console.log("hest", state.isSubtitled)
-
     }
     function handleDisableSubtitlesHeaderBtn() {
         state.isSubtitled = false;
@@ -1137,6 +1204,7 @@ ITEM.Exercise = function (jsonData, settings) {
         clearInterval(_taskTimerId);
         _taskTimerId = setInterval(() => {
             _msecsSinceTaskStart += 1000;
+            
             showTaskFeedback();
             if (settings.debugMode) {
                 const time = new Date(_msecsSinceTaskStart);
@@ -1154,7 +1222,7 @@ ITEM.Exercise = function (jsonData, settings) {
     function showTaskFeedback() {
         let currentTask = state.TaskObjectArray[state.currentTaskIndex];
         let taskFeedbackList = currentTask[taskFeedbackListObjectSelector];
-
+        
         if (currentTask && typeof currentTask.taskFeedback != 'undefined' && taskFeedbackList.length > 0) {
             currentTask.taskFeedback(currentTask.id, "time", { msecsSinceTaskStart: _msecsSinceTaskStart });
         }
@@ -1163,9 +1231,9 @@ ITEM.Exercise = function (jsonData, settings) {
     // ___ OBJECTS (from json) _____________________________________________________________________
 
     function generateExerciseTaskObjects(json) {
+        // READ NOTICE ON OBJECTS
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
         debugLog("generateExerciseTaskObject", json);
-
         exerciseTaskModels.forEach((task, index) => {
             let tObj = {};
 
@@ -1203,8 +1271,9 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function generateExerciseInteractionObjects(json) {
+        // READ NOTICE ON OBJECTS
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
-
+        
         exerciseTaskModels.forEach(taskObj => {
             let taskInteractionList = taskObj[taskInteractionListObjectSelector];
             let iObj = {};
@@ -1222,6 +1291,7 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     function generateExerciseFeedbackObjects(json) {
+        // READ NOTICE ON OBJECTS
         const exerciseTaskModels = json[exerciseTaskModelsObjectSelector];
 
         exerciseTaskModels.forEach(taskObj => {
