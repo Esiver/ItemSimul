@@ -1,4 +1,12 @@
-﻿.overlay {
+﻿// any information and interaction not part of an task should be shown in an overlay
+
+// in here, styling on general overlays. See also:
+
+// result-overlay.scss
+// settings-overlay.scss
+// intro-overlay.scss
+
+.overlay {
     $self: &;
 
     &__list {

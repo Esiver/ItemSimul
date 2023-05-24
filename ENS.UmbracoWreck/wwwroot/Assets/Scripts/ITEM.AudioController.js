@@ -14,15 +14,18 @@
 // 2.5 (optional) stop audioFile --> _audioController.stopAudio()
 // 3. clear audioFile --> _audioController.clearAudioFile()
 // 4. load new file -->  _audioController.loadAudioFile(path)
-// 5. play file etc...
+// 5. play audio file (go to point 2)
 
 // at one point, either the audio file is played to an end,
 //      or is set to stop with _audioController.stopAudio().
 
 // Manually calling the stopAudio() is not strictly necesarry,
 //      as it is also called in clearAudioFile()
-//      - in practice you could skip clearAudioFile() and go straight at loadAudioFile()
+//      - in practice you could skip calling clearAudioFile() and go straight at loadAudioFile()
 //      but this may in some cases throw an error, and as such clearAudioFile() is kosher.
+
+// Be aware, that you can technically play two or more audiofiles at the same time,
+// which will sound horrible.
 
 
 ITEM.AudioController = function (settings) {
@@ -144,30 +147,31 @@ ITEM.AudioController = function (settings) {
                 if (settings.onDOMError !== undefined) {
                     settings.onDOMError("Du skal lige interagere med din browser før vi må afspille lyden ...");
                 } else {
-                    console.error(error);
+                    // What to do then?
+                    //console.error(error);
                 }
                 break;
 
             case SyntaxError:
-                if (settings.onDOMError !== undefined) {
-                    settings.onDOMError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
+                if (settings.onSyntexError !== undefined) {
+                    settings.onSyntaxError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
                 } else {
-                    console.error(error);
+                    //console.error(error);
                 }
                 break;
 
             case Error:
-                if (settings.onDOMError !== undefined) {
-                    settings.onDOMError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
+                if (settings.onError !== undefined) {
+                    settings.onError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
                 } else {
-                    console.error(error);
+                    //console.error(error);
                 }
                 break;
             default:
-                if (settings.onDOMError !== undefined) {
-                    settings.onDOMError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
+                if (settings.onDefaultError !== undefined) {
+                    settings.onDefaultError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
                 } else {
-                    console.error(error);
+                    //console.error(error);
                 }
                 break;
         }
@@ -194,7 +198,9 @@ ITEM.AudioController = function (settings) {
     }
 
     function getAudioFileDuration() {
-        // yet to be used, but could come in handy.
+        // yet to be used, and actually doesnt work...
+        // but could come in handy if fixed. 
+        
         if (typeof audioControllerState.audioObject != 'undefined' && audioControllerState.audioObject != null) {
             if (audioControllerState.audioObject.src == "") {
                 return audioControllerState.audioObject.duration;

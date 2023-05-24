@@ -151,7 +151,7 @@ ITEM.MarkupController = function (settings, state, config) {
                 taskResultLiDom.classList.add(resultItemClass)
                 taskResultLiDom.setAttribute('data-task-index', taskEventObject.index)
 
-                //let itemDetailsDom = getTaskDetailsDom(taskEventObject);
+                //let itemDetailsDom = getTaskDetailsDom(taskEventObject); // outcommented, we do not want a lot of info on each task-card atm.
                 let itemHeaderDom = getTaskHeaderDom(taskEventObject);
                 let itemInfoDom = getTaskInfoDom(taskEventObject);
 
@@ -203,8 +203,6 @@ ITEM.MarkupController = function (settings, state, config) {
         let interactionDountTextNode = document.createTextNode(`Antal interaktioner: ${exerciseResultObject.exerciseInteractionCount}`)
         interactionCountDom.append(interactionDountTextNode);
 
-        let worstTaskDom = document.createElement('p');
-
         let taskAutocompleteNoticeDom = document.createElement('div');
         let taskAutoCompleteNoticeTextNode = document.createTextNode(`Du trykkede på 'Gør det for mig', og fik hjælp til en eller flere opgaver. Antal: ${exerciseResultObject.exerciseAutocompleteCount}`);
         let taskAutocompleteNoticeIconDom = document.createElement('span');
@@ -218,9 +216,6 @@ ITEM.MarkupController = function (settings, state, config) {
         if (exerciseResultObject.exerciseAutocompleteCount > 0) {
             resultSummaryDom.append(taskAutocompleteNoticeDom);
         }
-        //resultSummaryDom.append(precisionInfoDom);
-        //resultSummaryDom.append(interactionCountDom);
-        //resultSummaryDom.append(worstTaskDom);
 
         return resultSummaryDom;
     };
@@ -244,15 +239,6 @@ ITEM.MarkupController = function (settings, state, config) {
         }
 
 
-        if (settings.showTaskSubtitles && taskResultObject.subtitles != null) {
-            //let taskSubtitlesDom = document.createElement('div')
-            //let taskSubtitlesTextNode = document.createTextNode(`“ ${taskResultObject.subtitles} ”`)
-            //taskSubtitlesDom.append(taskSubtitlesTextNode)
-            //taskSubtitlesDom.classList.add('result__quote');
-            //taskSubtitlesDom.classList.add('info-item');
-
-            //infoDom.append(taskSubtitlesDom);
-        }
         let taskSubtitlesDom = document.createElement('div')
         let taskSubtitlesTextNode = document.createTextNode(`“ ${taskResultObject.subtitles} ”`)
         taskSubtitlesDom.append(taskSubtitlesTextNode)
@@ -283,18 +269,12 @@ ITEM.MarkupController = function (settings, state, config) {
 
         let titleDom = document.createElement('h4');
         let iconDom = document.createElement('span');
-
-        if (taskResultObject.index != null) {
-            //let headerTextNode = document.createTextNode(`Opgave ${taskResultObject.index + 1}`);
-            //titleDom.append(headerTextNode);    
-        }
         let headerTextNode = document.createTextNode(`Opgave ${taskResultObject.index + 1}`); // bug: always 1???
-        titleDom.append(headerTextNode); 
-
         let iconTextNode = document.createTextNode('expand_more');
+
+        titleDom.append(headerTextNode); 
         iconDom.classList.add(materialIconsClass);
         iconDom.append(iconTextNode);
-
         headerDom.append(titleDom);
 
         return headerDom;
@@ -401,6 +381,8 @@ ITEM.MarkupController = function (settings, state, config) {
         }
         
     }
+
+
     // debug DOM components
     function getDebugMsgInput(onClick, onInput) {
         let debugMsgContainer = document.createElement('div');

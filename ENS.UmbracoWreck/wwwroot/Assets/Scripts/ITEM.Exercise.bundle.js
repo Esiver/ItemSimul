@@ -544,7 +544,7 @@ ITEM.Exercise = function (jsonData, settings) {
                         showInstructions();
                     }
 
-                    addTimerId("proceedTimer", timerId);
+                    //addTimerId("proceedTimer", timerId);
                     startTaskTimer();
 
                 }, startDelay);
@@ -942,8 +942,8 @@ ITEM.Exercise = function (jsonData, settings) {
 
 
     // ___ SUBTITLES _____________________________________________________________________
+
     function handleCloseSubtitlesClick() {
-        //clearTaskSubtitles();
         hideTaskSubtitles();
         return false;
     }
@@ -973,7 +973,6 @@ ITEM.Exercise = function (jsonData, settings) {
     function toggleSubtitles() {
         state.isSubtitled = !state.isSubtitled;
         updateHeaderIcons();
-        //return false;
     }
     function showTaskSubtitles() {
         $(subtitlesSelector).removeClass(hiddenClass);
@@ -1197,9 +1196,9 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     // ___ TIME _____________________________________________________________________
-    function addTimerId(name, timerId) {
+    //function addTimerId(name, timerId) {
 
-    }
+    //}
     function startTaskTimer() {
         clearInterval(_taskTimerId);
         _taskTimerId = setInterval(() => {
@@ -1316,8 +1315,12 @@ ITEM.Exercise = function (jsonData, settings) {
                     let feedbackDismissType = feedback[taskFeedbackDismissObjectSelector][taskFeedbackDismissTypeObjectSelector];
                     let feedbackDismissTimeout = feedback[taskFeedbackDismissObjectSelector][taskFeedbackDismissTimeoutObjectSelector];
                     let feedbackDismissCallback = feedback[taskFeedbackDismissObjectSelector].callback;
+                    let feedbackId = "tf" + taskId + Date.now();
 
                     var feedbackItem = new ITEM.FeedbackController.FeedbackItem(feedbackText);
+
+                    feedbackItem.SetId(feedbackId)
+
                     if (feedbackType) {
                         feedbackItem.SetStyleType(feedbackMood, feedbackSize);
                     } else {
@@ -1341,10 +1344,22 @@ ITEM.Exercise = function (jsonData, settings) {
                         feedbackItem.SetInteractionHighlight(highlightId);
                     }
                     if (feedbackDismiss) {
+                        console.log("lol interactionFeedbackDismiss DoItForMe", feedbackItem.DoItForMe)
+
                         if (feedbackDismissDoItForMe == true) {
                             feedbackItem.SetDismiss(feedbackDismissType, feedbackDismissTimeout, feedbackDismissBtnText, autoCompleteTask, feedbackDismissCallback);
                         } else {
                             feedbackItem.SetDismiss(feedbackDismissType, feedbackDismissTimeout, feedbackDismissBtnText, undefined, feedbackDismissCallback);
+                        }
+                        if (feedbackDismissType == 'auto') {
+                            // todo check for feedack do it for me or not (if / else)
+                            if (feedbackDismissDoItForMe) {
+                                feedbackItem.SetDismiss("auto", feedbackDismissTimeout, undefined, autoCompleteTask, undefined);
+                            } else {
+                                feedbackItem.SetDismiss("auto", feedbackDismissTimeout, undefined, false, undefined);
+
+                            }
+                            
                         }
                     } else {
                         feedbackItem.SetDismiss("auto", "8000", undefined, false, undefined);
@@ -1378,8 +1393,11 @@ ITEM.Exercise = function (jsonData, settings) {
                             let interactionFeedbackDismissTimeout = feedback[taskInteractionFeedbackDismissObjectSelector][taskInteractionFeedbackDismissTimeoutObjectSelector];
                             let interactionFeedbackDismissBtnText = feedback[taskInteractionFeedbackDismissObjectSelector][taskInteractionFeedbackDismissBtnText];
                             let interactionFeedbackDismissCallback = feedback.dismiss.callback;
+                            let feedbackId = "ti" + taskId + Date.now();
 
                             var feedbackItem = new ITEM.FeedbackController.FeedbackItem(interactionFeedbackText);
+
+                            feedbackItem.SetId(feedbackId)
 
                             if (interactionFeedbackId) {
                                 feedbackItem.id = interactionFeedbackId;
@@ -1614,15 +1632,18 @@ ITEM.Exercise = function (jsonData, settings) {
 // 2.5 (optional) stop audioFile --> _audioController.stopAudio()
 // 3. clear audioFile --> _audioController.clearAudioFile()
 // 4. load new file -->  _audioController.loadAudioFile(path)
-// 5. play file etc...
+// 5. play audio file (go to point 2)
 
 // at one point, either the audio file is played to an end,
 //      or is set to stop with _audioController.stopAudio().
 
 // Manually calling the stopAudio() is not strictly necesarry,
 //      as it is also called in clearAudioFile()
-//      - in practice you could skip clearAudioFile() and go straight at loadAudioFile()
+//      - in practice you could skip calling clearAudioFile() and go straight at loadAudioFile()
 //      but this may in some cases throw an error, and as such clearAudioFile() is kosher.
+
+// Be aware, that you can technically play two or more audiofiles at the same time,
+// which will sound horrible.
 
 
 ITEM.AudioController = function (settings) {
@@ -1744,30 +1765,31 @@ ITEM.AudioController = function (settings) {
                 if (settings.onDOMError !== undefined) {
                     settings.onDOMError("Du skal lige interagere med din browser før vi må afspille lyden ...");
                 } else {
-                    console.error(error);
+                    // What to do then?
+                    //console.error(error);
                 }
                 break;
 
             case SyntaxError:
-                if (settings.onDOMError !== undefined) {
-                    settings.onDOMError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
+                if (settings.onSyntexError !== undefined) {
+                    settings.onSyntaxError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
                 } else {
-                    console.error(error);
+                    //console.error(error);
                 }
                 break;
 
             case Error:
-                if (settings.onDOMError !== undefined) {
-                    settings.onDOMError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
+                if (settings.onError !== undefined) {
+                    settings.onError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
                 } else {
-                    console.error(error);
+                    //console.error(error);
                 }
                 break;
             default:
-                if (settings.onDOMError !== undefined) {
-                    settings.onDOMError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
+                if (settings.onDefaultError !== undefined) {
+                    settings.onDefaultError("Der er noget galt med lydfilen. Kontakt en kursusadminstrator.");
                 } else {
-                    console.error(error);
+                    //console.error(error);
                 }
                 break;
         }
@@ -1794,7 +1816,9 @@ ITEM.AudioController = function (settings) {
     }
 
     function getAudioFileDuration() {
-        // yet to be used, but could come in handy.
+        // yet to be used, and actually doesnt work...
+        // but could come in handy if fixed. 
+        
         if (typeof audioControllerState.audioObject != 'undefined' && audioControllerState.audioObject != null) {
             if (audioControllerState.audioObject.src == "") {
                 return audioControllerState.audioObject.duration;
@@ -1978,7 +2002,7 @@ ITEM.MarkupController = function (settings, state, config) {
                 taskResultLiDom.classList.add(resultItemClass)
                 taskResultLiDom.setAttribute('data-task-index', taskEventObject.index)
 
-                //let itemDetailsDom = getTaskDetailsDom(taskEventObject);
+                //let itemDetailsDom = getTaskDetailsDom(taskEventObject); // outcommented, we do not want a lot of info on each task-card atm.
                 let itemHeaderDom = getTaskHeaderDom(taskEventObject);
                 let itemInfoDom = getTaskInfoDom(taskEventObject);
 
@@ -2030,8 +2054,6 @@ ITEM.MarkupController = function (settings, state, config) {
         let interactionDountTextNode = document.createTextNode(`Antal interaktioner: ${exerciseResultObject.exerciseInteractionCount}`)
         interactionCountDom.append(interactionDountTextNode);
 
-        let worstTaskDom = document.createElement('p');
-
         let taskAutocompleteNoticeDom = document.createElement('div');
         let taskAutoCompleteNoticeTextNode = document.createTextNode(`Du trykkede på 'Gør det for mig', og fik hjælp til en eller flere opgaver. Antal: ${exerciseResultObject.exerciseAutocompleteCount}`);
         let taskAutocompleteNoticeIconDom = document.createElement('span');
@@ -2045,9 +2067,6 @@ ITEM.MarkupController = function (settings, state, config) {
         if (exerciseResultObject.exerciseAutocompleteCount > 0) {
             resultSummaryDom.append(taskAutocompleteNoticeDom);
         }
-        //resultSummaryDom.append(precisionInfoDom);
-        //resultSummaryDom.append(interactionCountDom);
-        //resultSummaryDom.append(worstTaskDom);
 
         return resultSummaryDom;
     };
@@ -2071,15 +2090,6 @@ ITEM.MarkupController = function (settings, state, config) {
         }
 
 
-        if (settings.showTaskSubtitles && taskResultObject.subtitles != null) {
-            //let taskSubtitlesDom = document.createElement('div')
-            //let taskSubtitlesTextNode = document.createTextNode(`“ ${taskResultObject.subtitles} ”`)
-            //taskSubtitlesDom.append(taskSubtitlesTextNode)
-            //taskSubtitlesDom.classList.add('result__quote');
-            //taskSubtitlesDom.classList.add('info-item');
-
-            //infoDom.append(taskSubtitlesDom);
-        }
         let taskSubtitlesDom = document.createElement('div')
         let taskSubtitlesTextNode = document.createTextNode(`“ ${taskResultObject.subtitles} ”`)
         taskSubtitlesDom.append(taskSubtitlesTextNode)
@@ -2110,18 +2120,12 @@ ITEM.MarkupController = function (settings, state, config) {
 
         let titleDom = document.createElement('h4');
         let iconDom = document.createElement('span');
-
-        if (taskResultObject.index != null) {
-            //let headerTextNode = document.createTextNode(`Opgave ${taskResultObject.index + 1}`);
-            //titleDom.append(headerTextNode);    
-        }
         let headerTextNode = document.createTextNode(`Opgave ${taskResultObject.index + 1}`); // bug: always 1???
-        titleDom.append(headerTextNode); 
-
         let iconTextNode = document.createTextNode('expand_more');
+
+        titleDom.append(headerTextNode); 
         iconDom.classList.add(materialIconsClass);
         iconDom.append(iconTextNode);
-
         headerDom.append(titleDom);
 
         return headerDom;
@@ -2228,6 +2232,8 @@ ITEM.MarkupController = function (settings, state, config) {
         }
         
     }
+
+
     // debug DOM components
     function getDebugMsgInput(onClick, onInput) {
         let debugMsgContainer = document.createElement('div');
@@ -2317,9 +2323,41 @@ ITEM.MarkupController = function (settings, state, config) {
 }
 ITEM.OverlayController = function (settings, state) {
 
+    // NOT IN USE
 
 
-    // <O:^)
+    // Exercise.js contains a lot of methods for controlling anything related to overlays
+    //      (fx. overlays for pause, settings, etc.)
+    // At the moment these methods are current all within exercise.js.
+    // We could move them into their own controller (here)
+
+
+
+    //      WHY
+    // It would be consistent to follow controller-fashion conventions and seperate them
+    // into their own overlayController.js
+
+    //      WHY NOT?
+    // on the other hand, the methods for display/hiding overlays are very simple
+    // and one-dimensional, and arguably does not require "segmentation".
+    // For example in exercise.js, when a task is paused with pauseTask(),
+    // showPauseOverlay() is called, a method consisting of two lines of code:
+    // $(unfocusOverlaySelector).addClass(activeOverlayClass);
+    // $('body').addClass(pauseExerciseClass);
+
+
+    //      Moving overlay methods would require:
+    // 1. Knowing the CSS class names that displays the individual overlay (copy-paste variable names)
+    // 2. moving overlay functions into the overlay controller
+    // 3. making the overlay functions global from the overlay contrller
+    // 4. set up overlayController as an object in exercise.js
+    // 5. calling the overlay functions as functions of the new overlayController object. 
+
+
+    //      WHY DID I NOT DO THIS YET?
+    // hehe
+
+    
 
 
     return this;
@@ -2353,7 +2391,6 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
     function addFeedbackToArray(feedbackItem) {
         _feedbackArray.push(feedbackItem);
     }
-
     function showTaskFeedback(taskId, displayType, args) {
         log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray });
         
@@ -2426,8 +2463,10 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
         var feedbackComp = $(selectorDictionary.feedbackComponentSelector);
 
         feedbackComp = document.createElement(selectorDictionary.feedbackComponentSelector);
+        
         $(wrapper).append(feedbackComp);
 
+        $(feedbackComp).attr('id', feedbackItem.FeedbackId);
         $(feedbackComp).addClass([feedbackItem.Mood, feedbackItem.Size]);
         $(wrapper).addClass([feedbackItem.Mood, feedbackItem.Size]);
 
@@ -2480,8 +2519,9 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 
 
         } else {
+            
             var timeout = feedbackItem.DismissTimeout || 8000;
-            setTimeout(() => dismissHandler(), timeout);
+            setTimeout(() => dismissHandler(feedbackItem), timeout);
         }
 
         if (feedbackItem.DoItForMe != undefined) {
@@ -2492,8 +2532,10 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
             doItForMeBtn.classList.add('doItForMe');
             doItForMeBtn.classList.add('button');
             doItForMeBtn.innerText = 'Gør det for mig';
+            console.log("lol setup do it for me", feedbackItem.DoItForMe)
             $(doItForMeBtn).on('click', () => {
-                dismissHandler();
+                console.log("lol click the doitforme! lol!", feedbackItem)
+                dismissHandler(feedbackItem);
                 feedbackItem.DoItForMe();
                 $(doItForMeBtn).remove();
                 return false;
@@ -2555,10 +2597,19 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
             const prettyMapKey = prettyMap[key] || key;
             return prettyMapKey;
         }
-        function dismissHandler() {
+        function dismissHandler(feedbackItem) {
+            console.log("lol dismisshandler", feedbackItem)
+
             $(this).parents('feedback-component').remove();
-            //$(wrapper).removeClass([feedbackItem.Mood, feedbackItem.Size]);
             $('.highlight-area').removeClass('highlight-area');
+
+            //if (typeof feedbackItem != 'undefined' && feedbackItem.hasOwnProperty('originalEvent')) { // if event triggered, its a manual dismiss, we can access "this"
+            //    $(this).parents('feedback-component').remove();
+            //    $('.highlight-area').removeClass('highlight-area');
+            //} else if (feedbackItem) { // auto dismiss - we cannot use "this" to remove feedback. Needs to use id.
+            //    $(`#${feedbackItem.FeedbackId}`).remove();
+            //}
+            
             if (feedbackItem.DismissCallback) {
                 feedbackItem.DismissCallback();
             }
@@ -2616,7 +2667,11 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
     this.Mood;
     this.Size;
     this.DoItForMe;
+    this.FeedbackId;
 
+    function setId(id) {
+        this.FeedbackId = id;
+    }
     function setStyleType(mood, size) {
         this.Mood = mood;
         this.Size = size;
@@ -2642,13 +2697,14 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
         this.DoItForMe = doItForMe;
         this.DismissCallback = callback;
     }
-
+    this.SetId = setId;
     this.SetStyleType = setStyleType;
     this.SetType = setType;
     this.SetDisplay = setDisplay;
     this.SetInteractionHighlightAsArray = setInteractionHighlightAsArray;
     this.SetInteractionHighlight = setInteractionHighlight;
     this.SetDismiss = setDismiss;
+    
 
     return this;
 };
@@ -2666,6 +2722,10 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
 //      --> _inputController.InitTask(currentTaskObject)
 // 3: continue initiating new tasks.
 //      --> _inputController.InitTask(currentTaskObject)
+
+
+
+
 
 // NOTICE ON "DISCRETE FEEDBACK"
 // We can check for feedback to an action in two ways:
@@ -3098,7 +3158,7 @@ ITEM.InputController = function (settings) {
         // helper fn to check if an array of strings has a match in an array of array of strings.
         // helpful when we want to see if the userinput (stringArray) matches the interactionAssessment attemptTrigger array (arrays) which is turned into an array of arrays.
         // see function checkMatchKeyPress() and function checkMatchString() for examples
-
+        
         // Loop through each array in the arrays parameter
         for (let array of arrays) {
             let stringMatchcount = 0;
@@ -3170,9 +3230,9 @@ ITEM.InputController = function (settings) {
                         let correctKeyArray = [];
                         eventKeyArray = getEventKeyCombination(event);
                         assessmentCorrectInputList.forEach(correctInput => correctKeyArray.push(correctInput.split('+')));
-
                         // check if event intersects with the list of correct keys
                         let inputCheck = checkStringCombinationArray(eventKeyArray, correctKeyArray);
+                        
 
                         // Order of keypresses doesnt matter, so we only need to check length.
                         if (inputCheck) {
@@ -4147,10 +4207,6 @@ ITEM.ResultsController = function (settings, state) {
 
     };
 
-    function generateTaskResults() {
-
-    }
-
     function getExerciseAttemptInstanceLogArray(EventLogArray) {
         let exerciseAttemptArrayInstanceLogArray = new Array();
         let eventLogArrayCopy = [...EventLogArray];
@@ -4204,7 +4260,7 @@ ITEM.ResultsController = function (settings, state) {
             let exerciseTimeSpentMs = exerciseEndTime - exerciseStartTime;
             let exerciseTimeSpentSeconds = exerciseTimeSpentMs / 1000;
             let exerciseMeanPrecision = (allTaskCompleteTypeLogs.length / attemptCountSum) * 100
-            //let lowPercentageUserPrecisionTaskList = taskResultObjectArray.filter(task => task.userPrecision <= 50); // .... todo
+            
 
             let exerciseResultObject = {
                 index : index,
@@ -4213,7 +4269,6 @@ ITEM.ResultsController = function (settings, state) {
                 exerciseEndTime: exerciseEndTime,
                 exerciseTimeSpentMs: exerciseTimeSpentMs,
                 exerciseTimeSpendSeconds: exerciseTimeSpentSeconds,
-                //lowPercentPrecisionTaskList : 2,
                 exerciseMeanPrecision: null,
                 exerciseAutocompleteCount: totalAutocompleteCount,
                 exerciseAutoCompleteEvents: allTaskAutocompleteTrueLogs,
@@ -4290,36 +4345,12 @@ ITEM.ResultsController = function (settings, state) {
     }
 
     
-
-    function generateExerciseResults(state, taskResultObjectArray) {
-
-
-    }
-    
-
-    
-    function prepareExerciseIntroOverlay() {
-
-    }
-
-
-    function generateOverlayObject() {
-        let oObj = {};
-
-        return oObj;
-    }
-
-    function roundNumber(value, precision) {
-        var multiplier = Math.pow(10, precision || 0);
-        return Math.round(value * multiplier) / multiplier;
-    }
-
-
     init();
+
     this.GetExerciseResultObjectArray = getExerciseResultObjectArray
     this.PrepareTaskResultArray = prepareTaskResultArray;
-    this.PrepareExerciseIntroOverlay = prepareExerciseIntroOverlay;
-    this.GenerateExerciseResults = generateExerciseResults;
+    
+    
 
     return this;
 }

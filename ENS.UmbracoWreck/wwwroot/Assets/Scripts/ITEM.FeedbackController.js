@@ -27,7 +27,6 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
     function addFeedbackToArray(feedbackItem) {
         _feedbackArray.push(feedbackItem);
     }
-
     function showTaskFeedback(taskId, displayType, args) {
         log("showTaskFeedback (feedbackController.js)", { taskId: taskId, displayType: displayType, args: args, settings: settings, feedbackArray: _feedbackArray });
         
@@ -100,8 +99,10 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
         var feedbackComp = $(selectorDictionary.feedbackComponentSelector);
 
         feedbackComp = document.createElement(selectorDictionary.feedbackComponentSelector);
+        
         $(wrapper).append(feedbackComp);
 
+        $(feedbackComp).attr('id', feedbackItem.FeedbackId);
         $(feedbackComp).addClass([feedbackItem.Mood, feedbackItem.Size]);
         $(wrapper).addClass([feedbackItem.Mood, feedbackItem.Size]);
 
@@ -154,8 +155,9 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
 
 
         } else {
+            
             var timeout = feedbackItem.DismissTimeout || 8000;
-            setTimeout(() => dismissHandler(), timeout);
+            setTimeout(() => dismissHandler(feedbackItem), timeout);
         }
 
         if (feedbackItem.DoItForMe != undefined) {
@@ -166,8 +168,10 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
             doItForMeBtn.classList.add('doItForMe');
             doItForMeBtn.classList.add('button');
             doItForMeBtn.innerText = 'Gør det for mig';
+            console.log("lol setup do it for me", feedbackItem.DoItForMe)
             $(doItForMeBtn).on('click', () => {
-                dismissHandler();
+                console.log("lol click the doitforme! lol!", feedbackItem)
+                dismissHandler(feedbackItem);
                 feedbackItem.DoItForMe();
                 $(doItForMeBtn).remove();
                 return false;
@@ -229,10 +233,19 @@ ITEM.FeedbackController = function (wrapper, settings, selectorDictionary) {
             const prettyMapKey = prettyMap[key] || key;
             return prettyMapKey;
         }
-        function dismissHandler() {
+        function dismissHandler(feedbackItem) {
+            console.log("lol dismisshandler", feedbackItem)
+
             $(this).parents('feedback-component').remove();
-            //$(wrapper).removeClass([feedbackItem.Mood, feedbackItem.Size]);
             $('.highlight-area').removeClass('highlight-area');
+
+            //if (typeof feedbackItem != 'undefined' && feedbackItem.hasOwnProperty('originalEvent')) { // if event triggered, its a manual dismiss, we can access "this"
+            //    $(this).parents('feedback-component').remove();
+            //    $('.highlight-area').removeClass('highlight-area');
+            //} else if (feedbackItem) { // auto dismiss - we cannot use "this" to remove feedback. Needs to use id.
+            //    $(`#${feedbackItem.FeedbackId}`).remove();
+            //}
+            
             if (feedbackItem.DismissCallback) {
                 feedbackItem.DismissCallback();
             }
@@ -290,7 +303,11 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
     this.Mood;
     this.Size;
     this.DoItForMe;
+    this.FeedbackId;
 
+    function setId(id) {
+        this.FeedbackId = id;
+    }
     function setStyleType(mood, size) {
         this.Mood = mood;
         this.Size = size;
@@ -316,13 +333,14 @@ ITEM.FeedbackController.FeedbackItem = function (text) {
         this.DoItForMe = doItForMe;
         this.DismissCallback = callback;
     }
-
+    this.SetId = setId;
     this.SetStyleType = setStyleType;
     this.SetType = setType;
     this.SetDisplay = setDisplay;
     this.SetInteractionHighlightAsArray = setInteractionHighlightAsArray;
     this.SetInteractionHighlight = setInteractionHighlight;
     this.SetDismiss = setDismiss;
+    
 
     return this;
 };

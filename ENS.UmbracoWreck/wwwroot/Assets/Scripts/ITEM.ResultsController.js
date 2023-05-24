@@ -19,10 +19,6 @@ ITEM.ResultsController = function (settings, state) {
 
     };
 
-    function generateTaskResults() {
-
-    }
-
     function getExerciseAttemptInstanceLogArray(EventLogArray) {
         let exerciseAttemptArrayInstanceLogArray = new Array();
         let eventLogArrayCopy = [...EventLogArray];
@@ -76,7 +72,7 @@ ITEM.ResultsController = function (settings, state) {
             let exerciseTimeSpentMs = exerciseEndTime - exerciseStartTime;
             let exerciseTimeSpentSeconds = exerciseTimeSpentMs / 1000;
             let exerciseMeanPrecision = (allTaskCompleteTypeLogs.length / attemptCountSum) * 100
-            //let lowPercentageUserPrecisionTaskList = taskResultObjectArray.filter(task => task.userPrecision <= 50); // .... todo
+            
 
             let exerciseResultObject = {
                 index : index,
@@ -85,7 +81,6 @@ ITEM.ResultsController = function (settings, state) {
                 exerciseEndTime: exerciseEndTime,
                 exerciseTimeSpentMs: exerciseTimeSpentMs,
                 exerciseTimeSpendSeconds: exerciseTimeSpentSeconds,
-                //lowPercentPrecisionTaskList : 2,
                 exerciseMeanPrecision: null,
                 exerciseAutocompleteCount: totalAutocompleteCount,
                 exerciseAutoCompleteEvents: allTaskAutocompleteTrueLogs,
@@ -162,36 +157,12 @@ ITEM.ResultsController = function (settings, state) {
     }
 
     
-
-    function generateExerciseResults(state, taskResultObjectArray) {
-
-
-    }
-    
-
-    
-    function prepareExerciseIntroOverlay() {
-
-    }
-
-
-    function generateOverlayObject() {
-        let oObj = {};
-
-        return oObj;
-    }
-
-    function roundNumber(value, precision) {
-        var multiplier = Math.pow(10, precision || 0);
-        return Math.round(value * multiplier) / multiplier;
-    }
-
-
     init();
+
     this.GetExerciseResultObjectArray = getExerciseResultObjectArray
     this.PrepareTaskResultArray = prepareTaskResultArray;
-    this.PrepareExerciseIntroOverlay = prepareExerciseIntroOverlay;
-    this.GenerateExerciseResults = generateExerciseResults;
+    
+    
 
     return this;
 }

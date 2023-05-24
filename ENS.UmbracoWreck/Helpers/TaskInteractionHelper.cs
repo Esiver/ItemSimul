@@ -86,8 +86,6 @@ namespace ENS.UmbracoWreck.Helpers
         public static ExerciseTaskHoverInteractionModel GetHoverInteractionModel(IPublishedElement interactionElement, IPublishedElement taskParent)
         {
             var interactionId = interactionElement.Key.ToString();
-            //var interactionId = taskParent.Key.ToString();
-
             List<String> taskInteractionSettingsList = new List<String>();
             
             var interactionFeedbackList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionFeedbackList");
@@ -114,7 +112,6 @@ namespace ENS.UmbracoWreck.Helpers
         public static ExerciseTaskKeyInteractionModel GetKeyInteractionModel(IPublishedElement interactionElement, IPublishedElement taskParent)
         {
             var interactionId = interactionElement.Key.ToString();
-            //var interactionId = taskParent.Key.ToString();
             var interactionAssessmentList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionAssessmentList");
             var interactionFeedbackList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionFeedbackList");
             RectangleF interactionDimensionsRectangle = new RectangleF();
@@ -137,9 +134,6 @@ namespace ENS.UmbracoWreck.Helpers
                 }
             }
 
-            //var interactionDimensionsObject = new Object();
-            //interactionDimensionsObject = new { };
-
 
             var taskInteractionObj = new ExerciseTaskKeyInteractionModel(interactionId, interactionDimensionsRectangle, interactionAssessmentModelList, interactionFeedbacks);
             return taskInteractionObj;
@@ -148,11 +142,12 @@ namespace ENS.UmbracoWreck.Helpers
         public static ExerciseTaskStringInteractionModel GetStringInteractionModel(IPublishedElement interactionElement, IPublishedElement taskParent)
         {
             var interactionId = interactionElement.Key.ToString();
-            //var interactionId = taskParent.Key.ToString();
+
             var interactionAssessmentList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionAssessmentList");
             var interactionFeedbackList = interactionElement.Value<IEnumerable<IPublishedElement>>("interactionFeedbackList");
             string interactionDimensionRectJsonString = interactionElement.Value<string>("interactionDimensionJSONString") ?? "{}";
-            RectangleF interactionDimensionsRectangle = TaskInteractionDimensionJsonHelper.getTaskInteractionRectangleFromJsonString(interactionDimensionRectJsonString);
+            //RectangleF interactionDimensionsRectangle = TaskInteractionDimensionJsonHelper.getTaskInteractionRectangleFromJsonString(interactionDimensionRectJsonString);
+            RectangleF interactionDimensionsRectangle = new RectangleF(2, 2, 2, 2);
 
             List<ExerciseTaskInteractionAssessmentModel> interactionAssessmentModelList = new List<ExerciseTaskInteractionAssessmentModel>();
             List<ExerciseTaskInteractionFeedbackModel> interactionFeedbacks = new List<ExerciseTaskInteractionFeedbackModel>();

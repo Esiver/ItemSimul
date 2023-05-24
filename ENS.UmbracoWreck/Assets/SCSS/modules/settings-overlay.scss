@@ -1,21 +1,23 @@
-﻿
+﻿// styling for the settings-overlay, showing when clicking the settings-cog in the header.
 
-
-        .settings {
+.settings {
     &__list {
-        list-style: none; padding: 2rem 0;
+        list-style: none;
+        padding: 2rem 0;
     }
+
     &__list-item {
         margin-bottom: 2.5rem;
     }
+
     &__slider {
-
     }
+
     &__title {
-        text-align: center; margin-bottom: .5em;
+        text-align: center;
+        margin-bottom: .5em;
     }
+
     &__label {
-
     }
-
 }

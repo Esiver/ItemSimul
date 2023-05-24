@@ -1,5 +1,35 @@
-﻿
-        .settings-check__list {display: flex; flex-direction: column; list-style-type: none; gap: 1em; flex-wrap: wrap; justify-content: flex-start;}
-        .settings-check__item {padding: 1.5em 1.5em 0.75em 1.5em; background-color: var(--card-color); color: var(--card-text-color); display: flex; flex-direction: column; height: fit-content;   animation-duration: 1s; animation-name: animate-card-entry;}
-        .settings-check__item .button {margin-left: auto; margin-top: 1.75em; overflow: hidden; white-space: nowrap;}
-        .settings-check__item p:last-child {margin-bottom: 1em;}
+﻿// before an exercise can start, user is welcomed with an intro-overlays.
+
+// intro-overlays are generated in Item.Exercise.js, because the intro contains data such as description and exercise-title
+// - these data are available through JSON.
+
+.settings-check__list {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    gap: 1em;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.settings-check__item {
+    padding: 1.5em 1.5em 0.75em 1.5em;
+    background-color: var(--card-color);
+    color: var(--card-text-color);
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    animation-duration: 1s;
+    animation-name: animate-card-entry;
+}
+
+.settings-check__item .button {
+    margin-left: auto;
+    margin-top: 1.75em;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.settings-check__item p:last-child {
+    margin-bottom: 1em;
+}

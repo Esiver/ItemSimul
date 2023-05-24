@@ -33,6 +33,16 @@ feedback-component {
         background-color: var(--color-positive);
         color: var(--color-white);
     }
+    &.large{
+            padding: 30px;
+
+        p span{
+            font-size: 20px;
+            font-weight: 700;
+
+        }
+        
+    }
 
     .btn-wrapper {
         display: flex;
@@ -48,6 +58,61 @@ feedback-component {
     }
 }
 
+.highlight-area {
+    
+    /*border-width: 2px;*/
+    /*border-color: red;*/
+      border-image-source: linear-gradient(to left, #743ad5, #d53a9d);
+        border: 10px solid;
+  border-image-slice: 1;
+  border-width: 5px;
+    /*border-style: dotted;*/
+    animation: border-switch 0.8s infinite;
+
+    @keyframes border-switch {
+        0% {
+            border-style: dotted;
+        }
+
+        50% {
+            border-style: dashed;
+        }
+    }
+}
+
+.show-click-effect {
+    position: relative;
+    &::before {
+        content: url('/assets/images/icon-cursor-pointer.svg');
+        width: 18px;
+        position: absolute;
+        left: calc(50% - 9px);
+        top: 50%;
+        animation: cursorPointer 1s ease-out;
+        opacity: 0;
+        z-index: 999;
+    }
+    &::after {
+        content: '';
+        position: absolute;
+        box-sizing: border-box;
+        border-width: 0px;
+        border-style: solid;
+        border-color: #888;
+        border-radius: 50%;
+        top: 50%;
+        left: 50%;
+        animation: clickEffect .4s ease-out .8s;
+        z-index: 998;
+    }
+}
+.show-keydown-effect {
+    position: absolute;
+    inset: 0;
+    width: fit-content;
+    height: fit-content;
+    margin: auto;
+}
 
 /*feedback-component {
     position: absolute;

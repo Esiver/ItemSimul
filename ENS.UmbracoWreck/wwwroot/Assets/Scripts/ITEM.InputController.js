@@ -13,6 +13,10 @@
 // 3: continue initiating new tasks.
 //      --> _inputController.InitTask(currentTaskObject)
 
+
+
+
+
 // NOTICE ON "DISCRETE FEEDBACK"
 // We can check for feedback to an action in two ways:
 // 1) check for all feedback linked to an task and show it on action
@@ -444,7 +448,7 @@ ITEM.InputController = function (settings) {
         // helper fn to check if an array of strings has a match in an array of array of strings.
         // helpful when we want to see if the userinput (stringArray) matches the interactionAssessment attemptTrigger array (arrays) which is turned into an array of arrays.
         // see function checkMatchKeyPress() and function checkMatchString() for examples
-
+        
         // Loop through each array in the arrays parameter
         for (let array of arrays) {
             let stringMatchcount = 0;
@@ -516,9 +520,9 @@ ITEM.InputController = function (settings) {
                         let correctKeyArray = [];
                         eventKeyArray = getEventKeyCombination(event);
                         assessmentCorrectInputList.forEach(correctInput => correctKeyArray.push(correctInput.split('+')));
-
                         // check if event intersects with the list of correct keys
                         let inputCheck = checkStringCombinationArray(eventKeyArray, correctKeyArray);
+                        
 
                         // Order of keypresses doesnt matter, so we only need to check length.
                         if (inputCheck) {

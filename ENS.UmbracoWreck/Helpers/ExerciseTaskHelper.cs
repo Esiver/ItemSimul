@@ -59,10 +59,6 @@ namespace ENS.UmbracoWreck.Helpers
             return exerciseJSONString;
         }
 
-
-
-
-
         public static string GetExerciseJSON(IPublishedContent exerciseNode)
         {
             // for when we need the JSON for a single exercise, containing multiple tasks.

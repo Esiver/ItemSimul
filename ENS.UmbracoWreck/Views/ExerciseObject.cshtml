@@ -8,15 +8,14 @@
 
 	var ExerciseObject = Model;
 	var Parent = ExerciseObject.Parent;
-	var ExerciseTaskNodeList = ExerciseObject.ChildrenOfType("taskObject");
-	var ExerciseJSON = ExerciseTaskHelper.GetExerciseJSON(ExerciseObject);
+	var ExerciseTaskNodeList = ExerciseObject.ChildrenOfType("taskObject"); // not necesarry. Left for debug purposes 
+	var ExerciseJSON = ExerciseTaskHelper.GetExerciseJSON(ExerciseObject); // make JSON for Exercise. Fed to ITEM.Exercise at the end of this document.
 }
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script type="text/javascript" src="~/Assets/Scripts/ITEM.Exercise.bundle.js?v=0.03"></script>
 
 @*<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">*@
-
 
 
 
@@ -71,8 +70,11 @@
 </p>
 
 
+
+@* Below Task Nodes are listed. Listing them is in no way crucial for the program to run, *@
+@* - I left them here for onboarding/development/clarification/debug purposes. *@
 <h2>
-    Task Noder
+    Task Nodes
 </h2>
 @if (ExerciseTaskNodeList != null && ExerciseTaskNodeList.Any())
 {
@@ -94,15 +96,10 @@
         }
     </ul>
 }
-<h2>JSON</h2>
+@* ------------------------------------------------------------------------------------------------------------ *@
 
-<textarea style="font-size: 9px; width:500px; height:200px;" id="json">
-    @Html.Raw(ExerciseJSON)
-
-</textarea>
 
 <script defer>
     const json = @Html.Raw(ExerciseJSON);
-    
-    startExercise(json);
+    startExercise(json); // We start here
 </script>

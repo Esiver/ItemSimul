@@ -544,7 +544,7 @@ ITEM.Exercise = function (jsonData, settings) {
                         showInstructions();
                     }
 
-                    addTimerId("proceedTimer", timerId);
+                    //addTimerId("proceedTimer", timerId);
                     startTaskTimer();
 
                 }, startDelay);
@@ -942,8 +942,8 @@ ITEM.Exercise = function (jsonData, settings) {
 
 
     // ___ SUBTITLES _____________________________________________________________________
+
     function handleCloseSubtitlesClick() {
-        //clearTaskSubtitles();
         hideTaskSubtitles();
         return false;
     }
@@ -973,7 +973,6 @@ ITEM.Exercise = function (jsonData, settings) {
     function toggleSubtitles() {
         state.isSubtitled = !state.isSubtitled;
         updateHeaderIcons();
-        //return false;
     }
     function showTaskSubtitles() {
         $(subtitlesSelector).removeClass(hiddenClass);
@@ -1197,9 +1196,9 @@ ITEM.Exercise = function (jsonData, settings) {
     }
 
     // ___ TIME _____________________________________________________________________
-    function addTimerId(name, timerId) {
+    //function addTimerId(name, timerId) {
 
-    }
+    //}
     function startTaskTimer() {
         clearInterval(_taskTimerId);
         _taskTimerId = setInterval(() => {
@@ -1316,8 +1315,12 @@ ITEM.Exercise = function (jsonData, settings) {
                     let feedbackDismissType = feedback[taskFeedbackDismissObjectSelector][taskFeedbackDismissTypeObjectSelector];
                     let feedbackDismissTimeout = feedback[taskFeedbackDismissObjectSelector][taskFeedbackDismissTimeoutObjectSelector];
                     let feedbackDismissCallback = feedback[taskFeedbackDismissObjectSelector].callback;
+                    let feedbackId = "tf" + taskId + Date.now();
 
                     var feedbackItem = new ITEM.FeedbackController.FeedbackItem(feedbackText);
+
+                    feedbackItem.SetId(feedbackId)
+
                     if (feedbackType) {
                         feedbackItem.SetStyleType(feedbackMood, feedbackSize);
                     } else {
@@ -1341,10 +1344,22 @@ ITEM.Exercise = function (jsonData, settings) {
                         feedbackItem.SetInteractionHighlight(highlightId);
                     }
                     if (feedbackDismiss) {
+                        console.log("lol interactionFeedbackDismiss DoItForMe", feedbackItem.DoItForMe)
+
                         if (feedbackDismissDoItForMe == true) {
                             feedbackItem.SetDismiss(feedbackDismissType, feedbackDismissTimeout, feedbackDismissBtnText, autoCompleteTask, feedbackDismissCallback);
                         } else {
                             feedbackItem.SetDismiss(feedbackDismissType, feedbackDismissTimeout, feedbackDismissBtnText, undefined, feedbackDismissCallback);
+                        }
+                        if (feedbackDismissType == 'auto') {
+                            // todo check for feedack do it for me or not (if / else)
+                            if (feedbackDismissDoItForMe) {
+                                feedbackItem.SetDismiss("auto", feedbackDismissTimeout, undefined, autoCompleteTask, undefined);
+                            } else {
+                                feedbackItem.SetDismiss("auto", feedbackDismissTimeout, undefined, false, undefined);
+
+                            }
+                            
                         }
                     } else {
                         feedbackItem.SetDismiss("auto", "8000", undefined, false, undefined);
@@ -1378,8 +1393,11 @@ ITEM.Exercise = function (jsonData, settings) {
                             let interactionFeedbackDismissTimeout = feedback[taskInteractionFeedbackDismissObjectSelector][taskInteractionFeedbackDismissTimeoutObjectSelector];
                             let interactionFeedbackDismissBtnText = feedback[taskInteractionFeedbackDismissObjectSelector][taskInteractionFeedbackDismissBtnText];
                             let interactionFeedbackDismissCallback = feedback.dismiss.callback;
+                            let feedbackId = "ti" + taskId + Date.now();
 
                             var feedbackItem = new ITEM.FeedbackController.FeedbackItem(interactionFeedbackText);
+
+                            feedbackItem.SetId(feedbackId)
 
                             if (interactionFeedbackId) {
                                 feedbackItem.id = interactionFeedbackId;
